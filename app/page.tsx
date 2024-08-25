@@ -24,6 +24,7 @@ const Home = () => {
   }
 
   if (!user) {
+    //@ts-ignore
     return <Auth onAuth={(user) => console.log("Logged in as:", user.email)} />;
   }
 

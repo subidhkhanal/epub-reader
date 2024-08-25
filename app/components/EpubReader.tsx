@@ -22,9 +22,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({ file }) => {
 
   useEffect(() => {
     if (file && viewerRef.current && user) {
+        //@ts-ignore
       const loadedBook = ePub(file);
 
       loadUserData(user.uid, bookId).then((userData) => {
+                //@ts-ignore
         const loadedRendition = loadedBook.renderTo(viewerRef.current, {
           width: "100%",
           height: "100%",

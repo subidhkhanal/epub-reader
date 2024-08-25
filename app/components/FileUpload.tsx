@@ -18,9 +18,15 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect }) => {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
       <input type="file" accept=".epub" onChange={handleFileChange} />
-      {selectedFile && <p>Selected File: {selectedFile.name}</p>}
     </div>
   );
 };

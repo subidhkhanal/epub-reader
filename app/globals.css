@@ -8,6 +8,7 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
+  overflow: hidden; /* Prevent the entire page from scrolling */
 }
 
 h1 {
@@ -15,8 +16,85 @@ h1 {
   margin: 20px 0;
 }
 
-div {
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  margin: 0;
+}
+
+li button {
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+}
+
+li button:hover,
+li button:focus {
+  background-color: #e0e0e0;
+}
+
+li button.active {
+  background-color: #d0d0d0;
+  font-weight: bold;
+}
+
+#toc-container {
+  width: 250px;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid #ccc;
+  padding-top: 20px;
+}
+
+#viewer-container {
+  flex: 1;
+  height: 100vh;
+  position: relative;
+  overflow: hidden; /* Ensure that only the content area scrolls */
+}
+
+#viewer {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.navigation-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+#prev-chapter {
+  left: 10px;
+}
+
+#next-chapter {
+  right: 10px;
+}
+
+.navigation-button:hover {
+  background: rgba(0, 0, 0, 0.7);
 }

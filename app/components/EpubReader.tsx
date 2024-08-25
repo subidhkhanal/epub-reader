@@ -1,7 +1,10 @@
 /** @format */
 
 import React, { useEffect, useRef, useState } from "react";
-import ePub, { Book, Rendition, NavItem } from "epubjs";
+import ePub, { Book, Rendition, NavItem, Location } from "epubjs";
+import { useAuthState } from "react-firebase-hooks/auth"; // Import the hook
+import { auth } from "@/firebaseConfig";
+import { saveUserData, loadUserData } from "../utils/firebaseFunctions";
 
 interface EpubReaderProps {
   file: File | null;
@@ -13,32 +16,47 @@ const EpubReader: React.FC<EpubReaderProps> = ({ file }) => {
   const [rendition, setRendition] = useState<Rendition | null>(null);
   const [toc, setToc] = useState<NavItem[]>([]);
   const [currentChapterIndex, setCurrentChapterIndex] = useState<number>(0);
+  const [user] = useAuthState(auth); // Use the useAuthState hook
+
+  const bookId = file?.name;
 
   useEffect(() => {
-    if (file && viewerRef.current) {
-      //@ts-ignore
+    if (file && viewerRef.current && user) {
       const loadedBook = ePub(file);
-      const loadedRendition = loadedBook.renderTo(viewerRef.current, {
-        width: "100%",
-        height: "100%",
-        flow: "scrolled",
+
+      loadUserData(user.uid, bookId).then((userData) => {
+        const loadedRendition = loadedBook.renderTo(viewerRef.current, {
+          width: "100%",
+          height: "100%",
+          flow: "scrolled",
+        });
+
+        if (userData?.location) {
+          loadedRendition.display(userData.location);
+        } else {
+          loadedRendition.display();
+        }
+
+        setBook(loadedBook);
+        setRendition(loadedRendition);
+
+        loadedBook.loaded.navigation.then((nav) => {
+          setToc(nav.toc);
+        });
+
+        loadedRendition.on("relocated", (location: Location) => {
+          const cfi = location.start.cfi;
+          saveUserData(user.uid, bookId, { location: cfi });
+        });
       });
 
-      loadedRendition.display();
-
-      // Set the book and rendition in state
-      setBook(loadedBook);
-      setRendition(loadedRendition);
-
-      // Get and set the Table of Contents (TOC)
-      loadedBook.loaded.navigation.then((nav) => {
-        setToc(nav.toc);
-      });
       return () => {
-        loadedRendition.destroy();
+        if (rendition) {
+          rendition.destroy();
+        }
       };
     }
-  }, [file]);
+  }, [file, user]);
 
   const goToNextChapter = () => {
     if (rendition && toc.length > 0) {

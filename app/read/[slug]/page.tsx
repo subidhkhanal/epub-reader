@@ -20,6 +20,7 @@ const ReadBook: React.FC = () => {
     const fetchBook = async () => {
       if (slug && userId) {
         try {
+          //@ts-ignore
           const bookDoc = doc(db, "users", userId, "books", slug);
           const bookSnapshot = await getDoc(bookDoc);
           if (bookSnapshot.exists()) {

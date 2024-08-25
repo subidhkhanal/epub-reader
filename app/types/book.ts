@@ -2,6 +2,7 @@
 
 // types/book.ts
 export interface Book {
+  //@ts-ignore
   id: string;
   title: string;
   author?: string; // Optional if not available during upload

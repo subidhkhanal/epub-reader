@@ -30,6 +30,7 @@ const FileUpload: React.FC = () => {
         const booksCollection = collection(db, "users", user.uid, "books");
         const booksSnapshot = await getDocs(booksCollection);
         const booksList = booksSnapshot.docs.map((doc) => ({
+          //@ts-ignore
           id: doc.id,
           ...(doc.data() as Book),
         }));

@@ -1,0 +1,46 @@
+/**
+ * styles/Bookshelf.module.css
+ *
+ * @format
+ */
+
+.bookshelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.book-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #333;
+  border-radius: 5px;
+  overflow: hidden;
+  text-align: center;
+  color: white;
+}
+
+.book-cover {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.book-info {
+  padding: 8px;
+}
+
+.book-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-author {
+  font-size: 14px;
+  color: #ccc;
+}

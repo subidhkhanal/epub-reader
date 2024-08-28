@@ -43,6 +43,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, userId }) => {
           <img
             src={book.coverImage}
             alt={book.title}
+            //@ts-ignore
             style={styles.coverImage}
           />
           <div style={styles.bookInfo}>

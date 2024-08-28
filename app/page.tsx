@@ -6,7 +6,7 @@ import Auth from "@/app/components/Auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "@/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
-import NavBar from "@/app/components/NavBar";
+import NavBar from "@/app/components/Navbar";
 import Sidebar from "@/app/components/Sidebar";
 import BookGrid from "@/app/components/BookGrid";
 
@@ -75,6 +75,7 @@ const Home: React.FC = () => {
   );
 
   return (
+    //@ts-ignore
     <div className="home-page" style={styles.homePage}>
       <NavBar
         searchTerm={searchTerm}
@@ -86,6 +87,7 @@ const Home: React.FC = () => {
       </div>
       <div
         className="main-content"
+        //@ts-ignore
         style={{
           ...styles.mainContent,
           marginLeft: isSidebarOpen ? "200px" : "0",

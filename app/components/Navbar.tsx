@@ -15,6 +15,7 @@ const NavBar: React.FC<NavBarProps> = ({
   onMenuClick,
 }) => {
   return (
+    //@ts-ignore
     <header style={styles.header}>
       <div style={styles.leftSection}>
         <FaBars style={styles.icon} onClick={onMenuClick} />

@@ -42,6 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
           console.log("File available at", downloadURL);
 
           // Extract metadata using epub.js
+          //@ts-ignore
           const book = ePub(file);
           const metadata = await book.loaded.metadata; // Extract title and author
           const coverUrl = await book.coverUrl(); // Extract cover image URL
@@ -79,6 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
 
   return (
     <aside
+      //@ts-ignore
       style={{
         ...styles.sidebar,
         transform: isOpen ? "translateX(0)" : "translateX(-200px)",

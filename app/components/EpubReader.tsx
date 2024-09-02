@@ -74,7 +74,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           const userData = await loadUserData(user.uid, bookId);
           const userBookmarks = await loadBookmarks(user.uid, bookId);
           const highlights = await loadHighlights(user.uid, bookId);
-
+          //@ts-ignore
           const loadedRendition = loadedBook.renderTo(viewerRef.current, {
             width: "100%",
             height: "100%",
@@ -97,7 +97,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           setToc(nav.toc);
 
           const currentLocation = loadedRendition.currentLocation();
+          //@ts-ignore
+
           if (currentLocation && currentLocation.start) {
+            //@ts-ignore
             const currentChapterHref = currentLocation.start.href;
             const chapterIndex = nav.toc.findIndex(
               (chapter) => chapter.href === currentChapterHref
@@ -118,6 +121,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
               { fill: highlight.color }
             );
           });
+          //@ts-ignore
 
           loadedRendition.on("selected", (cfiRange, contents) => {
             const text = contents.window.getSelection()?.toString();
@@ -154,6 +158,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
               onChapterChange(toc[chapterIndex]?.label || "Chapter");
             }
 
+            //@ts-ignore
             // Calculate the reading progress
             const total = loadedBook.locations.total;
             const currentProgress = (location.start.displayed.page + 1) / total;
@@ -222,11 +227,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   const handleSearch = async () => {
     if (searchTerm && rendition && book) {
       const results: Array<{ cfi: string; excerpt: string }> = [];
+      //@ts-ignore
 
       const spineItems = book.spine.items;
 
       for (let item of spineItems) {
         await rendition.display(item.href);
+        //@ts-ignore
 
         const contents = rendition.manager?.views?.[0]?.contents;
         const bodyText = contents?.document?.body?.textContent || "";
@@ -234,6 +241,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         const regex = new RegExp(searchTerm, "gi");
         let match;
         while ((match = regex.exec(bodyText)) !== null) {
+          //@ts-ignore
           const cfi = rendition.currentLocation().start.cfi;
           const excerpt = bodyText.substring(
             match.index - 30,

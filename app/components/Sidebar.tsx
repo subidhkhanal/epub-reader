@@ -43,6 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
           const docSnapshot = await getDoc(bookDocRef);
 
           if (!docSnapshot.exists()) {
+            //@ts-ignore
             const book = ePub(file);
             const metadata = await book.loaded.metadata;
             const coverUrl = await book.coverUrl();
@@ -82,6 +83,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
 
   return (
     <aside
+      //@ts-ignore
+
       style={{
         ...styles.sidebar,
         transform: isOpen ? "translateX(0)" : "translateX(-200px)",

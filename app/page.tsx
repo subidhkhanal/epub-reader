@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "@/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
-import NavBar from "@/app/components/NavBar";
+import NavBar from "@/app/components/Navbar";
 import Sidebar from "@/app/components/Sidebar";
 import BookGrid from "@/app/components/BookGrid";
 

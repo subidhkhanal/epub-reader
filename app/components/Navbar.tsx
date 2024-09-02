@@ -1,7 +1,7 @@
 /** @format */
 
-import React from "react";
-import { FaBars, FaSearch } from "react-icons/fa";
+import React, { useState, useRef, useEffect } from "react";
+import { FaBars, FaSearch, FaGoogle } from "react-icons/fa";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, provider } from "@/firebaseConfig";
 import { signInWithPopup, signOut } from "firebase/auth";
@@ -18,6 +18,8 @@ const NavBar: React.FC<NavBarProps> = ({
   onMenuClick,
 }) => {
   const [user] = useAuthState(auth);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -30,132 +32,91 @@ const NavBar: React.FC<NavBarProps> = ({
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      setDropdownVisible(false); // Hide dropdown after signing out
     } catch (error) {
       console.error("Sign Out error:", error);
     }
   };
 
+  const toggleDropdown = () => {
+    setDropdownVisible(!dropdownVisible);
+  };
+
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownVisible(false);
+      }
+    };
+
+    if (dropdownVisible) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownVisible]);
+
   return (
-    //@ts-ignore
-    <header style={styles.header}>
-      <div style={styles.leftSection}>
-        <FaBars style={styles.icon} onClick={onMenuClick} />
-        <span style={styles.title}>My Books</span>
+    <header className="fixed top-0 left-0 w-full z-1000 flex justify-between items-center p-4 bg-gradient-to-br from-[#1d2b64] to-[#f8cdda] text-white shadow-md">
+      <div className="flex items-center">
+        <FaBars className="text-lg cursor-pointer" onClick={onMenuClick} />
+        <span className="ml-2 font-bold text-xl">My Books</span>
       </div>
-      <div style={styles.centerSection}>
-        <div style={styles.searchBar}>
-          <FaSearch style={styles.searchIcon} />
+      <div className="flex-1 flex justify-center items-center">
+        <div className="flex items-center bg-white rounded-full px-4 py-2 w-full max-w-xl">
+          <FaSearch className="text-gray-500 mr-2" />
           <input
             type="text"
             placeholder="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={styles.searchInput}
+            className="flex-grow bg-transparent border-none outline-none text-gray-800 text-base"
           />
         </div>
       </div>
-      <div style={styles.rightSection}>
+      <div className="flex items-center relative">
         {user ? (
-          <div style={styles.userSection}>
+          <div className="flex items-center">
             <img
-              src={user.photoURL || ""}
+              src={user.photoURL || "/default-avatar.png"}
               alt="User Avatar"
-              style={styles.avatar}
-              onClick={handleSignOut}
+              className="w-10 h-10 rounded-full mr-2 cursor-pointer"
+              onClick={toggleDropdown}
             />
-            <span style={styles.userName}>{user.displayName}</span>
+            {dropdownVisible && (
+              <div
+                ref={dropdownRef}
+                className="absolute top-12 right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden z-50"
+              >
+                <button
+                  onClick={handleSignOut}
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
           </div>
         ) : (
-          <button style={styles.signInButton} onClick={handleGoogleSignIn}>
+          <button
+            className="flex items-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-all duration-300"
+            onClick={handleGoogleSignIn}
+          >
+            <FaGoogle className="mr-2 text-lg" />
             Sign in with Google
           </button>
         )}
       </div>
     </header>
   );
-};
-
-const styles = {
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px 20px",
-    backgroundColor: "#673ab7", // Purple color
-    color: "#fff",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-    position: "fixed", // Keep the navbar fixed at the top
-    top: 0,
-    left: 0,
-    width: "100%",
-    zIndex: 1000,
-  },
-  leftSection: {
-    display: "flex",
-    alignItems: "center",
-  },
-  title: {
-    marginLeft: "10px",
-    fontWeight: "bold",
-    fontSize: "20px",
-  },
-  centerSection: {
-    flex: 1,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  searchBar: {
-    display: "flex",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderRadius: "20px",
-    padding: "5px 15px",
-    width: "100%",
-    maxWidth: "500px",
-  },
-  searchIcon: {
-    color: "#777",
-    marginRight: "10px",
-  },
-  searchInput: {
-    border: "none",
-    outline: "none",
-    backgroundColor: "transparent",
-    width: "100%",
-    fontSize: "16px",
-    color: "#333",
-  },
-  rightSection: {
-    display: "flex",
-    alignItems: "center",
-  },
-  signInButton: {
-    backgroundColor: "#4285F4",
-    color: "#fff",
-    padding: "10px 15px",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-  userSection: {
-    display: "flex",
-    alignItems: "center",
-  },
-  avatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    marginRight: "10px",
-    cursor: "pointer",
-  },
-  userName: {
-    color: "#fff",
-  },
-  icon: {
-    fontSize: "20px",
-    cursor: "pointer",
-  },
 };
 
 export default NavBar;

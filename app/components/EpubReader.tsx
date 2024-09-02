@@ -301,7 +301,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   return (
     <div style={{ display: "flex", height: "95vh", position: "relative" }}>
-      <button
+      {/* <button
         onClick={toggleSidebar}
         style={{
           position: "absolute",
@@ -315,7 +315,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }}
       >
         TOC
-      </button>
+      </button> */}
       <div
         id="toc-container"
         ref={tocContainerRef}

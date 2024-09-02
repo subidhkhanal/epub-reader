@@ -23,21 +23,22 @@ const ReadBook: React.FC = () => {
 
   useEffect(() => {
     const fetchBook = async () => {
-      if (slug && userId) {
-        try {
-          //@ts-ignore
-          const bookDoc = doc(db, "users", userId, "books", slug);
-          const bookSnapshot = await getDoc(bookDoc);
-          if (bookSnapshot.exists()) {
-            const bookData = bookSnapshot.data();
-            setFileUrl(bookData?.fileUrl || null);
-            setTitle(bookData?.title || "Untitled");
-          } else {
-            console.error("No such document!");
-          }
-        } catch (error) {
-          console.error("Error fetching book data:", error);
+      const encodedSlug = encodeURIComponent(slug); // Encode the slug
+      console.log("Fetching book with encoded slug:", encodedSlug);
+
+      try {
+        const bookDoc = doc(db, "users", userId, "books", encodedSlug);
+        const bookSnapshot = await getDoc(bookDoc);
+
+        if (bookSnapshot.exists()) {
+          const bookData = bookSnapshot.data();
+          setFileUrl(bookData?.fileUrl || null);
+          setTitle(bookData?.title || "Untitled");
+        } else {
+          console.error("No such document!");
         }
+      } catch (error) {
+        console.error("Error fetching book data:", error);
       }
     };
 
@@ -55,7 +56,7 @@ const ReadBook: React.FC = () => {
         onChapterChange={setCurrentChapter}
         onProgressChange={setReadingProgress}
       />
-      <footer
+      {/* <footer
         style={{
           // backgroundColor: "#f4f4f4",
           padding: "10px",
@@ -71,7 +72,7 @@ const ReadBook: React.FC = () => {
         <div style={{ marginRight: "10px" }}>
           {Math.round(readingProgress)}%
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 };

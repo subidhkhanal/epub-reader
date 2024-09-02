@@ -63,6 +63,10 @@ const Home: React.FC = () => {
     (book.title || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleSidebarClose = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
     //@ts-ignore
     <div className="home-page" style={styles.homePage}>
@@ -72,7 +76,12 @@ const Home: React.FC = () => {
         onMenuClick={toggleSidebar}
       />
       <div ref={sidebarRef}>
-        <Sidebar isOpen={isSidebarOpen} onBookUpload={fetchBooks} />
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onBookUpload={() => console.log("Book uploaded!")}
+          /* Pass the onClose function */
+          onClose={handleSidebarClose}
+        />{" "}
       </div>
       <div
         className="main-content"
@@ -91,7 +100,7 @@ const Home: React.FC = () => {
           //@ts-ignore
 
           <div style={styles.welcomeMessage}>
-            <h2>Welcome to My Epub Reader</h2>
+            <h2>Welcome to Epub Reader</h2>
             <p>Please sign in with Google to view and manage your books.</p>
           </div>
         )}

@@ -1,4 +1,6 @@
-import React, { useRef } from "react";
+/** @format */
+
+import React, { useRef, useEffect } from "react";
 import { storage, db, auth } from "@/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
@@ -8,10 +10,16 @@ import ePub from "epubjs";
 interface SidebarProps {
   isOpen: boolean;
   onBookUpload: () => void;
+  onClose?: () => void; // Make onClose optional
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  onBookUpload,
+  onClose = () => {},
+}) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [user] = useAuthState(auth);
 
   const handleAddBookClick = () => {
@@ -81,42 +89,73 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
     }
   };
 
-  return (
-    <aside
-      //@ts-ignore
+  // Close sidebar if clicked outside of it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        onClose(); // Close the sidebar
+      }
+    };
 
-      style={{
-        ...styles.sidebar,
-        transform: isOpen ? "translateX(0)" : "translateX(-200px)",
-      }}
-    >
-      <button style={styles.addButton} onClick={handleAddBookClick}>
-        + Add Book
-      </button>
-      <input
-        type="file"
-        accept=".epub"
-        ref={fileInputRef}
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-      />
-    </aside>
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  return (
+    <>
+      <aside
+        ref={sidebarRef}
+        //@ts-ignore
+        style={{
+          ...styles.sidebar,
+          transform: isOpen ? "translateX(0)" : "translateX(-100%)",
+        }}
+      >
+        <button style={styles.addButton} onClick={handleAddBookClick}>
+          + Add Book
+        </button>
+        <input
+          type="file"
+          accept=".epub"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={handleFileChange}
+        />
+      </aside>
+      {isOpen && (
+        <div
+          //@ts-ignore
+          style={styles.backdrop}
+          onClick={onClose} // Close the sidebar when clicking on the backdrop
+        ></div>
+      )}
+    </>
   );
 };
 
 const styles = {
   sidebar: {
-    width: "200px",
+    width: "250px",
     padding: "20px",
     backgroundColor: "#333",
     color: "#fff",
-    borderRight: "1px solid #ccc",
     height: "100vh",
     position: "fixed",
     top: 0,
     left: 0,
     transition: "transform 0.3s ease-in-out",
-    zIndex: 1000,
+    zIndex: 1000, // Ensure it appears above other content
+    boxShadow: "2px 0 5px rgba(0,0,0,0.5)", // Add a subtle shadow
   },
   addButton: {
     backgroundColor: "#007bff",
@@ -127,6 +166,15 @@ const styles = {
     marginBottom: "20px",
     width: "100%",
     cursor: "pointer",
+  },
+  backdrop: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 999, // Below the sidebar but above the main content
   },
 };
 

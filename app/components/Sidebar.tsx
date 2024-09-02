@@ -1,11 +1,9 @@
-/** @format */
-
 import React, { useRef } from "react";
 import { storage, db, auth } from "@/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { collection, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import ePub from "epubjs"; // Import epub.js library
+import ePub from "epubjs";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -17,13 +15,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
   const [user] = useAuthState(auth);
 
   const handleAddBookClick = () => {
-    fileInputRef.current?.click(); // Trigger file input click
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && user) {
-      const bookId = file.name.replace(/\s+/g, "-").toLowerCase(); // Generate a unique ID based on the file name
+      const bookId = file.name.replace(/\s+/g, "-").toLowerCase();
       const storageRef = ref(storage, `books/${user.uid}/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -41,36 +39,40 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           console.log("File available at", downloadURL);
 
-          // Extract metadata using epub.js
-          //@ts-ignore
-          const book = ePub(file);
-          const metadata = await book.loaded.metadata; // Extract title and author
-          const coverUrl = await book.coverUrl(); // Extract cover image URL
-
-          let coverDownloadURL = "";
-          if (coverUrl) {
-            const response = await fetch(coverUrl);
-            const blob = await response.blob();
-            const coverStorageRef = ref(
-              storage,
-              `covers/${user.uid}/${file.name}.jpg`
-            );
-            const coverUploadTask = await uploadBytesResumable(
-              coverStorageRef,
-              blob
-            );
-            coverDownloadURL = await getDownloadURL(coverStorageRef);
-          }
-
-          // Save metadata to Firestore with setDoc to avoid duplicate entries
           const bookDocRef = doc(db, "users", user.uid, "books", bookId);
-          await setDoc(bookDocRef, {
-            title: metadata.title || file.name, // Save the title
-            author: metadata.creator || "Unknown Author", // Save the author
-            fileUrl: downloadURL,
-            coverImage: coverDownloadURL, // Store cover image URL
-            uploadedAt: serverTimestamp(),
-          });
+          const docSnapshot = await getDoc(bookDocRef);
+
+          if (!docSnapshot.exists()) {
+            const book = ePub(file);
+            const metadata = await book.loaded.metadata;
+            const coverUrl = await book.coverUrl();
+
+            let coverDownloadURL = "";
+            if (coverUrl) {
+              const response = await fetch(coverUrl);
+              const blob = await response.blob();
+              const coverStorageRef = ref(
+                storage,
+                `covers/${user.uid}/${file.name}.jpg`
+              );
+              await uploadBytesResumable(coverStorageRef, blob);
+              coverDownloadURL = await getDownloadURL(coverStorageRef);
+            }
+
+            await setDoc(bookDocRef, {
+              title: metadata.title || file.name,
+              author: metadata.creator || "Unknown Author",
+              fileUrl: downloadURL,
+              coverImage: coverDownloadURL,
+              uploadedAt: serverTimestamp(),
+            });
+
+            console.log(
+              `Book ${metadata.title || file.name} saved successfully.`
+            );
+          } else {
+            console.log("Book document already exists. Skipping creation.");
+          }
 
           onBookUpload(); // Notify parent component that a new book was uploaded
         }
@@ -80,7 +82,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
 
   return (
     <aside
-      //@ts-ignore
       style={{
         ...styles.sidebar,
         transform: isOpen ? "translateX(0)" : "translateX(-200px)",
@@ -96,35 +97,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onBookUpload }) => {
         style={{ display: "none" }}
         onChange={handleFileChange}
       />
-      <ul style={styles.menuList}>
-        <li style={styles.menuItem}>
-          <a href="#">All</a>
-        </li>
-        <li style={styles.menuItem}>
-          <a href="#">OldBook</a>
-        </li>
-        <li style={styles.menuItem}>
-          <a href="#">TextBook</a>
-        </li>
-        <li style={styles.menuItem}>
-          <a href="#">French</a>
-        </li>
-        <li style={styles.menuItem}>
-          <a href="#">Novel</a>
-        </li>
-        <li style={styles.menuItem}>
-          <a href="#">Fiction</a>
-        </li>
-        <li style={styles.menuItem}>
-          <a href="#">Science</a>
-        </li>
-        <li style={styles.menuItem}>
-          <a href="#">Art</a>
-        </li>
-        <li style={styles.menuItem}>
-          <a href="#">Manage Category</a>
-        </li>
-      </ul>
     </aside>
   );
 };
@@ -152,15 +124,6 @@ const styles = {
     marginBottom: "20px",
     width: "100%",
     cursor: "pointer",
-  },
-  menuList: {
-    listStyleType: "none",
-    padding: 0,
-    margin: 0,
-  },
-  menuItem: {
-    marginBottom: "20px",
-    fontSize: "16px",
   },
 };
 

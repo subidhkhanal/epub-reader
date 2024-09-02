@@ -1,7 +1,10 @@
 /** @format */
 
 import React from "react";
-import { FaBars, FaSearch, FaEllipsisV } from "react-icons/fa";
+import { FaBars, FaSearch } from "react-icons/fa";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, provider } from "@/firebaseConfig";
+import { signInWithPopup, signOut } from "firebase/auth";
 
 interface NavBarProps {
   searchTerm: string;
@@ -14,12 +17,29 @@ const NavBar: React.FC<NavBarProps> = ({
   setSearchTerm,
   onMenuClick,
 }) => {
+  const [user] = useAuthState(auth);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Google Sign-In error:", error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Sign Out error:", error);
+    }
+  };
+
   return (
-    //@ts-ignore
     <header style={styles.header}>
       <div style={styles.leftSection}>
         <FaBars style={styles.icon} onClick={onMenuClick} />
-        <span style={styles.title}>My books</span>
+        <span style={styles.title}>My Books</span>
       </div>
       <div style={styles.centerSection}>
         <div style={styles.searchBar}>
@@ -34,7 +54,21 @@ const NavBar: React.FC<NavBarProps> = ({
         </div>
       </div>
       <div style={styles.rightSection}>
-        <FaEllipsisV style={styles.icon} />
+        {user ? (
+          <div style={styles.userSection}>
+            <img
+              src={user.photoURL || ""}
+              alt="User Avatar"
+              style={styles.avatar}
+              onClick={handleSignOut}
+            />
+            <span style={styles.userName}>{user.displayName}</span>
+          </div>
+        ) : (
+          <button style={styles.signInButton} onClick={handleGoogleSignIn}>
+            Sign in with Google
+          </button>
+        )}
       </div>
     </header>
   );
@@ -94,6 +128,28 @@ const styles = {
   rightSection: {
     display: "flex",
     alignItems: "center",
+  },
+  signInButton: {
+    backgroundColor: "#4285F4",
+    color: "#fff",
+    padding: "10px 15px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+  userSection: {
+    display: "flex",
+    alignItems: "center",
+  },
+  avatar: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    marginRight: "10px",
+    cursor: "pointer",
+  },
+  userName: {
+    color: "#fff",
   },
   icon: {
     fontSize: "20px",

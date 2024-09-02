@@ -35,8 +35,13 @@ export const loadHighlights = async (userId, bookId) => {
 
 // Save the user's current reading position
 export const saveUserData = async (userId, bookId, data) => {
-  const userDocRef = doc(db, "users", userId, "books", bookId);
-  await setDoc(userDocRef, data, { merge: true });
+  try {
+    const userDocRef = doc(db, "users", userId, "books", bookId);
+    await setDoc(userDocRef, data, { merge: true }); // Use merge to update only the fields that have changed
+    console.log("User data saved successfully:");
+  } catch (error) {
+    console.error("Error saving user data:", error);
+  }
 };
 
 // Load the user's data (e.g., reading position)

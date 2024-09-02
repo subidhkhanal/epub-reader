@@ -18,11 +18,6 @@ const BookGrid: React.FC<BookGridProps> = ({ books, userId }) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Log the coverImage URLs for each book to debug
-    books.forEach((book) => {
-      console.log(book.coverImage);
-    });
-
     setIsMounted(true); // Ensure routing only happens on the client side
   }, [books]);
 

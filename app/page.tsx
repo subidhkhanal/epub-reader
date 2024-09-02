@@ -2,11 +2,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Auth from "@/app/components/Auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "@/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
-import NavBar from "@/app/components/Navbar";
+import NavBar from "@/app/components/NavBar";
 import Sidebar from "@/app/components/Sidebar";
 import BookGrid from "@/app/components/BookGrid";
 
@@ -15,7 +14,6 @@ const Home: React.FC = () => {
   const [books, setBooks] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,21 +59,11 @@ const Home: React.FC = () => {
     };
   }, [isSidebarOpen]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    //@ts-ignore
-    return <Auth onAuth={(user) => console.log("Logged in as:", user.email)} />;
-  }
-
   const filteredBooks = books.filter((book) =>
     (book.title || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    //@ts-ignore
     <div className="home-page" style={styles.homePage}>
       <NavBar
         searchTerm={searchTerm}
@@ -87,13 +75,21 @@ const Home: React.FC = () => {
       </div>
       <div
         className="main-content"
-        //@ts-ignore
         style={{
           ...styles.mainContent,
           marginLeft: isSidebarOpen ? "200px" : "0",
         }}
       >
-        <BookGrid books={filteredBooks} userId={user.uid} />
+        {loading ? (
+          <div>Loading...</div>
+        ) : user ? (
+          <BookGrid books={filteredBooks} userId={user.uid} />
+        ) : (
+          <div style={styles.welcomeMessage}>
+            <h2>Welcome to My Epub Reader</h2>
+            <p>Please sign in with Google to view and manage your books.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -102,16 +98,20 @@ const Home: React.FC = () => {
 const styles = {
   homePage: {
     display: "flex",
-    flexDirection: "column", // Change to column to ensure NavBar stays at the top
+    flexDirection: "column",
     height: "100vh",
   },
   mainContent: {
     flex: 1,
     backgroundColor: "#f4f4f4",
     padding: "20px",
-    marginTop: "60px", // Add margin to compensate for fixed NavBar
+    marginTop: "60px", // Adjust for fixed NavBar height
     overflowY: "auto",
-    transition: "margin-left 0.3s", // Smooth transition for sidebar opening
+    transition: "margin-left 0.3s", // Smooth transition for sidebar
+  },
+  welcomeMessage: {
+    textAlign: "center",
+    marginTop: "20px",
   },
 };
 

@@ -23,10 +23,12 @@ const ReadBook: React.FC = () => {
 
   useEffect(() => {
     const fetchBook = async () => {
+      //@ts-ignore
       const encodedSlug = encodeURIComponent(slug); // Encode the slug
       console.log("Fetching book with encoded slug:", encodedSlug);
 
       try {
+        //@ts-ignore
         const bookDoc = doc(db, "users", userId, "books", encodedSlug);
         const bookSnapshot = await getDoc(bookDoc);
 

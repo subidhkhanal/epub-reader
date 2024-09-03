@@ -90,6 +90,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
               { fill: highlight.color }
             );
           });
+          //@ts-ignore
 
           loadedRendition.on("selected", (cfiRange, contents) => {
             const text = contents.window.getSelection()?.toString();
@@ -177,7 +178,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             position={highlightMenuPosition}
             selectedCFIRange={selectedCFIRange}
             highlightedText={highlightedText}
+            //@ts-ignore
             userId={user.uid}
+            //@ts-ignore
             bookId={bookId}
             rendition={rendition}
             closeMenu={() => setHighlightMenuPosition(null)} // Close the menu after adding a highlight

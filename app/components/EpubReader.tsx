@@ -1,5 +1,3 @@
-/** @format */
-
 import React, { useEffect, useRef, useState } from "react";
 import ePub, { Book, Rendition, NavItem, Location } from "epubjs";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -261,25 +259,15 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   };
 
-  const goToNextChapter = async () => {
-    if (rendition && toc.length > 0) {
-      const nextIndex = currentChapterIndex + 1;
-      if (nextIndex < toc.length) {
-        await rendition.display(toc[nextIndex].href);
-        setCurrentChapterIndex(nextIndex);
-        onChapterChange(toc[nextIndex]?.label || "Chapter");
-      }
+  const goToNextPage = async () => {
+    if (rendition) {
+      await rendition.next(); // Navigate to the next page
     }
   };
 
-  const goToPreviousChapter = async () => {
-    if (rendition && toc.length > 0) {
-      const prevIndex = currentChapterIndex - 1;
-      if (prevIndex >= 0) {
-        await rendition.display(toc[prevIndex].href);
-        setCurrentChapterIndex(prevIndex);
-        onChapterChange(toc[prevIndex]?.label || "Chapter");
-      }
+  const goToPreviousPage = async () => {
+    if (rendition) {
+      await rendition.prev(); // Navigate to the previous page
     }
   };
 
@@ -300,174 +288,113 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   };
 
   return (
-    <div style={{ display: "flex", height: "95vh", position: "relative" }}>
-      {/* <button
-        onClick={toggleSidebar}
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "10px",
-          zIndex: 998,
-          padding: "10px",
-          backgroundColor: "white",
-          border: "1px solid #ccc",
-          borderRadius: "5px",
-        }}
-      >
-        TOC
-      </button> */}
+    <div className="flex h-[95vh] relative">
       <div
         id="toc-container"
         ref={tocContainerRef}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: isSidebarOpen ? 0 : "-300px",
-          width: "300px",
-          height: "100%",
-          backgroundColor: "#f4f4f4",
-          boxShadow: "2px 0px 5px rgba(0, 0, 0, 0.3)",
-          transition: "left 0.3s ease",
-          zIndex: 999,
-          overflowY: "auto",
-        }}
+        className={`absolute top-0 bg-gray-200 shadow-lg transition-all duration-300 z-[999] overflow-y-auto ${
+          isSidebarOpen ? "left-0" : "-left-[300px]"
+        }`}
+        style={{ width: "300px", height: "100%" }}
       >
-        <ul>
+        <ul className="list-none p-0 m-0">
           {toc.map((item, index) => (
-            <li key={item.id}>
+            <li key={item.id} className="m-0">
               <button
                 onClick={() => goToLocation(item.href, index)}
-                className={currentChapterIndex === index ? "active" : ""}
+                className={`w-full text-left p-[10px] ${
+                  currentChapterIndex === index ? "font-bold bg-gray-300" : ""
+                } hover:bg-gray-300 focus:bg-gray-300`}
               >
                 {item.label}
               </button>
             </li>
           ))}
           {bookmarks.map((bookmark, index) => (
-            <li key={`bookmark-${index}`}>
-              <button onClick={() => goToBookmark(bookmark)}>
+            <li key={`bookmark-${index}`} className="m-0">
+              <button
+                onClick={() => goToBookmark(bookmark)}
+                className="w-full text-left p-[10px] hover:bg-gray-300 focus:bg-gray-300"
+              >
                 Bookmark {index + 1}
               </button>
             </li>
           ))}
         </ul>
       </div>
-      <div id="viewer-container" style={{ flex: 1 }}>
-        <div id="viewer" ref={viewerRef} />
-        <div className="navigation-button-container">
-          <button
-            id="prev-chapter"
-            className="navigation-button"
-            onClick={goToPreviousChapter}
-          >
-            {"<"}
-          </button>
-          <button
-            id="next-chapter"
-            className="navigation-button"
-            onClick={goToNextChapter}
-          >
-            {">"}
+      <div className="flex-1 relative flex h-full overflow-hidden">
+        <div
+          className="w-[50px] flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity duration-300"
+          onClick={goToPreviousPage}
+        >
+          <button className="absolute left-2.5 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            &#10094; {/* Stylized arrow for a modern look */}
           </button>
         </div>
+
+        <div id="viewer" ref={viewerRef} className="flex-1 h-full p-[20px]" />
+        <div
+          className="w-[50px] flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity duration-300"
+          onClick={goToNextPage}
+        >
+          <button className="absolute right-2.5 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            &#10095; {/* Stylized arrow for a modern look */}
+          </button>
+        </div>
+
         {highlightMenuPosition && (
           <div
+            className="absolute p-[5px] border border-solid border-gray-300 rounded-[5px] flex gap-[5px] z-[1000]"
             style={{
-              position: "absolute",
-              top: highlightMenuPosition.top,
-              left: highlightMenuPosition.left,
-              background: "white",
-              padding: "5px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              display: "flex",
-              gap: "5px",
-              zIndex: 1000,
+              backgroundColor: "white",
             }}
           >
             <button
               onClick={() => addHighlight("yellow")}
+              className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
               style={{
                 backgroundColor: "yellow",
-                width: "30px",
-                height: "30px",
-                borderRadius: "50%",
-                border: "1px solid #ccc",
-                cursor: "pointer",
               }}
             />
             <button
               onClick={() => addHighlight("pink")}
+              className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
               style={{
                 backgroundColor: "pink",
-                width: "30px",
-                height: "30px",
-                borderRadius: "50%",
-                border: "1px solid #ccc",
-                cursor: "pointer",
               }}
             />
             <button
               onClick={() => addHighlight("lightgreen")}
+              className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
               style={{
                 backgroundColor: "lightgreen",
-                width: "30px",
-                height: "30px",
-                borderRadius: "50%",
-                border: "1px solid #ccc",
-                cursor: "pointer",
               }}
             />
             <button
               onClick={() => addHighlight("lightblue")}
+              className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
               style={{
                 backgroundColor: "lightblue",
-                width: "30px",
-                height: "30px",
-                borderRadius: "50%",
-                border: "1px solid #ccc",
-                cursor: "pointer",
               }}
             />
             <button
               onClick={() => addHighlight("purple")}
+              className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
               style={{
                 backgroundColor: "purple",
-                width: "30px",
-                height: "30px",
-                borderRadius: "50%",
-                border: "1px solid #ccc",
-                cursor: "pointer",
               }}
             />
           </div>
         )}
+
         {searchResults.length > 0 && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: "10px",
-              left: "10px",
-              backgroundColor: "#fff",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              maxHeight: "200px",
-              overflowY: "scroll",
-            }}
-          >
-            <ul>
+          <div className="absolute bottom-[10px] left-[10px] bg-white p-[10px] border border-solid border-gray-300 rounded-[5px] max-h-[200px] overflow-y-scroll">
+            <ul className="list-none p-0 m-0">
               {searchResults.map((result, index) => (
-                <li key={index}>
+                <li key={index} className="m-0">
                   <button
                     onClick={() => goToSearchResult(result.cfi)}
-                    style={{
-                      textAlign: "left",
-                      border: "none",
-                      backgroundColor: "transparent",
-                      padding: "5px",
-                      cursor: "pointer",
-                    }}
+                    className="text-left bg-transparent p-[5px] w-full border-none cursor-pointer hover:bg-gray-300"
                   >
                     {result.excerpt}...
                   </button>

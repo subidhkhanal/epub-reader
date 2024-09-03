@@ -89,7 +89,6 @@ const Home: React.FC = () => {
 
         style={{
           ...styles.mainContent,
-          marginLeft: isSidebarOpen ? "200px" : "0",
         }}
       >
         {loading ? (

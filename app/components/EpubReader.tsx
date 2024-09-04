@@ -139,6 +139,29 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   }, [fileUrl, user]);
 
+  useEffect(() => {
+    // Function to handle key press events
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // event.stopPropagation(); // Prevent event propagation
+
+      // console.log(`Key pressed: ${event.key}`);
+      if (event.key === "ArrowRight") {
+        goToNextPage();
+      }
+      if (event.key === "ArrowLeft") {
+        goToPreviousPage();
+      }
+    };
+
+    // Attach the event listener
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup function to remove the event listener
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  });
+
   const goToNextPage = async () => {
     if (rendition) {
       await rendition.next(); // Navigate to the next page

@@ -1,12 +1,10 @@
-/** @format */
-
 import React, { useState, useRef, useEffect } from "react";
 import { storage, db, auth } from "@/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import ePub from "epubjs";
-import { FaPlus, FaTimes } from "react-icons/fa";
+import { FaPlus, FaTimes, FaSpinner } from "react-icons/fa";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,6 +21,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [user] = useAuthState(auth);
   const [isHover, setIsHover] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const handleAddBookClick = () => {
     fileInputRef.current?.click();
@@ -32,34 +33,36 @@ const Sidebar: React.FC<SidebarProps> = ({
     const file = e.target.files?.[0];
     if (file && user) {
       const bookId = file.name
-        .replace(/[\s]+/g, "-") // Replace spaces with hyphens
-        .replace(/,/g, "") // Remove commas
-        .replace(/&/g, "and") // Replace ampersands with 'and'
-        .replace(/[^\w-]+/g, "") // Remove all non-word characters except hyphens
-        .toLowerCase(); // Convert to lowercase for consistency
+        .replace(/[\s]+/g, "-")
+        .replace(/,/g, "")
+        .replace(/&/g, "and")
+        .replace(/[^\w-]+/g, "")
+        .toLowerCase();
 
       const storageRef = ref(storage, `books/${user.uid}/${bookId}.epub`);
       const uploadTask = uploadBytesResumable(storageRef, file);
+
+      setUploading(true);
+      setUploadProgress(0);
 
       uploadTask.on(
         "state_changed",
         (snapshot) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
+          setUploadProgress(progress);
         },
         (error) => {
           console.error("Upload failed:", error);
+          setUploading(false);
         },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log("File available at", downloadURL);
 
           const bookDocRef = doc(db, "users", user.uid, "books", bookId);
           const docSnapshot = await getDoc(bookDocRef);
 
           if (!docSnapshot.exists()) {
-            // Same logic as before
             //@ts-ignore
             const book = ePub(file);
             const metadata = await book.loaded.metadata;
@@ -84,15 +87,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               coverImage: coverDownloadURL,
               uploadedAt: serverTimestamp(),
             });
-
-            console.log(
-              `Book ${metadata.title || file.name} saved successfully.`
-            );
-          } else {
-            console.log("Book document already exists. Skipping creation.");
           }
 
-          onBookUpload(); // Notify parent component that a new book was uploaded
+          setUploading(false);
+          setUploadSuccess(true);
+          setTimeout(() => setUploadSuccess(false), 3000); // Auto-hide success after 3s
+          onBookUpload();
+          window.location.reload();
         }
       );
     }
@@ -104,7 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         sidebarRef.current &&
         !sidebarRef.current.contains(event.target as Node)
       ) {
-        onClose(); // Close the sidebar
+        onClose();
       }
     };
 
@@ -123,111 +124,54 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       <aside
         ref={sidebarRef}
-        //@ts-ignore
-
-        style={{
-          ...styles.sidebar,
-          transform: isOpen ? "translateX(0)" : "translateX(-100%)",
-        }}
+        className={`fixed top-0 left-0 h-screen w-[210px] p-5 bg-gray-100 text-gray-800 transition-transform transform ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } z-50 shadow-lg flex flex-col gap-5`}
       >
-        <div style={styles.header}>
-          <span style={styles.title}>My Library</span>
+        <div className="flex justify-between items-center mb-5">
+          <span className="text-2xl font-bold text-gray-900">My Library</span>
         </div>
         <button
-          style={
-            isHover
-              ? { ...styles.addButton, ...styles.addButtonHover }
-              : styles.addButton
-          }
+          className={`${
+            isHover || uploading ? "bg-gray-700 hover:scale-105" : "bg-gray-600"
+          } text-white py-3 px-5 rounded-full flex items-center justify-center font-bold text-base transition-all duration-200 ease-in-out`}
           onClick={handleAddBookClick}
           onMouseEnter={() => setIsHover(true)}
           onMouseLeave={() => setIsHover(false)}
+          disabled={uploading}
         >
-          <FaPlus style={styles.addIcon} /> Add Book
+          {uploading ? (
+            <>
+              <FaSpinner className="animate-spin mr-2" />{" "}
+              {uploadProgress && `${Math.round(uploadProgress)}% Uploading...`}
+            </>
+          ) : (
+            <>
+              <FaPlus className="mr-2" /> Add Book
+            </>
+          )}
         </button>
+        {uploadSuccess && (
+          <div className="mt-5 p-3 bg-green-500 text-white text-center rounded-lg">
+            Book uploaded successfully!
+          </div>
+        )}
         <input
           type="file"
           accept=".epub"
           ref={fileInputRef}
-          style={{ display: "none" }}
+          className="hidden"
           onChange={handleFileChange}
         />
       </aside>
       {isOpen && (
         <div
-          //@ts-ignore
-
-          style={styles.backdrop}
-          onClick={onClose} // Close the sidebar when clicking on the backdrop
+          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-30 z-40"
+          onClick={onClose}
         ></div>
       )}
     </>
   );
-};
-
-const styles = {
-  sidebar: {
-    width: "210px",
-    padding: "20px",
-    backgroundColor: "#f8f9fa", // Light gray background for a clean look
-    color: "#343a40", // Dark gray text for contrast
-    height: "100vh",
-    position: "fixed",
-    top: 0,
-    left: 0,
-    transition: "transform 0.3s ease-in-out",
-    zIndex: 1000, // Ensure it appears above other content
-    boxShadow: "2px 0 5px rgba(0,0,0,0.1)", // Subtle shadow for depth
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-  },
-  title: {
-    fontSize: "1.5rem",
-    fontWeight: "bold",
-    color: "#212529", // Even darker gray for titles
-  },
-  closeIcon: {
-    cursor: "pointer",
-    fontSize: "1.2rem",
-    color: "#adb5bd", // Subtle gray for the close icon
-  },
-  addButton: {
-    backgroundColor: "#374151", // A modern, fresh green color
-    color: "#fff",
-    padding: "12px 20px",
-    border: "none",
-    borderRadius: "30px", // Rounded corners for a modern look
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    fontWeight: "bold",
-    fontSize: "1rem",
-    transition: "background-color 0.3s ease, transform 0.2s ease", // Smooth hover effect
-  },
-  addButtonHover: {
-    backgroundColor: "#2d3643", // Slightly darker color for hover
-    transform: "scale(1.05)", // Slightly enlarge on hover
-  },
-  addIcon: {
-    marginRight: "8px",
-  },
-  backdrop: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.3)", // Slightly lighter backdrop for a softer overlay
-    zIndex: 999, // Below the sidebar but above the main content
-  },
 };
 
 export default Sidebar;

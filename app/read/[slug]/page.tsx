@@ -19,13 +19,12 @@ const ReadBook: React.FC = () => {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("Untitled");
   const [currentChapter, setCurrentChapter] = useState<string>("");
-  const [readingProgress, setReadingProgress] = useState<number>(0);
 
   useEffect(() => {
     const fetchBook = async () => {
       //@ts-ignore
       const encodedSlug = encodeURIComponent(slug); // Encode the slug
-      console.log("Fetching book with encoded slug:", encodedSlug);
+      // console.log("Fetching book with encoded slug:", encodedSlug);
 
       try {
         //@ts-ignore
@@ -53,28 +52,7 @@ const ReadBook: React.FC = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      <EpubReader
-        fileUrl={fileUrl}
-        onChapterChange={setCurrentChapter}
-        onProgressChange={setReadingProgress}
-      />
-      {/* <footer
-        style={{
-          // backgroundColor: "#f4f4f4",
-          padding: "10px",
-          textAlign: "center",
-          // borderTop: "1px solid #ddd",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          fontSize: "14px",
-        }}
-      >
-        <div style={{ marginLeft: "10px" }}>{currentChapter}</div>
-        <div style={{ marginRight: "10px" }}>
-          {Math.round(readingProgress)}%
-        </div>
-      </footer> */}
+      <EpubReader fileUrl={fileUrl} onChapterChange={setCurrentChapter} />
     </div>
   );
 };

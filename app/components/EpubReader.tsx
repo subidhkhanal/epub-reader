@@ -11,28 +11,23 @@ import {
 } from "../utils/firebaseFunctions";
 import { useParams } from "next/navigation";
 import HighlightMenu from "./HighlightMenu"; // Import the HighlightMenu component
+import Navbar from "@/app/components/epub/Navbar"; // Import the Navbar component
 
 interface EpubReaderProps {
   fileUrl: string; // The URL to the EPUB file
   onChapterChange: (chapter: string) => void; // Callback for chapter change
-  onProgressChange: (progress: number) => void; // Callback for progress change
 }
 
 const EpubReader: React.FC<EpubReaderProps> = ({
   fileUrl,
   onChapterChange,
-  onProgressChange,
 }) => {
   const viewerRef = useRef<HTMLDivElement>(null);
   const [book, setBook] = useState<Book | null>(null);
   const [rendition, setRendition] = useState<Rendition | null>(null);
   const [user] = useAuthState(auth);
-  const [highlightedText, setHighlightedText] = useState<string | null>(null);
-  const [selectedCFIRange, setSelectedCFIRange] = useState<string | null>(null);
-  const [highlightMenuPosition, setHighlightMenuPosition] = useState<{
-    top: number;
-    left: number;
-  } | null>(null);
+  const [chapters, setChapters] = useState<TocElement[]>([]); // Chapters from the Table of Contents
+  const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // For toggling navbar visibility
 
   const { slug } = useParams();
   const bookId = slug;
@@ -70,8 +65,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           }
 
           setBook(loadedBook);
-          // Ensure the rendition is logged correctly
-          // console.log("Rendition object:", loadedRendition);
+
+          // Load Table of Contents (TOC)
+          const toc = await loadedBook.loaded.navigation;
+          setChapters(toc.toc);
 
           const currentLocation = loadedRendition.currentLocation();
           //@ts-ignore
@@ -82,6 +79,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             onChapterChange(currentChapterHref || "Chapter");
           }
 
+          // Handle user highlights
           highlights?.forEach((highlight: any) => {
             loadedRendition.annotations.add(
               "highlight",
@@ -94,37 +92,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           });
           //@ts-ignore
 
-          loadedRendition.on("selected", (cfiRange, contents) => {
-            const text = contents.window.getSelection()?.toString();
-            if (cfiRange && text && text.trim()) {
-              setHighlightedText(text);
-              setSelectedCFIRange(cfiRange);
-
-              const range = contents.window.getSelection()?.getRangeAt(0);
-              if (range) {
-                const rect = range.getBoundingClientRect();
-                setHighlightMenuPosition({
-                  top: rect.top + window.scrollY - 50,
-                  left: rect.left + window.scrollX,
-                });
-              }
-            } else {
-              setHighlightedText(null);
-              setSelectedCFIRange(null);
-              setHighlightMenuPosition(null);
-            }
-          });
-
           loadedRendition.on("relocated", (location: Location) => {
             const cfi = location.start.cfi;
             saveUserData(user.uid, bookId, { location: cfi });
-            setSelectedCFIRange(cfi);
-
-            //@ts-ignore
-            // Calculate the reading progress
-            const total = loadedBook.locations.total;
-            const currentProgress = (location.start.displayed.page + 1) / total;
-            onProgressChange(currentProgress * 100);
           });
         } catch (error) {
           console.error("Error loading book or user data:", error);
@@ -141,17 +111,28 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   }, [fileUrl, user]);
 
+  const handleChapterSelect = (chapterHref: string) => {
+    // Move to the selected chapter
+    if (rendition) {
+      rendition.display(chapterHref);
+      onChapterChange(chapterHref);
+    }
+    setIsNavbarVisible(false); // Hide navbar after selection
+  };
+
+  // Handle keypresses for navigation inside the iframe using ePub.js events
   useEffect(() => {
     if (rendition) {
-      // Handle keypresses for navigation inside the iframe using ePub.js events
       rendition.on("keyup", (event: KeyboardEvent) => {
         if (event.key === "ArrowRight") {
-          // renditionInstance.next(); // Go to the next page
           goToNextPage();
         } else if (event.key === "ArrowLeft") {
-          // renditionInstance.prev(); // Go to the previous page
           goToPreviousPage();
         }
+      });
+      // Handle mouse clicks
+      rendition.on("click", () => {
+        setIsNavbarVisible((prevIsNavbarVisible) => !prevIsNavbarVisible); // Use functional state update
       });
     }
   }, [rendition]);
@@ -193,6 +174,18 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   return (
     <div className="flex h-[95vh] relative">
+      {/* Navbar for Table of Contents */}
+      {/* <Navbar
+        chapters={chapters.map((tocItem) => tocItem.label)} // Pass chapter labels
+        onSelectChapter={(chapter) =>
+          handleChapterSelect(
+            chapters.find((c) => c.label === chapter)?.href || ""
+          )
+        }
+        isVisible={isNavbarVisible}
+      /> */}
+      {/* EPUB Viewer */}
+
       <div className="flex-1 relative flex h-full overflow-hidden">
         <div
           className="w-[50px] flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity duration-300"
@@ -203,7 +196,12 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           </button>
         </div>
 
-        <div id="viewer" ref={viewerRef} className="flex-1 h-full p-[20px]" />
+        <div
+          id="viewer"
+          ref={viewerRef}
+          className="flex-1 h-full p-[20px]"
+          onClick={() => setIsNavbarVisible(!isNavbarVisible)} // Show navbar on click
+        />
         <div
           className="w-[50px] flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity duration-300"
           onClick={goToNextPage}
@@ -213,17 +211,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           </button>
         </div>
 
-        {highlightMenuPosition && (
+        {rendition && user && (
           <HighlightMenu
-            position={highlightMenuPosition}
-            selectedCFIRange={selectedCFIRange}
-            highlightedText={highlightedText}
-            //@ts-ignore
+            rendition={rendition}
             userId={user.uid}
             //@ts-ignore
             bookId={bookId}
-            rendition={rendition}
-            closeMenu={() => setHighlightMenuPosition(null)} // Close the menu after adding a highlight
+            onHighlightMenuOpen={() => setIsNavbarVisible(false)} // Hide navbar when HighlightMenu is triggered
           />
         )}
       </div>

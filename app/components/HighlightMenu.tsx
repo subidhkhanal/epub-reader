@@ -1,45 +1,37 @@
-/** @format */
-
 import React, { useEffect, useState, useRef } from "react";
 import { saveHighlight } from "../utils/firebaseFunctions";
 import { Rendition } from "epubjs";
 
 interface HighlightMenuProps {
-  position: { top: number; left: number };
-  selectedCFIRange: string | null;
-  highlightedText: string | null;
+  rendition: Rendition;
   userId: string;
   bookId: string;
-  rendition: Rendition | null;
-  closeMenu: () => void;
 }
 
 const HighlightMenu: React.FC<HighlightMenuProps> = ({
-  position,
-  selectedCFIRange,
-  highlightedText,
+  rendition,
   userId,
   bookId,
-  rendition,
-  closeMenu,
 }) => {
-  const [adjustedPosition, setAdjustedPosition] = useState({
-    top: position.top,
-    left: position.left,
-  });
+  const [highlightedText, setHighlightedText] = useState<string | null>(null);
+  const [selectedCFIRange, setSelectedCFIRange] = useState<string | null>(null);
+  const [highlightMenuPosition, setHighlightMenuPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const menuHeight = 40; // Approx height of your menu
-  const menuWidth = 220; // Adjust width based on the number of buttons and spacing
-  const padding = 8; // Space between text and menu
+  const menuHeight = 40;
+  const menuWidth = 220;
+  const padding = 8;
 
   const addHighlight = async (color: string) => {
     if (highlightedText && selectedCFIRange) {
       const highlight = {
         cfiRange: selectedCFIRange,
         text: highlightedText,
-        note: "", // Add a note if needed
+        note: "",
         color: color,
       };
 
@@ -53,7 +45,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
           "highlight",
           { fill: color }
         );
-        closeMenu(); // Close the menu after adding the highlight
+        setHighlightMenuPosition(null); // Close the menu after adding the highlight
       } catch (error) {
         console.error("Error saving highlight:", error);
       }
@@ -61,95 +53,108 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
   };
 
   useEffect(() => {
+    const handleTextSelection = (cfiRange: string, contents: any) => {
+      const text = contents.window.getSelection()?.toString();
+      if (cfiRange && text && text.trim()) {
+        setHighlightedText(text);
+        setSelectedCFIRange(cfiRange);
+
+        const range = contents.window.getSelection()?.getRangeAt(0);
+        if (range) {
+          const rect = range.getBoundingClientRect();
+          let newTop = rect.top + window.scrollY - 50;
+          let newLeft = rect.left + window.scrollX;
+
+          // Adjust position to ensure it stays within the viewport
+          const menuHeight = 40; // Approximate menu height
+          const menuWidth = 220; // Adjust based on your menu width
+          const padding = 8;
+
+          // Ensure menu doesn't overflow the right edge of the screen
+          if (newLeft + menuWidth > window.innerWidth) {
+            newLeft = window.innerWidth - menuWidth - padding;
+          }
+
+          // Ensure menu doesn't overflow the left edge of the screen
+          if (newLeft < padding) {
+            newLeft = padding;
+          }
+
+          // Ensure menu doesn't overflow the top of the screen
+          if (newTop < window.scrollY + padding) {
+            newTop = rect.bottom + window.scrollY + padding; // Place it below the text if there's not enough space above
+          }
+
+          setHighlightMenuPosition({ top: newTop, left: newLeft });
+        }
+      } else {
+        setHighlightedText(null);
+        setSelectedCFIRange(null);
+        setHighlightMenuPosition(null);
+      }
+    };
+
+    rendition.on("selected", handleTextSelection);
+
+    return () => {
+      rendition.off("selected", handleTextSelection);
+    };
+  }, [rendition]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        closeMenu();
+        setHighlightMenuPosition(null);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Adding a listener to clicks within the EPUB rendition
-    rendition?.on("click", closeMenu);
+    rendition?.on("click", () => setHighlightMenuPosition(null));
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-
-      // Removing the EPUB rendition click listener
-      rendition?.off("click", closeMenu);
+      rendition?.off("click", () => setHighlightMenuPosition(null));
     };
-  }, [closeMenu, rendition]);
-
-  useEffect(() => {
-    let newTop = position.top - menuHeight - padding; // Position above the selected text by default
-    let newLeft = position.left - menuWidth / 2; // Center the menu horizontally relative to the selection
-
-    // Ensure the menu does not overflow the right side of the viewport
-    if (newLeft + menuWidth > window.innerWidth) {
-      newLeft = window.innerWidth - menuWidth - padding;
-    }
-
-    // Ensure the menu does not overflow the left side of the viewport
-    if (newLeft < padding) {
-      newLeft = padding;
-    }
-
-    // Ensure the menu does not overflow the top of the viewport
-    if (newTop < window.scrollY + padding) {
-      newTop = position.top + padding; // If it overflows, place it below the selection
-    }
-
-    setAdjustedPosition({ top: newTop, left: newLeft });
-  }, [position]);
+  }, [rendition]);
 
   return (
-    <div
-      ref={menuRef}
-      className="absolute p-[5px] border border-solid border-gray-300 rounded-[5px] flex gap-[10px] z-[1000]"
-      style={{
-        backgroundColor: "white",
-        top: `${adjustedPosition.top}px`,
-        left: `${adjustedPosition.left}px`,
-        boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.1)", // Box shadow for the menu
-      }}
-    >
-      <button
-        onClick={() => addHighlight("#FFEB3B")}
-        className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
+    highlightMenuPosition && (
+      <div
+        ref={menuRef}
+        className="absolute p-[5px] border border-solid border-gray-300 rounded-[5px] flex gap-[10px] z-[1000]"
         style={{
-          backgroundColor: "#FFEB3B", // Yellow
-          boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.3)", // Shadow effect for button
+          backgroundColor: "white",
+          top: `${highlightMenuPosition.top}px`,
+          left: `${highlightMenuPosition.left}px`,
+          boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.1)",
         }}
-        title="Yellow Highlight"
-      />
-      <button
-        onClick={() => addHighlight("#FF5252")}
-        className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
-        style={{
-          backgroundColor: "#FF5252", // Red
-          boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.3)", // Shadow effect for button
-        }}
-        title="Red Highlight"
-      />
-      <button
-        onClick={() => addHighlight("#4CAF50")}
-        className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
-        style={{
-          backgroundColor: "#4CAF50", // Green
-          boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.3)", // Shadow effect for button
-        }}
-        title="Green Highlight"
-      />
-      <button
-        onClick={() => addHighlight("#448AFF")}
-        className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
-        style={{
-          backgroundColor: "#448AFF", // Blue
-          boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.3)", // Shadow effect for button
-        }}
-        title="Blue Highlight"
-      />
-    </div>
+      >
+        <button
+          onClick={() => addHighlight("#FFEB3B")}
+          className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
+          style={{ backgroundColor: "#FFEB3B" }}
+          title="Yellow Highlight"
+        />
+        <button
+          onClick={() => addHighlight("#FF5252")}
+          className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
+          style={{ backgroundColor: "#FF5252" }}
+          title="Red Highlight"
+        />
+        <button
+          onClick={() => addHighlight("#4CAF50")}
+          className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
+          style={{ backgroundColor: "#4CAF50" }}
+          title="Green Highlight"
+        />
+        <button
+          onClick={() => addHighlight("#448AFF")}
+          className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
+          style={{ backgroundColor: "#448AFF" }}
+          title="Blue Highlight"
+        />
+      </div>
+    )
   );
 };
 

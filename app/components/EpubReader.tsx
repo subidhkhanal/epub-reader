@@ -70,6 +70,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           }
 
           setBook(loadedBook);
+          // Ensure the rendition is logged correctly
+          // console.log("Rendition object:", loadedRendition);
 
           const currentLocation = loadedRendition.currentLocation();
           //@ts-ignore
@@ -138,6 +140,21 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       };
     }
   }, [fileUrl, user]);
+
+  useEffect(() => {
+    if (rendition) {
+      // Handle keypresses for navigation inside the iframe using ePub.js events
+      rendition.on("keyup", (event: KeyboardEvent) => {
+        if (event.key === "ArrowRight") {
+          // renditionInstance.next(); // Go to the next page
+          goToNextPage();
+        } else if (event.key === "ArrowLeft") {
+          // renditionInstance.prev(); // Go to the previous page
+          goToPreviousPage();
+        }
+      });
+    }
+  }, [rendition]);
 
   useEffect(() => {
     // Function to handle key press events

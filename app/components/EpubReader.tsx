@@ -26,9 +26,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   const [book, setBook] = useState<Book | null>(null);
   const [rendition, setRendition] = useState<Rendition | null>(null);
   const [user] = useAuthState(auth);
+  //@ts-ignore
   const [chapters, setChapters] = useState<TocElement[]>([]); // Chapters from the Table of Contents
   const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // For toggling navbar visibility
-
   const { slug } = useParams();
   const bookId = slug;
 

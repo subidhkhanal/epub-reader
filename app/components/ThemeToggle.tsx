@@ -1,6 +1,7 @@
 /** @format */
 
 import React from "react";
+//@ts-ignore
 import { useTheme } from "@/app/context/ThemeContext";
 
 const ThemeToggle: React.FC = () => {

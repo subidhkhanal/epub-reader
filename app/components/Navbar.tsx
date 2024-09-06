@@ -71,7 +71,7 @@ const NavBar: React.FC<NavBarProps> = ({
     <header
       className={`fixed top-0 left-0 w-full z-1000 flex justify-between items-center p-4 transition-all duration-300 ${
         isDarkTheme
-          ? "bg-[#1E293B] text-[#F3F4F6] shadow-lg" // Dark theme styles with slate gray background
+          ? "bg-[#18212f] text-[#F3F4F6] shadow-lg" // Dark theme styles with slate gray background
           : "bg-gradient-to-br from-[#1d2b64] to-[#f8cdda] text-white shadow-md" // Light theme styles
       }`}
     >
@@ -106,7 +106,7 @@ const NavBar: React.FC<NavBarProps> = ({
         <button
           className={`p-2 rounded-full bg-transparent border-2 transition-transform duration-300 transform focus:outline-none ${
             isDarkTheme
-              ? "border-[#1E293B] text-yellow-400" // Dark theme: Match the border to the dark navbar color
+              ? "border-[#18212f] text-yellow-400" // Dark theme: Match the border to the dark navbar color
               : "border-transparent text-white" // Light theme: Transparent border to blend with gradient
           }`}
           onClick={onThemeToggle}
@@ -131,7 +131,7 @@ const NavBar: React.FC<NavBarProps> = ({
               <div
                 ref={dropdownRef}
                 className={`absolute top-12 right-0 mt-2 w-48 ${
-                  isDarkTheme ? "bg-[#1E293B] text-gray-200" : "bg-white"
+                  isDarkTheme ? "bg-[#18212f] text-gray-200" : "bg-white"
                 } rounded-lg shadow-lg overflow-hidden z-50`}
               >
                 <button

@@ -92,7 +92,7 @@ const Home: React.FC = () => {
         className={`flex-1 p-5 mt-16 overflow-y-auto transition-all duration-300 
            ${
              isDarkTheme
-               ? "bg-gray-900 text-white"
+               ? "bg-[#0e131f] text-white"
                : "bg-gray-200 text-gray-900"
            }`}
       >

@@ -132,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           transition-colors duration-500 ease-in-out
           ${
             isDarkTheme
-              ? "bg-[#1E293B] text-[#F3F4F6]"
+              ? "bg-[#18212f] text-[#F3F4F6]"
               : "bg-gray-100 text-gray-800"
           }
         `}
@@ -151,9 +151,9 @@ const Sidebar: React.FC<SidebarProps> = ({
             isHover || uploading
               ? "bg-gray-700 hover:scale-105"
               : isDarkTheme
-              ? "bg-gray-600 hover:bg-gray-500"
-              : "bg-gray-600 hover:bg-gray-500"
-          } text-white py-3 px-5 rounded-full flex items-center justify-center font-bold text-base transition-all duration-200 ease-in-out`}
+              ? "bg-[#3c444f] hover:bg-gray-500 text-[#e8e6e3]"
+              : "bg-gray-600 hover:bg-gray-500 text-white"
+          }  py-3 px-5 rounded-full flex items-center justify-center font-bold text-base transition-all duration-200 ease-in-out`}
           onClick={handleAddBookClick}
           onMouseEnter={() => setIsHover(true)}
           onMouseLeave={() => setIsHover(false)}

@@ -6,10 +6,11 @@
 "use client";
 
 import { useParams, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import EpubReader from "@/app/components/EpubReader";
+import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 
 const ReadBook: React.FC = () => {
   const { slug } = useParams(); // Access the dynamic segment
@@ -19,6 +20,8 @@ const ReadBook: React.FC = () => {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("Untitled");
   const [currentChapter, setCurrentChapter] = useState<string>("");
+  //@ts-ignore
+  const { isDarkTheme } = useContext(ThemeContext); // Access the theme from the context
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -51,7 +54,11 @@ const ReadBook: React.FC = () => {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div
+      className={`flex flex-col h-screen transition-colors duration-300 ${
+        isDarkTheme ? "bg-[#1c1c28] text-white" : "bg-[#f4f4f9] text-gray-900"
+      }`}
+    >
       <EpubReader fileUrl={fileUrl} onChapterChange={setCurrentChapter} />
     </div>
   );

@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import ePub, { Book, Rendition, Location } from "epubjs";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/firebaseConfig";
@@ -12,6 +12,7 @@ import {
 import { useParams } from "next/navigation";
 import HighlightMenu from "./HighlightMenu"; // Import the HighlightMenu component
 import Navbar from "@/app/components/epub/Navbar"; // Import the Navbar component
+import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 
 interface EpubReaderProps {
   fileUrl: string; // The URL to the EPUB file
@@ -31,6 +32,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // For toggling navbar visibility
   const { slug } = useParams();
   const bookId = slug;
+  //@ts-ignore
+  const { isDarkTheme } = useContext(ThemeContext); // Access the theme from the context
 
   useEffect(() => {
     if (fileUrl && viewerRef.current && user) {
@@ -52,9 +55,12 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           // Set the font family, font size, and line spacing here
           loadedRendition.themes.default({
             body: {
-              "font-family": "georgia", // Replace with your desired font family
-              "font-size": "18px !important", // Adjust font size here
-              "line-height": "1.75 !important", // Adjust line spacing here (1.5x to 1.6x the font size)
+              "font-family": "Georgia, serif", // Continue with Georgia for a comfortable reading experience
+              "font-size": "18px !important", // Keep font size
+              "line-height": "1.75 !important", // Keep line-height for readability
+              "background-color": isDarkTheme ? "#1c1c28" : "#f4f4f9", // Softer dark mode background
+              color: isDarkTheme ? "#d1d5db" : "#333333", // Softer text color for dark mode
+              padding: "20px", // Add padding for comfortable spacing
             },
           });
 
@@ -109,7 +115,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }
       };
     }
-  }, [fileUrl, user]);
+  }, [fileUrl, user, isDarkTheme]);
 
   const handleChapterSelect = (chapterHref: string) => {
     // Move to the selected chapter
@@ -173,7 +179,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   };
 
   return (
-    <div className="flex h-[95vh] relative">
+    <div
+      className={`flex h-[95vh] relative transition-colors duration-300 ${
+        isDarkTheme ? "bg-[#1c1c28] text-white" : "bg-[#f4f4f9] text-black"
+      }`}
+    >
       {/* Navbar for Table of Contents */}
       {/* <Navbar
         chapters={chapters.map((tocItem) => tocItem.label)} // Pass chapter labels
@@ -191,7 +201,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           className="w-[50px] flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity duration-300"
           onClick={goToPreviousPage}
         >
-          <button className="absolute left-2.5 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300">
+          <button
+            className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 ${
+              isDarkTheme
+                ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
+                : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]"
+            } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+          >
             &#10094; {/* Stylized arrow for a modern look */}
           </button>
         </div>
@@ -206,7 +222,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           className="w-[50px] flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity duration-300"
           onClick={goToNextPage}
         >
-          <button className="absolute right-2.5 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300">
+          <button
+            className={`absolute right-2.5 top-1/2 transform -translate-y-1/2 ${
+              isDarkTheme
+                ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
+                : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]" // Softer light mode styles
+            } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+          >
             &#10095; {/* Stylized arrow for a modern look */}
           </button>
         </div>

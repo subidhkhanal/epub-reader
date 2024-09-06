@@ -1,20 +1,22 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "@/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import NavBar from "@/app/components/Navbar";
 import Sidebar from "@/app/components/Sidebar";
 import BookGrid from "@/app/components/BookGrid";
+import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 
 const Home: React.FC = () => {
   const [user, loading] = useAuthState(auth);
   const [books, setBooks] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false); // Dark theme state
   const sidebarRef = useRef<HTMLDivElement>(null);
+  //@ts-ignore
+  const { isDarkTheme } = useContext(ThemeContext); // Use theme context
 
   useEffect(() => {
     if (user) {
@@ -38,9 +40,9 @@ const Home: React.FC = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const toggleTheme = () => {
-    setIsDarkTheme(!isDarkTheme);
-  };
+  // const toggleTheme = () => {
+  //   setIsDarkTheme(!isDarkTheme);
+  // };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -77,8 +79,8 @@ const Home: React.FC = () => {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         onMenuClick={toggleSidebar}
-        onThemeToggle={toggleTheme} // Pass toggle function
-        isDarkTheme={isDarkTheme} // Pass dark theme state
+        // onThemeToggle={toggleTheme} // Pass toggle function
+        // isDarkTheme={isDarkTheme} // Pass dark theme state
       />
       <div ref={sidebarRef}>
         <Sidebar

@@ -1,28 +1,31 @@
 /** @format */
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { FaBars, FaSearch, FaGoogle, FaSun, FaMoon } from "react-icons/fa";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, provider } from "@/firebaseConfig";
 import { signInWithPopup, signOut } from "firebase/auth";
+import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 
 interface NavBarProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   onMenuClick: () => void;
-  isDarkTheme: boolean; // Add dark theme prop
-  onThemeToggle: () => void; // Add theme toggle function
+  // isDarkTheme: boolean; // Add dark theme prop
+  // onThemeToggle: () => void; // Add theme toggle function
 }
 
 const NavBar: React.FC<NavBarProps> = ({
   searchTerm,
   setSearchTerm,
   onMenuClick,
-  isDarkTheme,
-  onThemeToggle,
+  // isDarkTheme,
+  // onThemeToggle,
 }) => {
   const [user] = useAuthState(auth);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  //@ts-ignore
+  const { isDarkTheme, toggleTheme } = useContext(ThemeContext); // Use the theme context
 
   const handleGoogleSignIn = async () => {
     try {
@@ -109,7 +112,7 @@ const NavBar: React.FC<NavBarProps> = ({
               ? "border-[#18212f] text-yellow-400" // Dark theme: Match the border to the dark navbar color
               : "border-transparent text-white" // Light theme: Transparent border to blend with gradient
           }`}
-          onClick={onThemeToggle}
+          onClick={toggleTheme}
           title={isDarkTheme ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
           {isDarkTheme ? (

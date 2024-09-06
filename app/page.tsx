@@ -1,4 +1,3 @@
-/** @format */
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -14,6 +13,7 @@ const Home: React.FC = () => {
   const [books, setBooks] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false); // Dark theme state
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,6 +36,10 @@ const Home: React.FC = () => {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const toggleTheme = () => {
+    setIsDarkTheme(!isDarkTheme);
   };
 
   useEffect(() => {
@@ -68,64 +72,49 @@ const Home: React.FC = () => {
   };
 
   return (
-    //@ts-ignore
-    <div className="home-page" style={styles.homePage}>
+    <div className={`flex flex-col h-screen ${isDarkTheme ? "dark" : ""}`}>
       <NavBar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         onMenuClick={toggleSidebar}
+        onThemeToggle={toggleTheme} // Pass toggle function
+        isDarkTheme={isDarkTheme} // Pass dark theme state
       />
       <div ref={sidebarRef}>
         <Sidebar
           isOpen={isSidebarOpen}
           onBookUpload={() => console.log("Book uploaded!")}
-          /* Pass the onClose function */
           onClose={handleSidebarClose}
-        />{" "}
+          isDarkTheme={isDarkTheme} // Pass dark theme state
+        />
       </div>
       <div
-        className="main-content"
-        //@ts-ignore
-
-        style={{
-          ...styles.mainContent,
-        }}
+        className={`flex-1 p-5 mt-16 overflow-y-auto transition-all duration-300 
+           ${
+             isDarkTheme
+               ? "bg-gray-900 text-white"
+               : "bg-gray-200 text-gray-900"
+           }`}
       >
         {loading ? (
           <div>Loading...</div>
         ) : user ? (
-          <BookGrid books={filteredBooks} userId={user.uid} />
+          <BookGrid
+            books={filteredBooks}
+            userId={user.uid}
+            isDarkTheme={isDarkTheme}
+          />
         ) : (
-          //@ts-ignore
-
-          <div style={styles.welcomeMessage}>
-            <h2>Welcome to Epub Reader</h2>
-            <p>Please sign in with Google to view and manage your books.</p>
+          <div className="text-center mt-5">
+            <h2 className="text-2xl font-semibold">Welcome to Epub Reader</h2>
+            <p className="mt-2">
+              Please sign in with Google to view and manage your books.
+            </p>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-const styles = {
-  homePage: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100vh",
-  },
-  mainContent: {
-    flex: 1,
-    backgroundColor: "#f4f4f4",
-    padding: "20px",
-    marginTop: "60px", // Adjust for fixed NavBar height
-    overflowY: "auto",
-    transition: "margin-left 0.3s", // Smooth transition for sidebar
-  },
-  welcomeMessage: {
-    textAlign: "center",
-    marginTop: "20px",
-  },
 };
 
 export default Home;

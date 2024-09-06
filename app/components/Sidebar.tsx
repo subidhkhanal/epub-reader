@@ -10,12 +10,14 @@ interface SidebarProps {
   isOpen: boolean;
   onBookUpload: () => void;
   onClose?: () => void;
+  isDarkTheme: boolean; // Add the dark theme prop
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onBookUpload,
   onClose = () => {},
+  isDarkTheme,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
@@ -124,16 +126,33 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       <aside
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-screen w-[210px] p-5 bg-gray-100 text-gray-800 transition-transform transform ${
+        className={`fixed top-0 left-0 h-screen w-[210px] p-5 transition-transform transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } z-50 shadow-lg flex flex-col gap-5`}
+        } z-50 shadow-lg flex flex-col gap-5
+          transition-colors duration-500 ease-in-out
+          ${
+            isDarkTheme
+              ? "bg-[#1E293B] text-[#F3F4F6]"
+              : "bg-gray-100 text-gray-800"
+          }
+        `}
       >
         <div className="flex justify-between items-center mb-5">
-          <span className="text-2xl font-bold text-gray-900">My Library</span>
+          <span
+            className={`text-2xl font-bold ${
+              isDarkTheme ? "text-white" : "text-gray-900"
+            }`}
+          >
+            My Library
+          </span>
         </div>
         <button
           className={`${
-            isHover || uploading ? "bg-gray-700 hover:scale-105" : "bg-gray-600"
+            isHover || uploading
+              ? "bg-gray-700 hover:scale-105"
+              : isDarkTheme
+              ? "bg-gray-600 hover:bg-gray-500"
+              : "bg-gray-600 hover:bg-gray-500"
           } text-white py-3 px-5 rounded-full flex items-center justify-center font-bold text-base transition-all duration-200 ease-in-out`}
           onClick={handleAddBookClick}
           onMouseEnter={() => setIsHover(true)}

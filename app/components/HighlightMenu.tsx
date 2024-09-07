@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { saveHighlight } from "../utils/firebaseFunctions";
 import { Rendition } from "epubjs";
+import { connectStorageEmulator } from "firebase/storage";
 
 interface HighlightMenuProps {
   rendition: Rendition;
@@ -60,10 +61,22 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
         setSelectedCFIRange(cfiRange);
 
         const range = contents.window.getSelection()?.getRangeAt(0);
+        // Get the width of the iframe or container holding the page
+        const containerWidth =
+          //@ts-ignore
+          rendition.manager.container.getBoundingClientRect().width;
+
         if (range) {
           const rect = range.getBoundingClientRect();
-          let newTop = rect.top + window.scrollY - 50;
-          let newLeft = rect.left + window.scrollX;
+          let newTop = rect.top - 50;
+          let newLeft;
+          // Calculate the current page index based on rect.left and container width
+          const pageIndex = Math.floor(rect.left / containerWidth);
+          if (pageIndex === 0) {
+            newLeft = rect.left;
+          } else if (pageIndex > 0) {
+            newLeft = rect.left - containerWidth * pageIndex;
+          }
 
           // Adjust position to ensure it stays within the viewport
           const menuHeight = 40; // Approximate menu height
@@ -81,8 +94,8 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
           }
 
           // Ensure menu doesn't overflow the top of the screen
-          if (newTop < window.scrollY + padding) {
-            newTop = rect.bottom + window.scrollY + padding; // Place it below the text if there's not enough space above
+          if (newTop < padding) {
+            newTop = rect.bottom + padding; // Place it below the text if there's not enough space above
           }
 
           setHighlightMenuPosition({ top: newTop, left: newLeft });

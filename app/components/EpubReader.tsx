@@ -198,7 +198,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
       <div className="flex-1 relative flex h-full overflow-hidden">
         <div
-          className="w-[50px] flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity duration-300"
+          className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
           onClick={goToPreviousPage}
         >
           <button
@@ -219,7 +219,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           onClick={() => setIsNavbarVisible(!isNavbarVisible)} // Show navbar on click
         />
         <div
-          className="w-[50px] flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity duration-300"
+          className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
           onClick={goToNextPage}
         >
           <button

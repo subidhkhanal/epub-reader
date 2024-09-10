@@ -121,12 +121,14 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
       }
     };
 
+    // Handle highlightmenu if clicked outside of epub and arrow keys
     document.addEventListener("mousedown", handleClickOutside);
-    rendition?.on("click", () => setHighlightMenuPosition(null));
+    // Handle highlightmenu if clicked inside the epub
+    rendition?.on("mousedown", () => setHighlightMenuPosition(null));
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      rendition?.off("click", () => setHighlightMenuPosition(null));
+      rendition?.off("mousedown", () => setHighlightMenuPosition(null));
     };
   }, [rendition]);
 

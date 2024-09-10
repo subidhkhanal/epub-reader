@@ -80,7 +80,7 @@ const Home: React.FC = () => {
         setSearchTerm={setSearchTerm}
         onMenuClick={toggleSidebar}
         // onThemeToggle={toggleTheme} // Pass toggle function
-        // isDarkTheme={isDarkTheme} // Pass dark theme state
+        isDarkTheme={isDarkTheme} // Pass dark theme state
       />
       <div ref={sidebarRef}>
         <Sidebar

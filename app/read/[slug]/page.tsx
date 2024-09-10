@@ -11,6 +11,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import EpubReader from "@/app/components/EpubReader";
 import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
+import Navbar from "@/app/components/epub/Navbar"; // Import the Navbar component
 
 const ReadBook: React.FC = () => {
   const { slug } = useParams(); // Access the dynamic segment
@@ -20,6 +21,9 @@ const ReadBook: React.FC = () => {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("Untitled");
   const [currentChapter, setCurrentChapter] = useState<string>("");
+  const [isTOCVisible, setIsTOCVisible] = useState<boolean>(false); // TOC visibility state
+  const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // Navbar visibility state
+
   //@ts-ignore
   const { isDarkTheme } = useContext(ThemeContext); // Access the theme from the context
 
@@ -49,6 +53,14 @@ const ReadBook: React.FC = () => {
     fetchBook();
   }, [slug, userId]);
 
+  // const toggleNavbarVisibility = () => {
+  //   setIsNavbarVisible(true); // Show the navbar on click
+  //   // Automatically hide the navbar after 3 seconds
+  //   setTimeout(() => {
+  //     setIsNavbarVisible(false);
+  //   }, 3000);
+  // };
+
   if (!fileUrl) {
     return <div>Loading...</div>;
   }
@@ -59,7 +71,22 @@ const ReadBook: React.FC = () => {
         isDarkTheme ? "bg-[#1c1c28] text-white" : "bg-[#f4f4f9] text-gray-900"
       }`}
     >
-      <EpubReader fileUrl={fileUrl} onChapterChange={setCurrentChapter} />
+      {isNavbarVisible && (
+        <Navbar
+          title={title}
+          isDarkTheme={isDarkTheme}
+          toggleTOC={() => setIsTOCVisible(!isTOCVisible)}
+          isTOCVisible={isTOCVisible}
+        />
+      )}
+      <EpubReader
+        fileUrl={fileUrl}
+        onChapterChange={setCurrentChapter}
+        isDarkTheme={isDarkTheme}
+        isTOCVisible={isTOCVisible}
+        toggleTOC={() => setIsTOCVisible(!isTOCVisible)}
+        setNavbarVisible={setIsNavbarVisible} // Pass the function to control navbar visibility
+      />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useEffect, useRef, useState, useContext } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ePub, { Book, Rendition, Location } from "epubjs";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/firebaseConfig";
@@ -11,17 +11,24 @@ import {
 } from "../utils/firebaseFunctions";
 import { useParams } from "next/navigation";
 import HighlightMenu from "./HighlightMenu"; // Import the HighlightMenu component
-import Navbar from "@/app/components/epub/Navbar"; // Import the Navbar component
-import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
+import TOC from "@/app/components/epub/TOC"; // Import the TOC component
 
 interface EpubReaderProps {
   fileUrl: string; // The URL to the EPUB file
   onChapterChange: (chapter: string) => void; // Callback for chapter change
+  isTOCVisible: boolean; // State to manage TOC visibility
+  toggleTOC: () => void; // Function to toggle TOC
+  setNavbarVisible: (isVisible: boolean) => void; // Function to control Navbar visibility
+  isDarkTheme: boolean; // Dark mode toggle
 }
 
 const EpubReader: React.FC<EpubReaderProps> = ({
   fileUrl,
   onChapterChange,
+  isDarkTheme,
+  isTOCVisible,
+  toggleTOC,
+  setNavbarVisible,
 }) => {
   const viewerRef = useRef<HTMLDivElement>(null);
   const [book, setBook] = useState<Book | null>(null);
@@ -29,11 +36,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   const [user] = useAuthState(auth);
   //@ts-ignore
   const [chapters, setChapters] = useState<TocElement[]>([]); // Chapters from the Table of Contents
-  const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // For toggling navbar visibility
   const { slug } = useParams();
   const bookId = slug;
   //@ts-ignore
-  const { isDarkTheme } = useContext(ThemeContext); // Access the theme from the context
+  const [isTextSelected, setIsTextSelected] = useState(false);
 
   useEffect(() => {
     if (fileUrl && viewerRef.current && user) {
@@ -117,13 +123,18 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   }, [fileUrl, user, isDarkTheme]);
 
+  // This function will manage when the Navbar is shown/hidden
+  const toggleNavbarVisibility = () => {
+    setNavbarVisible(true); // Show the Navbar
+  };
+
   const handleChapterSelect = (chapterHref: string) => {
     // Move to the selected chapter
     if (rendition) {
       rendition.display(chapterHref);
       onChapterChange(chapterHref);
     }
-    setIsNavbarVisible(false); // Hide navbar after selection
+    toggleTOC(); // Hide TOC after selecting a chapter
   };
 
   // Handle keypresses for navigation inside the iframe using ePub.js events
@@ -136,12 +147,42 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           goToPreviousPage();
         }
       });
-      // Handle mouse clicks
-      rendition.on("click", () => {
-        setIsNavbarVisible((prevIsNavbarVisible) => !prevIsNavbarVisible); // Use functional state update
-      });
+      // Handle text selection
+      const handleSelection = () => {
+        setNavbarVisible(false); // Hide Navbar when text is selected
+        setIsTextSelected(true); // Flag that text is selected
+        console.log("setNavbarVisible in handlesection", setNavbarVisible);
+      };
+
+      // Handle mouseup for non-selection events
+      const handleMouseUp = () => {
+        if (!isTextSelected) {
+          //@ts-ignore
+          setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
+        }
+        setIsTextSelected(false); // Reset selection state after click
+        // console.log("setNavbarVisible in handlemouseup", isVisible);
+      };
+
+      // Attach rendition event listeners
+      // Attach event listeners for selection and mouse clicks
+      rendition.on("selected", handleSelection);
+      rendition.on("mouseup", handleMouseUp);
+      // Cleanup event listeners on unmount
+      return () => {
+        rendition.off("selected", handleSelection);
+        rendition.off("mouseup", handleMouseUp);
+      };
     }
-  }, [rendition]);
+  }, [rendition, setNavbarVisible, isTextSelected]);
+
+  // useEffect(() => {
+  //   // Cleanup event listeners on unmount
+  //   return () => {
+  //     rendition.off("selected", handleSelection);
+  //     rendition.off("mouseup", handleMouseUp);
+  //   };
+  // }, [rendition, setNavbarVisible, isTextSelected]);
 
   useEffect(() => {
     // Function to handle key press events
@@ -211,12 +252,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             &#10094; {/* Stylized arrow for a modern look */}
           </button>
         </div>
-
         <div
           id="viewer"
           ref={viewerRef}
           className="flex-1 h-full p-[20px]"
-          onClick={() => setIsNavbarVisible(!isNavbarVisible)} // Show navbar on click
+          onClick={toggleNavbarVisibility}
         />
         <div
           className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
@@ -239,9 +279,16 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             userId={user.uid}
             //@ts-ignore
             bookId={bookId}
-            onHighlightMenuOpen={() => setIsNavbarVisible(false)} // Hide navbar when HighlightMenu is triggered
           />
         )}
+
+        {/* Table of Contents */}
+        <TOC
+          chapters={chapters}
+          isVisible={isTOCVisible}
+          handleChapterSelect={handleChapterSelect}
+          isDarkTheme={isDarkTheme}
+        />
       </div>
     </div>
   );

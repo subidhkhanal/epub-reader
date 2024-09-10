@@ -5,12 +5,13 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, provider } from "@/firebaseConfig";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
+import ThemeToggleButton from "./ThemeToggleButton"; // Import ThemeToggleButton
 
 interface NavBarProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   onMenuClick: () => void;
-  // isDarkTheme: boolean; // Add dark theme prop
+  isDarkTheme: boolean; // Add dark theme prop
   // onThemeToggle: () => void; // Add theme toggle function
 }
 
@@ -18,14 +19,14 @@ const NavBar: React.FC<NavBarProps> = ({
   searchTerm,
   setSearchTerm,
   onMenuClick,
-  // isDarkTheme,
+  isDarkTheme,
   // onThemeToggle,
 }) => {
   const [user] = useAuthState(auth);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   //@ts-ignore
-  const { isDarkTheme, toggleTheme } = useContext(ThemeContext); // Use the theme context
+  // const { isDarkTheme, toggleTheme } = useContext(ThemeContext); // Use the theme context
 
   const handleGoogleSignIn = async () => {
     try {
@@ -106,21 +107,7 @@ const NavBar: React.FC<NavBarProps> = ({
 
       {/* Right: Theme Toggle and User Profile */}
       <div className="flex items-center relative">
-        <button
-          className={`p-2 rounded-full bg-transparent border-2 transition-transform duration-300 transform focus:outline-none ${
-            isDarkTheme
-              ? "border-[#18212f] text-yellow-400" // Dark theme: Match the border to the dark navbar color
-              : "border-transparent text-white" // Light theme: Transparent border to blend with gradient
-          }`}
-          onClick={toggleTheme}
-          title={isDarkTheme ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        >
-          {isDarkTheme ? (
-            <FaSun className="text-lg" />
-          ) : (
-            <FaMoon className="text-lg" />
-          )}
-        </button>
+        <ThemeToggleButton />
 
         {user ? (
           <div className="flex items-center ml-4">

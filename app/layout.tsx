@@ -8,8 +8,9 @@ import { ThemeProvider } from "@/app/context/ThemeContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Epub Reader",
-  description: "Epub Reader",
+  title: "Free ePub Reader Online - Read ePub Files in Browser Instantly",
+  description:
+    "Quickly open and read ePub files online for free. No downloads required, fully compatible with mobile and desktop browsers.",
 };
 
 export default function RootLayout({

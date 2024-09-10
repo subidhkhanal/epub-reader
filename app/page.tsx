@@ -108,7 +108,8 @@ const Home: React.FC = () => {
           />
         ) : (
           <div className="text-center mt-5">
-            <h2 className="text-2xl font-semibold">Welcome to Epub Reader</h2>
+            <h1 className="text-3xl font-bold">Welcome to Epub Reader</h1>
+            <h2 className="text-2xl mt-4">Read ePub Files Online for Free</h2>
             <p className="mt-2">
               Please sign in with Google to view and manage your books.
             </p>

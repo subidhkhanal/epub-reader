@@ -53,14 +53,6 @@ const ReadBook: React.FC = () => {
     fetchBook();
   }, [slug, userId]);
 
-  // const toggleNavbarVisibility = () => {
-  //   setIsNavbarVisible(true); // Show the navbar on click
-  //   // Automatically hide the navbar after 3 seconds
-  //   setTimeout(() => {
-  //     setIsNavbarVisible(false);
-  //   }, 3000);
-  // };
-
   if (!fileUrl) {
     return <div>Loading...</div>;
   }
@@ -86,6 +78,7 @@ const ReadBook: React.FC = () => {
         isTOCVisible={isTOCVisible}
         toggleTOC={() => setIsTOCVisible(!isTOCVisible)}
         setNavbarVisible={setIsNavbarVisible} // Pass the function to control navbar visibility
+        isNavbarVisible={isNavbarVisible}
       />
     </div>
   );

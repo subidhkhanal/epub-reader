@@ -7,12 +7,16 @@ interface HighlightMenuProps {
   rendition: Rendition;
   userId: string;
   bookId: string;
+  onClose: () => void; // Add onClose prop to manage closing
+  onOpen: () => void; // Add onOpen prop to manage opening
 }
 
 const HighlightMenu: React.FC<HighlightMenuProps> = ({
   rendition,
   userId,
   bookId,
+  onClose,
+  onOpen,
 }) => {
   const [highlightedText, setHighlightedText] = useState<string | null>(null);
   const [selectedCFIRange, setSelectedCFIRange] = useState<string | null>(null);
@@ -131,6 +135,14 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
       rendition?.off("mousedown", () => setHighlightMenuPosition(null));
     };
   }, [rendition]);
+
+  useEffect(() => {
+    if (highlightMenuPosition === null) {
+      onClose();
+    } else {
+      onOpen();
+    }
+  }, [highlightMenuPosition]);
 
   return (
     highlightMenuPosition && (

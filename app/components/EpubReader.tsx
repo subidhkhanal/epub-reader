@@ -40,6 +40,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   const bookId = slug;
   //@ts-ignore
   const [isTextSelected, setIsTextSelected] = useState(false);
+  const [isHighlightMenuOpen, setIsHighlightMenuOpen] = useState(false); // New state for highlight menu
 
   useEffect(() => {
     if (fileUrl && viewerRef.current && user) {
@@ -137,9 +138,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     toggleTOC(); // Hide TOC after selecting a chapter
   };
 
-  // Handle keypresses for navigation inside the iframe using ePub.js events
+  // Handle arrow key, mouse wheel events and navbar visibility for navigation inside the iframe using ePub.js events
   useEffect(() => {
     if (rendition) {
+      //Handles arrow keys
       rendition.on("keyup", (event: KeyboardEvent) => {
         if (event.key === "ArrowRight") {
           goToNextPage();
@@ -147,49 +149,71 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           goToPreviousPage();
         }
       });
+
+      //Give page change when wheels changes from the mouse
+      rendition.on("rendered", () => {
+        // Get the content from the currently rendered section
+        const contents = rendition.getContents();
+
+        //@ts-ignore
+        if (contents && contents.length > 0) {
+          //@ts-ignore
+          const iframeDocument = contents[0].document; // Get the document from the first content item
+
+          iframeDocument.addEventListener("wheel", (event: WheelEvent) => {
+            if (event.deltaY > 0) {
+              goToNextPage();
+            } else if (event.deltaY < 0) {
+              goToPreviousPage();
+            }
+          });
+        }
+      });
+
       // Handle text selection
       const handleSelection = () => {
-        setNavbarVisible(false); // Hide Navbar when text is selected
+        if (!isHighlightMenuOpen) {
+          // setNavbarVisible(false); // Hide Navbar when text is selected
+        }
         setIsTextSelected(true); // Flag that text is selected
-        console.log("setNavbarVisible in handlesection", setNavbarVisible);
+        setIsHighlightMenuOpen(true); // Open the highlight menu
+        // console.log("setNavbarVisible is false");
       };
 
       // Handle mouseup for non-selection events
       const handleMouseUp = () => {
-        if (!isTextSelected) {
+        // console.log(
+        //   "setIsTextSelected in handlemouseup above if",
+        //   isTextSelected
+        // );
+        // console.log("isHighlightMenuOpen", isHighlightMenuOpen);
+        if (!isTextSelected && !isHighlightMenuOpen) {
           //@ts-ignore
           setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
+          // console.log("setNavbarVisible is toggle");
         }
-        setIsTextSelected(false); // Reset selection state after click
-        // console.log("setNavbarVisible in handlemouseup", isVisible);
+        if (!isHighlightMenuOpen) {
+          setIsTextSelected(false); // Reset selection state only if the highlight menu is closed
+        }
       };
 
       // Attach rendition event listeners
       // Attach event listeners for selection and mouse clicks
-      rendition.on("selected", handleSelection);
-      rendition.on("mouseup", handleMouseUp);
+      // rendition.on("selected", handleSelection);
+      // rendition.on("mouseup", handleMouseUp);
       // Cleanup event listeners on unmount
       return () => {
-        rendition.off("selected", handleSelection);
-        rendition.off("mouseup", handleMouseUp);
+        rendition.off(KeyboardEvent, "keyup");
+        // rendition.off(WheelEvent, "wheel");
+        // rendition.off("selected", handleSelection);
+        // rendition.off("mouseup", handleMouseUp);
       };
     }
-  }, [rendition, setNavbarVisible, isTextSelected]);
+  }, [rendition, setNavbarVisible, isTextSelected, isHighlightMenuOpen]);
 
-  // useEffect(() => {
-  //   // Cleanup event listeners on unmount
-  //   return () => {
-  //     rendition.off("selected", handleSelection);
-  //     rendition.off("mouseup", handleMouseUp);
-  //   };
-  // }, [rendition, setNavbarVisible, isTextSelected]);
-
+  // Handle key press & mouse wheel events which happen between iframe(epub.js) and arrow ui
   useEffect(() => {
-    // Function to handle key press events
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // event.stopPropagation(); // Prevent event propagation
-
-      // console.log(`Key pressed: ${event.key}`);
+    const handleKeys = (event: KeyboardEvent) => {
       if (event.key === "ArrowRight") {
         goToNextPage();
       }
@@ -198,12 +222,23 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       }
     };
 
+    const handleWheels = (event: WheelEvent) => {
+      if (event.deltaY < 0) {
+        goToNextPage();
+      }
+      if (event.deltaY > 0) {
+        goToPreviousPage();
+      }
+    };
+
     // Attach the event listener
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeys);
+    document.addEventListener("wheel", handleWheels);
 
     // Cleanup function to remove the event listener
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handleKeys);
+      document.removeEventListener("wheel", handleWheels);
     };
   });
 
@@ -225,16 +260,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         isDarkTheme ? "bg-[#1c1c28] text-white" : "bg-[#f4f4f9] text-black"
       }`}
     >
-      {/* Navbar for Table of Contents */}
-      {/* <Navbar
-        chapters={chapters.map((tocItem) => tocItem.label)} // Pass chapter labels
-        onSelectChapter={(chapter) =>
-          handleChapterSelect(
-            chapters.find((c) => c.label === chapter)?.href || ""
-          )
-        }
-        isVisible={isNavbarVisible}
-      /> */}
       {/* EPUB Viewer */}
 
       <div className="flex-1 relative flex h-full overflow-hidden">
@@ -256,6 +281,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           id="viewer"
           ref={viewerRef}
           className="flex-1 h-full p-[20px]"
+          //this doesnot work
           onClick={toggleNavbarVisibility}
         />
         <div
@@ -279,6 +305,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             userId={user.uid}
             //@ts-ignore
             bookId={bookId}
+            onClose={() => setIsHighlightMenuOpen(false)} // Set menu close handler
           />
         )}
 

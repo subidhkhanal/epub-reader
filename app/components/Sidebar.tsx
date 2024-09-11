@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { storage, db, auth } from "@/firebaseConfig";
+import { storage, db, auth, provider } from "@/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import ePub from "epubjs";
 import { FaPlus, FaTimes, FaSpinner } from "react-icons/fa";
+import { signInWithPopup } from "firebase/auth"; // Import signInWithPopup
 
 interface SidebarProps {
   isOpen: boolean;
@@ -27,7 +28,18 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
-  const handleAddBookClick = () => {
+  const handleAddBookClick = async () => {
+    // If the user is not signed in, trigger Google sign-in
+    if (!user) {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        console.error("Google Sign-In error:", error);
+        return;
+      }
+    }
+
+    // After successful sign-in, allow the file input to be clicked
     fileInputRef.current?.click();
   };
 

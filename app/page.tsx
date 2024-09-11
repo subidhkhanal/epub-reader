@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "@/firebaseConfig";
+import { auth, db, provider } from "@/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import NavBar from "@/app/components/Navbar";
 import Sidebar from "@/app/components/Sidebar";
 import BookGrid from "@/app/components/BookGrid";
 import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
+import { signInWithPopup } from "firebase/auth"; // Import signInWithPopup
 
 const Home: React.FC = () => {
   const [user, loading] = useAuthState(auth);
@@ -40,9 +41,13 @@ const Home: React.FC = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // const toggleTheme = () => {
-  //   setIsDarkTheme(!isDarkTheme);
-  // };
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Google Sign-In error:", error);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -111,7 +116,14 @@ const Home: React.FC = () => {
             <h1 className="text-3xl font-bold">Welcome to Epub Reader</h1>
             <h2 className="text-2xl mt-4">Read ePub Files Online for Free</h2>
             <p className="mt-2">
-              Please sign in with Google to view and manage your books.
+              Please{" "}
+              <span
+                onClick={handleGoogleSignIn}
+                className="text-blue-500 cursor-pointer"
+              >
+                sign in with Google
+              </span>{" "}
+              to view and manage your books.
             </p>
           </div>
         )}

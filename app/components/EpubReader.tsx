@@ -126,7 +126,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   // This function will manage when the Navbar is shown/hidden
   const toggleNavbarVisibility = () => {
-    setNavbarVisible(true); // Show the Navbar
+    // setNavbarVisible(true); // Show the Navbar
   };
 
   const handleChapterSelect = (chapterHref: string) => {
@@ -143,7 +143,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     if (rendition) {
       //Handles arrow keys
       rendition.on("keyup", (event: KeyboardEvent) => {
-        if (event.key === "ArrowRight") {
+        if (event.key === "ArrowRight" || event.key === " ") {
           goToNextPage();
         } else if (event.key === "ArrowLeft") {
           goToPreviousPage();
@@ -189,7 +189,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         // console.log("isHighlightMenuOpen", isHighlightMenuOpen);
         if (!isTextSelected && !isHighlightMenuOpen) {
           //@ts-ignore
-          setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
+          // setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
           // console.log("setNavbarVisible is toggle");
         }
         if (!isHighlightMenuOpen) {
@@ -214,7 +214,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   // Handle key press & mouse wheel events which happen between iframe(epub.js) and arrow ui
   useEffect(() => {
     const handleKeys = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight") {
+      if (event.key === "ArrowRight" || event.key === " ") {
         goToNextPage();
       }
       if (event.key === "ArrowLeft") {

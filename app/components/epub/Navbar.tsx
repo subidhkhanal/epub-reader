@@ -41,7 +41,7 @@ const Navbar: React.FC<NavbarProps> = ({
           isTOCVisible
             ? isDarkTheme
               ? "bg-[#5a5a68] text-gray-100 shadow-lg"
-              : "bg-[#b0b8ff] text-gray-800 shadow-lg"
+              : "bg-[#d3d3e0] text-gray-800 shadow-lg"
             : isDarkTheme
             ? "bg-transparent text-gray-100 hover:bg-[#444455] hover:text-white"
             : "bg-transparent text-gray-800 hover:bg-[#dde1f9]  hover:text-black hover:text-gray-900"

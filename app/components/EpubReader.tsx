@@ -17,6 +17,7 @@ interface EpubReaderProps {
   fileUrl: string; // The URL to the EPUB file
   onChapterChange: (chapter: string) => void; // Callback for chapter change
   isTOCVisible: boolean; // State to manage TOC visibility
+  // toggleTOC: () => void; // Function to toggle TOC
   setNavbarVisible: (isVisible: boolean) => void; // Function to control Navbar visibility
   isDarkTheme: boolean; // Dark mode toggle
   isNavbarVisible: boolean;
@@ -29,6 +30,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   onChapterChange,
   isDarkTheme,
   isTOCVisible,
+  // toggleTOC,
   setNavbarVisible,
   isNavbarVisible,
   isnavbarActive,
@@ -45,6 +47,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   //@ts-ignore
   const [isTextSelected, setIsTextSelected] = useState(false);
   const [isHighlightMenuOpen, setIsHighlightMenuOpen] = useState(false); // New state for highlight menu
+  const [currentChapterHref, setCurrentChapterHref] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     if (fileUrl && viewerRef.current && user) {
@@ -112,6 +117,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           loadedRendition.on("relocated", (location: Location) => {
             const cfi = location.start.cfi;
             saveUserData(user.uid, bookId, { location: cfi });
+
+            // Set current chapter href based on the current location
+            const currentChapterHref = location.start.href;
+            setCurrentChapterHref(currentChapterHref); // Track the current chapter
+            onChapterChange(currentChapterHref || "Chapter");
           });
         } catch (error) {
           console.error("Error loading book or user data:", error);
@@ -140,7 +150,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       rendition.display(chapterHref);
       onChapterChange(chapterHref);
     }
-    setIsTOCVisible(!isTOCVisible); // Hide TOC after selecting a chapter
+    // setIsTOCVisible(!isTOCVisible); // Hide TOC after selecting a chapter
   };
 
   // Handle text selection
@@ -329,6 +339,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             isVisible={isTOCVisible}
             handleChapterSelect={handleChapterSelect}
             isDarkTheme={isDarkTheme}
+            //Check it later on most probably this import isnot used in toc component
+            //@ts-ignore
+            activeChapterHref={currentChapterHref} // Pass current chapter href
           />
         ) : null}
       </div>

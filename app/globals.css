@@ -182,3 +182,52 @@ li button.active {
   text-align: center;
   cursor: pointer; /* Add this to make the entire card clickable */
 }
+
+/* // toc */
+.toc-header {
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.toc-item {
+  padding: 10px 16px;
+  margin-bottom: 5px;
+  padding-left: 20px;
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping if content is too wide */
+}
+
+.toc-item span {
+  display: inline-block;
+  white-space: normal; /* Allows line breaks */
+  overflow: visible; /* Ensure no content is hidden */
+}
+
+.toc-item:hover {
+  background-color: rgba(
+    100,
+    149,
+    237,
+    0.1
+  ); /* Light blue background on hover for light theme */
+  color: #2c5282; /* Stronger color on hover for readability */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.active-item {
+  border-left: 4px solid #2c5282; /* Blue border for active items */
+  background-color: #dde1f9; /* Light blue background for active item */
+  color: #2c5282; /* Text color for active items in light theme */
+  padding-left: 16px;
+}
+
+.toc-header.sticky {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid #ddd; /* Light gray border for the header in light theme */
+}
+
+.toc-dark-mode {
+  background-color: #1a1a2e;
+  color: #e0e0e0; /* Improved text contrast for dark mode */
+}

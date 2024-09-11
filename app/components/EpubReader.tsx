@@ -203,7 +203,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       // rendition.on("mouseup", handleMouseUp);
       // Cleanup event listeners on unmount
       return () => {
-        rendition.off(KeyboardEvent, "keyup");
+        rendition.off("keyup", KeyboardEvent);
         // rendition.off(WheelEvent, "wheel");
         // rendition.off("selected", handleSelection);
         // rendition.off("mouseup", handleMouseUp);

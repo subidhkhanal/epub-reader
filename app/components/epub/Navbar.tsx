@@ -8,6 +8,7 @@ interface NavbarProps {
   isDarkTheme: boolean; // Dark mode toggle
   toggleTOC: () => void; // Function to toggle the Table of Contents (TOC)
   isTOCVisible: boolean; // Current state of the TOC visibility
+  setIsNavbarActive: (isActive: boolean) => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -15,6 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({
   isDarkTheme,
   toggleTOC,
   isTOCVisible,
+  setIsNavbarActive,
 }) => {
   return (
     <nav
@@ -23,6 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({
           ? "bg-gradient-to-r from-[#2c2c38] to-[#3a3a4a]"
           : "bg-[#d3d3e0]"
       } rounded-lg`}
+      onClick={() => setIsNavbarActive(true)}
     >
       <span
         className={`text-lg font-semibold ${isDarkTheme ? " " : "text-[#333]"}`}

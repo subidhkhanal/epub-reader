@@ -17,10 +17,11 @@ interface EpubReaderProps {
   fileUrl: string; // The URL to the EPUB file
   onChapterChange: (chapter: string) => void; // Callback for chapter change
   isTOCVisible: boolean; // State to manage TOC visibility
-  toggleTOC: () => void; // Function to toggle TOC
   setNavbarVisible: (isVisible: boolean) => void; // Function to control Navbar visibility
   isDarkTheme: boolean; // Dark mode toggle
-  isNavbarVisible: boolean; // State to manage TOC visibility
+  isNavbarVisible: boolean;
+  isnavbarActive: boolean;
+  setIsTOCVisible: (isTOCVisible: boolean) => void;
 }
 
 const EpubReader: React.FC<EpubReaderProps> = ({
@@ -28,9 +29,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   onChapterChange,
   isDarkTheme,
   isTOCVisible,
-  toggleTOC,
   setNavbarVisible,
   isNavbarVisible,
+  isnavbarActive,
+  setIsTOCVisible,
 }) => {
   const viewerRef = useRef<HTMLDivElement>(null);
   const [book, setBook] = useState<Book | null>(null);
@@ -138,7 +140,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       rendition.display(chapterHref);
       onChapterChange(chapterHref);
     }
-    toggleTOC(); // Hide TOC after selecting a chapter
+    setIsTOCVisible(!isTOCVisible); // Hide TOC after selecting a chapter
   };
 
   // Handle text selection
@@ -216,33 +218,35 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   // Handle key press & mouse wheel events which happen between iframe(epub.js) and arrow ui
   useEffect(() => {
-    const handleKeys = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight" || event.key === " ") {
-        goToNextPage();
-      }
-      if (event.key === "ArrowLeft") {
-        goToPreviousPage();
-      }
-    };
+    if (!isnavbarActive) {
+      const handleKeys = (event: KeyboardEvent) => {
+        if (event.key === "ArrowRight" || event.key === " ") {
+          goToNextPage();
+        }
+        if (event.key === "ArrowLeft") {
+          goToPreviousPage();
+        }
+      };
 
-    const handleWheels = (event: WheelEvent) => {
-      if (event.deltaY < 0) {
-        goToNextPage();
-      }
-      if (event.deltaY > 0) {
-        goToPreviousPage();
-      }
-    };
+      const handleWheels = (event: WheelEvent) => {
+        if (event.deltaY < 0) {
+          goToNextPage();
+        }
+        if (event.deltaY > 0) {
+          goToPreviousPage();
+        }
+      };
 
-    // Attach the event listener
-    document.addEventListener("keydown", handleKeys);
-    document.addEventListener("wheel", handleWheels);
+      // Attach the event listener
+      document.addEventListener("keydown", handleKeys);
+      document.addEventListener("wheel", handleWheels);
 
-    // Cleanup function to remove the event listener
-    return () => {
-      document.removeEventListener("keydown", handleKeys);
-      document.removeEventListener("wheel", handleWheels);
-    };
+      // Cleanup function to remove the event listener
+      return () => {
+        document.removeEventListener("keydown", handleKeys);
+        document.removeEventListener("wheel", handleWheels);
+      };
+    }
   });
 
   const goToNextPage = async () => {
@@ -256,6 +260,12 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       await rendition.prev(); // Navigate to the previous page
     }
   };
+
+  useEffect(() => {
+    if (!isNavbarVisible) {
+      setIsTOCVisible(false);
+    }
+  }, [isNavbarVisible]);
 
   return (
     <div
@@ -284,7 +294,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           id="viewer"
           ref={viewerRef}
           className="flex-1 h-full p-[20px]"
-          //this doesnot work
           onClick={toggleNavbarVisibility}
         />
         <div
@@ -314,12 +323,14 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         )}
 
         {/* Table of Contents */}
-        <TOC
-          chapters={chapters}
-          isVisible={isTOCVisible}
-          handleChapterSelect={handleChapterSelect}
-          isDarkTheme={isDarkTheme}
-        />
+        {isNavbarVisible ? (
+          <TOC
+            chapters={chapters}
+            isVisible={isTOCVisible}
+            handleChapterSelect={handleChapterSelect}
+            isDarkTheme={isDarkTheme}
+          />
+        ) : null}
       </div>
     </div>
   );

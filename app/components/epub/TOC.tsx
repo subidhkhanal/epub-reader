@@ -18,16 +18,16 @@ const TOC: React.FC<TOCProps> = ({
 
   return (
     <div
-      className={`absolute top-0 right-0 w-[300px] h-full overflow-y-auto p-4 ${
-        isDarkTheme ? "bg-[#2c2c38] text-white" : "bg-white text-black"
+      className={`absolute top-0 right-0 w-[300px] h-full overflow-y-auto p-6 space-y-4 ${
+        isDarkTheme ? "bg-[#1c1c28] text-gray-300" : "bg-white text-black"
       }`}
     >
-      <h2 className="text-lg font-bold mb-4">Table of Contents</h2>
-      <ul>
+      <h2 className="text-xl font-extrabold mb-6">Table of Contents</h2>
+      <ul className="space-y-4">
         {chapters.map((chapter, index) => (
           <li
             key={index}
-            className="mb-2 cursor-pointer"
+            className="text-lg cursor-pointer hover:text-indigo-400 hover:underline transition duration-200"
             onClick={() => handleChapterSelect(chapter.href)}
           >
             {chapter.label}

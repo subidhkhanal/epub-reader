@@ -23,6 +23,7 @@ const ReadBook: React.FC = () => {
   const [currentChapter, setCurrentChapter] = useState<string>("");
   const [isTOCVisible, setIsTOCVisible] = useState<boolean>(false); // TOC visibility state
   const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // Navbar visibility state
+  const [isnavbarActive, setIsNavbarActive] = useState(false);
 
   //@ts-ignore
   const { isDarkTheme } = useContext(ThemeContext); // Access the theme from the context
@@ -69,6 +70,7 @@ const ReadBook: React.FC = () => {
           isDarkTheme={isDarkTheme}
           toggleTOC={() => setIsTOCVisible(!isTOCVisible)}
           isTOCVisible={isTOCVisible}
+          setIsNavbarActive={setIsNavbarActive}
         />
       )}
       <EpubReader
@@ -76,9 +78,10 @@ const ReadBook: React.FC = () => {
         onChapterChange={setCurrentChapter}
         isDarkTheme={isDarkTheme}
         isTOCVisible={isTOCVisible}
-        toggleTOC={() => setIsTOCVisible(!isTOCVisible)}
         setNavbarVisible={setIsNavbarVisible} // Pass the function to control navbar visibility
         isNavbarVisible={isNavbarVisible}
+        isnavbarActive={isNavbarVisible}
+        setIsTOCVisible={setIsTOCVisible}
       />
     </div>
   );

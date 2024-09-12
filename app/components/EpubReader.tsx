@@ -194,25 +194,22 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       // Attach rendition event listeners for selection and mouse clicks
       rendition.on("selected", handleSelection);
       let isMouseDown = false;
-      //@ts-ignore
-      let mouseDownTarget = null;
+      let mouseDownTarget: EventTarget | null = null;
       let mouseMoved = false;
-      //@ts-ignore
-
-      rendition.on("mousedown", function (event) {
+      rendition.on("mousedown", (event: MouseEvent) => {
         isMouseDown = true;
         mouseDownTarget = event.target; // Store the element where mousedown happened
         mouseMoved = false; // Reset mouseMoved to false
       });
 
-      rendition.on("mousemove", () => {
+      rendition.on("mousemove", (event: MouseEvent) => {
         mouseMoved = true; // Set mouseMoved to true if the mouse moves
       });
-      //@ts-ignore
-      rendition.on("mouseup", function (event) {
+
+      rendition.on("mouseup", (event: MouseEvent) => {
         // Check if the mouse was pressed and released on the same element, and no dragging occurred
-        //@ts-ignore
         if (isMouseDown && event.target === mouseDownTarget && !mouseMoved) {
+          console.log(setNavbarVisible);
           //@ts-ignore
           setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
         }
@@ -222,9 +219,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       // Cleanup event listeners on unmount
       return () => {
         rendition.off("keyup", KeyboardEvent);
+        rendition.off("selected", handleSelection);
+        rendition.off("mousedown", MouseEvent);
+        rendition.off("mousemove", MouseEvent);
+        rendition.off("mouseup", MouseEvent);
       };
     }
-  }, [rendition, setNavbarVisible, isTextSelected, isHighlightMenuOpen]);
+  }, [rendition]);
 
   // Handle key press & mouse wheel events which happen between iframe(epub.js) and arrow ui
   useEffect(() => {

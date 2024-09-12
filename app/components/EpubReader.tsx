@@ -50,6 +50,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   const [currentChapterHref, setCurrentChapterHref] = useState<string | null>(
     null
   );
+  // Ref to store the latest value of isTOCVisible
+  const isTOCVisibleRef = useRef(isTOCVisible);
 
   useEffect(() => {
     if (fileUrl && viewerRef.current && user) {
@@ -159,6 +161,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     setIsHighlightMenuOpen(true); // Open the highlight menu
   };
 
+  // Keep the ref updated with the latest state value
+  useEffect(() => {
+    isTOCVisibleRef.current = isTOCVisible;
+  }, [isTOCVisible]);
+
   // Handle arrow key, mouse wheel events and navbar visibility for navigation inside the iframe using ePub.js events
   useEffect(() => {
     if (rendition) {
@@ -209,9 +216,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       rendition.on("mouseup", (event: MouseEvent) => {
         // Check if the mouse was pressed and released on the same element, and no dragging occurred
         if (isMouseDown && event.target === mouseDownTarget && !mouseMoved) {
-          console.log(setNavbarVisible);
-          //@ts-ignore
-          setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
+          if (!isTOCVisibleRef.current) {
+            //@ts-ignore
+            setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
+            console.log("inside if", isTOCVisible);
+          } else {
+            setIsTOCVisible(false);
+          }
         }
         isMouseDown = false; // Reset the state after mouseup
         mouseDownTarget = null; // Reset the target
@@ -272,12 +283,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   };
 
-  useEffect(() => {
-    if (!isNavbarVisible) {
-      setIsTOCVisible(false);
-    }
-  }, [isNavbarVisible]);
-
   return (
     <div
       className={`flex h-[95vh] relative transition-colors duration-300 ${
@@ -334,17 +339,15 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         )}
 
         {/* Table of Contents */}
-        {isNavbarVisible ? (
-          <TOC
-            chapters={chapters}
-            isVisible={isTOCVisible}
-            handleChapterSelect={handleChapterSelect}
-            isDarkTheme={isDarkTheme}
-            //Check it later on most probably this import isnot used in toc component
-            //@ts-ignore
-            activeChapterHref={currentChapterHref} // Pass current chapter href
-          />
-        ) : null}
+        <TOC
+          chapters={chapters}
+          isVisible={isTOCVisible}
+          handleChapterSelect={handleChapterSelect}
+          isDarkTheme={isDarkTheme}
+          //Check it later on most probably this import isnot used in toc component
+          //@ts-ignore
+          activeChapterHref={currentChapterHref} // Pass current chapter href
+        />
       </div>
     </div>
   );

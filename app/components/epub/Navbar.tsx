@@ -6,17 +6,17 @@ import { FiMenu } from "react-icons/fi";
 interface NavbarProps {
   title: string; // The title of the book
   isDarkTheme: boolean; // Dark mode toggle
-  toggleTOC: () => void; // Function to toggle the Table of Contents (TOC)
   isTOCVisible: boolean; // Current state of the TOC visibility
   setIsNavbarActive: (isActive: boolean) => void;
+  setIsTOCVisible: (isTOCVisible: boolean) => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
   title,
   isDarkTheme,
-  toggleTOC,
   isTOCVisible,
   setIsNavbarActive,
+  setIsTOCVisible,
 }) => {
   return (
     <nav
@@ -33,11 +33,13 @@ const Navbar: React.FC<NavbarProps> = ({
         {title}
       </span>
       <button
-        onClick={toggleTOC}
+        onClick={() => {
+          setIsTOCVisible(!isTOCVisible); // Invert the current navbar visibility
+        }}
         aria-label={
           isTOCVisible ? "Hide Table of Contents" : "Show Table of Contents"
         }
-        className={`p-2 text-sm rounded-md transition-transform duration-300 hover:scale-105 active:scale-95 ${
+        className={`p-2 text-sm rounded-md transition-transform hover:scale-105 active:scale-95 ${
           isTOCVisible
             ? isDarkTheme
               ? "bg-[#5a5a68] text-gray-100 shadow-lg"

@@ -68,7 +68,7 @@ const ReadBook: React.FC = () => {
         <Navbar
           title={title}
           isDarkTheme={isDarkTheme}
-          toggleTOC={() => setIsTOCVisible(!isTOCVisible)}
+          setIsTOCVisible={setIsTOCVisible}
           isTOCVisible={isTOCVisible}
           setIsNavbarActive={setIsNavbarActive}
         />

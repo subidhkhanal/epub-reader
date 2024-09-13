@@ -210,25 +210,17 @@ li button.active {
     237,
     0.1
   ); /* Light blue background on hover for light theme */
-  color: #2c5282; /* Stronger color on hover for readability */
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .active-item {
   border-left: 4px solid #2c5282; /* Blue border for active items */
-  background-color: #dde1f9; /* Light blue background for active item */
-  color: #2c5282; /* Text color for active items in light theme */
   padding-left: 16px;
 }
 
 .toc-header.sticky {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid #ddd; /* Light gray border for the header in light theme */
-}
-
-.toc-dark-mode {
-  background-color: #1a1a2e;
-  color: #e0e0e0; /* Improved text contrast for dark mode */
+  box-shadow: 0 0 0 1px rgba(136, 152, 170, 0.2),
+    0 20px 40px 0 rgba(49, 49, 93, 0.15), 0 8px 20px 0 rgba(0, 0, 0, 0.1);
 }
 
 /* Added Box Shadow in TOC  */

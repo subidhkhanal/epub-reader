@@ -38,7 +38,7 @@ const TOC: React.FC<TOCProps> = ({
           className={`toc-header sticky top-0 h-[81px] flex items-center pl-4 text-[18px] leading-[1.75] ${
             isDarkTheme
               ? "bg-[#1a1a2e] text-white"
-              : "bg-gray-100 text-gray-900"
+              : "bg-gray-100 text-gray-900 border-b "
           }`}
           style={{ fontFamily: "Lora, serif" }}
         >
@@ -52,16 +52,19 @@ const TOC: React.FC<TOCProps> = ({
               const isActive = chapter.href === activeChapterHref;
               const activeStyles = isActive
                 ? isDarkTheme
-                  ? "active-item bg-[#333] text-[#9aa0b5]" // Active in dark mode
-                  : "active-item bg-[#dde1f9] text-black" // Active in light mode
+                  ? "active-item bg-[#37474f] text-[#e0f7fa]" // Active in dark mode
+                  : "active-item bg-[#dde1f9] text-[#2c5282]" // Active in light mode
                 : "hover:text-indigo-400 hover:bg-opacity-70";
 
               // Capitalize each word in the chapter label dynamically
               const formattedLabel = capitalizeEachWord(chapter?.label);
               return (
+                // bg-[#333]
                 <li
                   key={index}
-                  className={`toc-item text-lg cursor-pointer flex justify-between items-center py-3 transition-colors duration-300 ${activeStyles}`}
+                  className={`toc-item ${
+                    isDarkTheme ? "" : "hover:text-[#2c5282]"
+                  } text-lg cursor-pointer flex justify-between items-center py-3 transition-colors duration-300 ${activeStyles}`}
                   onClick={() => handleChapterSelect(chapter.href)}
                 >
                   <div className="flex items-center space-x-2">

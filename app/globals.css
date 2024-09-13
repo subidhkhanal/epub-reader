@@ -231,3 +231,11 @@ li button.active {
   background-color: #1a1a2e;
   color: #e0e0e0; /* Improved text contrast for dark mode */
 }
+
+/* Added Box Shadow in TOC  */
+@layer utilities {
+  .shadow-custom {
+    box-shadow: 0 0 0 1px rgba(136, 152, 170, 0.2),
+      0 20px 40px 0 rgba(49, 49, 93, 0.15), 0 8px 20px 0 rgba(0, 0, 0, 0.1);
+  }
+}

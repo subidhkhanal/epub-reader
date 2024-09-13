@@ -1,7 +1,7 @@
 /** @format */
 
 import React from "react";
-import { FiMenu } from "react-icons/fi";
+import { MdOutlineToc } from "react-icons/md";
 
 interface NavbarProps {
   title: string; // The title of the book
@@ -50,7 +50,11 @@ const Navbar: React.FC<NavbarProps> = ({
         }`}
         style={{ transition: "background-color 0.3s ease, color 0.3s ease" }}
       >
-        <FiMenu size={24} />
+        {/* <FiMenu size={24} /> */}
+        <MdOutlineToc
+          style={{ transform: "scaleX(-1) scale(1.3)" }}
+          size={24}
+        />
       </button>
     </nav>
   );

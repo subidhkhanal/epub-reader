@@ -199,7 +199,6 @@ li button.active {
 }
 
 .toc-item span {
-  display: inline-block;
   white-space: normal; /* Allows line breaks */
   overflow: visible; /* Ensure no content is hidden */
 }

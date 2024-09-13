@@ -344,6 +344,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           isVisible={isTOCVisible}
           handleChapterSelect={handleChapterSelect}
           isDarkTheme={isDarkTheme}
+          setIsTOCVisible={setIsTOCVisible}
           //Check it later on most probably this import isnot used in toc component
           //@ts-ignore
           activeChapterHref={currentChapterHref} // Pass current chapter href

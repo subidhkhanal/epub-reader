@@ -52,6 +52,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   );
   // Ref to store the latest value of isTOCVisible
   const isTOCVisibleRef = useRef(isTOCVisible);
+  const isHighlightMenuOpenRef = useRef(isTOCVisible);
 
   useEffect(() => {
     if (fileUrl && viewerRef.current && user) {
@@ -166,6 +167,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     isTOCVisibleRef.current = isTOCVisible;
   }, [isTOCVisible]);
 
+  useEffect(() => {
+    isHighlightMenuOpenRef.current = isHighlightMenuOpen;
+  }, [isHighlightMenuOpen]);
+
   // Handle arrow key, mouse wheel events and navbar visibility for navigation inside the iframe using ePub.js events
   useEffect(() => {
     if (rendition) {
@@ -216,10 +221,12 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       rendition.on("mouseup", (event: MouseEvent) => {
         // Check if the mouse was pressed and released on the same element, and no dragging occurred
         if (isMouseDown && event.target === mouseDownTarget && !mouseMoved) {
-          if (!isTOCVisibleRef.current) {
+          console.log("navbar");
+          if (!isTOCVisibleRef.current && !isHighlightMenuOpenRef.current) {
+            console.log("navbar inside");
             //@ts-ignore
             setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
-            console.log("inside if", isTOCVisible);
+            // console.log("inside if", isTOCVisible);
           } else {
             setIsTOCVisible(false);
           }
@@ -236,7 +243,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         rendition.off("mouseup", MouseEvent);
       };
     }
-  }, [rendition]);
+  }, [rendition, isHighlightMenuOpen]);
 
   // Handle key press & mouse wheel events which happen between iframe(epub.js) and arrow ui
   useEffect(() => {
@@ -334,7 +341,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             //@ts-ignore
             bookId={bookId}
             onOpen={() => setIsHighlightMenuOpen(true)} // Set menu open handler
-            onClose={() => setIsHighlightMenuOpen(false)} // Set menu close handler
+            onClose={() => {
+              setTimeout(() => {
+                setIsHighlightMenuOpen(false);
+              }, 200); // 0.1 second delay
+            }}
           />
         )}
 

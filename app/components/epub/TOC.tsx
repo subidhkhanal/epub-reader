@@ -27,7 +27,7 @@ const TOC: React.FC<TOCProps> = ({
   return (
     <>
       <aside
-        className={`scrollbar-thumb-gray-200 fixed top-0 shadow-custom right-0 z-50 md:w-[400px] overflow-x-hidden pb-6 mb-4 transition-transform transform transition-colors duration-500 ease-in-out ${
+        className={` fixed top-0 shadow-custom right-0 z-50 md:w-[400px] overflow-x-hidden pb-6 mb-4 transition-transform transform transition-colors duration-500 ease-in-out ${
           isDarkTheme
             ? "bg-[#1a1a2e] text-gray-300 border-[#444]"
             : "bg-white text-black border-[#ddd]"
@@ -46,7 +46,7 @@ const TOC: React.FC<TOCProps> = ({
         </div>
 
         {/* Chapters List */}
-        <div className="overflow-y-auto h-[calc(100vh-91px)] !mt-0">
+        <div className="toc-scrollbar overflow-y-auto h-[calc(100vh-91px)] !mt-0">
           <ul className="space-y-2">
             {chapters.map((chapter, index) => {
               const isActive = chapter.href === activeChapterHref;

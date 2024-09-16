@@ -223,10 +223,31 @@ li button.active {
     0 20px 40px 0 rgba(49, 49, 93, 0.15), 0 8px 20px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* Added Box Shadow in TOC  */
+/* Made custom changes in TOC  */
 @layer utilities {
   .shadow-custom {
     box-shadow: 0 0 0 1px rgba(136, 152, 170, 0.2),
       0 20px 40px 0 rgba(49, 49, 93, 0.15), 0 8px 20px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .toc-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    transition: 1s;
+  }
+
+  .toc-scrollbar::-webkit-scrollbar-track {
+    border-radius: 100vh;
+    background: none;
+  }
+
+  .toc-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(127, 127, 127, 0.6);
+    background-clip: padding-box;
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent;
+    border-radius: 5px;
+    transition: 1s;
   }
 }

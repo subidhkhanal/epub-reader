@@ -12,7 +12,6 @@ interface NavBarProps {
   setSearchTerm: (term: string) => void;
   onMenuClick: () => void;
   isDarkTheme: boolean; // Add dark theme prop
-  // onThemeToggle: () => void; // Add theme toggle function
 }
 
 const NavBar: React.FC<NavBarProps> = ({
@@ -20,13 +19,12 @@ const NavBar: React.FC<NavBarProps> = ({
   setSearchTerm,
   onMenuClick,
   isDarkTheme,
-  // onThemeToggle,
 }) => {
   const [user] = useAuthState(auth);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  //@ts-ignore
-  // const { isDarkTheme, toggleTheme } = useContext(ThemeContext); // Use the theme context
+  const [showSmallSearch, setShowSmallSearch] = useState(false);
+  const smallSearchRef = useRef<HTMLDivElement>(null); // Reference for the small search input
 
   const handleGoogleSignIn = async () => {
     try {
@@ -71,9 +69,34 @@ const NavBar: React.FC<NavBarProps> = ({
     };
   }, [dropdownVisible]);
 
+  // Close small search input if clicked outside
+  useEffect(() => {
+    const handleClickOutsideSmallSearch = (event: MouseEvent | TouchEvent) => {
+      if (
+        smallSearchRef.current &&
+        !smallSearchRef.current.contains(event.target as Node)
+      ) {
+        setShowSmallSearch(false);
+      }
+    };
+
+    if (showSmallSearch) {
+      document.addEventListener("mousedown", handleClickOutsideSmallSearch);
+      document.addEventListener("touchstart", handleClickOutsideSmallSearch);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutsideSmallSearch);
+      document.removeEventListener("touchstart", handleClickOutsideSmallSearch);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideSmallSearch);
+      document.removeEventListener("touchstart", handleClickOutsideSmallSearch);
+    };
+  }, [showSmallSearch]);
+
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-1000 flex justify-between items-center p-4 transition-all duration-300 ${
+      className={`fixed top-0 left-0 w-full z-1000 flex justify-between items-center p-4 pl-2 transition-all duration-300 ${
         isDarkTheme
           ? "bg-[#18212f] text-[#F3F4F6] shadow-lg" // Dark theme styles with slate gray background
           : "bg-gradient-to-br from-[#1d2b64] to-[#f8cdda] text-white shadow-md" // Light theme styles
@@ -81,32 +104,70 @@ const NavBar: React.FC<NavBarProps> = ({
     >
       {/* Left: Menu and Logo */}
       <div className="flex items-center">
-        <FaBars className="text-lg cursor-pointer" onClick={onMenuClick} />
-        <span className="ml-2 font-bold text-xl">My Books</span>
+        <FaBars
+          className="text-lg cursor-pointer block"
+          onClick={onMenuClick}
+        />
+        <span className="ml-2 font-bold text-xl sm:block hidden">My Books</span>
       </div>
 
       {/* Middle: Search Bar */}
-      <div className="flex-1 flex justify-center items-center">
-        <div
-          className={`flex items-center rounded-full px-4 py-2 w-full max-w-xl ${
-            isDarkTheme
-              ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
-              : "bg-white text-gray-800 shadow-md" // Light theme styles
-          }`}
-        >
-          <FaSearch className="text-gray-400 mr-2" />
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-grow bg-transparent border-none outline-none text-base"
-          />
-        </div>
+      <div className="flex-1 sm:flex justify-center items-center">
+        {showSmallSearch ? (
+          <div
+            className={`sm:hidden flex items-center rounded-full px-4 py-2 w-full max-w-xl ${
+              isDarkTheme
+                ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
+                : "bg-white text-gray-800 shadow-md" // Light theme styles
+            }`}
+            ref={smallSearchRef}
+          >
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm
+              className="w-full bg-transparent border-none outline-none text-base"
+            />
+          </div>
+        ) : (
+          <div
+            className={`sm:flex hidden items-center rounded-full px-4 py-2 w-full max-w-xl ${
+              isDarkTheme
+                ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
+                : "bg-white text-gray-800 shadow-md" // Light theme styles
+            }`}
+          >
+            <FaSearch className="text-gray-400 mr-2 sm:block hidden" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-grow bg-transparent border-none outline-none text-base sm:block hidden"
+            />
+          </div>
+        )}
       </div>
 
       {/* Right: Theme Toggle and User Profile */}
       <div className="flex items-center relative">
+        {user ? (
+          /* Small Devices: Search Icon and Search Input */
+          <div className="sm:hidden" ref={smallSearchRef}>
+            <FaSearch
+              className={`text-gray-400 mr-4 cursor-pointer ${
+                showSmallSearch ? "hidden" : "block"
+              }`}
+              onClick={() => {
+                setShowSmallSearch(true); // Show the search input
+              }}
+            />
+          </div>
+        ) : (
+          " "
+        )}
+
         <ThemeToggleButton />
 
         {user ? (

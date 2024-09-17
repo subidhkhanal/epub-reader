@@ -41,16 +41,16 @@ const Navbar: React.FC<NavbarProps> = ({
       onClick={() => setIsNavbarActive(true)}
     >
       <div className="flex items-center">
-        <div
-          className={`mr-3.5 p-2  flex transform scale-110 p-2 rounded-full cursor-pointer transition-transform duration-300 ${
-            isFullscreen ? "" : " "
-          } ${isDarkTheme ? "hover:bg-[#444455]" : "hover:bg-[#dde1f9]"}
+        <Link href="/">
+          <div
+            className={`mr-3.5 p-2  flex transform scale-110 p-2 rounded-full cursor-pointer transition-transform duration-300 ${
+              isFullscreen ? "" : " "
+            } ${isDarkTheme ? "hover:bg-[#444455]" : "hover:bg-[#dde1f9]"}
         `}
-        >
-          <Link href="/">
+          >
             <FaArrowLeft size={17} />
-          </Link>
-        </div>
+          </div>
+        </Link>
 
         <div
           className={`text-lg font-semibold ${

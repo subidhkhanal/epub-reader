@@ -57,7 +57,6 @@ const ReadBook: React.FC = () => {
   if (!fileUrl) {
     return <div>Loading...</div>;
   }
-
   return (
     <div
       className={`flex flex-col h-screen transition-colors duration-300 ${

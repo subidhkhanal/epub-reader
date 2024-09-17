@@ -147,13 +147,12 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     setNavbarVisible((prevState) => !prevState); // Show the Navbar
   };
 
+  // Move to the selected chapter
   const handleChapterSelect = (chapterHref: string) => {
-    // Move to the selected chapter
     if (rendition) {
       rendition.display(chapterHref);
       onChapterChange(chapterHref);
     }
-    // setIsTOCVisible(!isTOCVisible); // Hide TOC after selecting a chapter
   };
 
   // Handle text selection
@@ -221,9 +220,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       rendition.on("mouseup", (event: MouseEvent) => {
         // Check if the mouse was pressed and released on the same element, and no dragging occurred
         if (isMouseDown && event.target === mouseDownTarget && !mouseMoved) {
-          console.log("navbar");
+          // console.log("navbar");
           if (!isTOCVisibleRef.current && !isHighlightMenuOpenRef.current) {
-            console.log("navbar inside");
+            // console.log("navbar inside");
             //@ts-ignore
             setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
             // console.log("inside if", isTOCVisible);

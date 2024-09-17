@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { MdOutlineToc } from "react-icons/md";
 import { FaExpand, FaCompress, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
+import { FiSettings } from "react-icons/fi";
 
 interface NavbarProps {
   title: string; // The title of the book
@@ -72,16 +73,13 @@ const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
       <div className="flex items-center">
-        <button
+        <FiSettings
           onClick={() => newCurrentFlow()}
-          className={`text-sm px-3 py-1 rounded-md transition-all duration-300 ${
-            isDarkTheme
-              ? "bg-[#444455] text-gray-100 hover:bg-[#525268]"
-              : "bg-[#d3d3e0] text-gray-800 hover:bg-[#b3b7d8]"
+          className={`transition-all duration-300 cursor-pointer ${
+            isDarkTheme ? "hover:bg-[#525268]" : "hover:bg-[#b3b7d8]"
           }`} // Added button styling for consistency
-        >
-          View Mode
-        </button>
+          size={24}
+        />
         <button
           onClick={() => {
             setIsTOCVisible(!isTOCVisible); // Invert the current navbar visibility

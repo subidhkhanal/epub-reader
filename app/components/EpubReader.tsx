@@ -310,6 +310,79 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   });
 
+  // // Handle arrowdown and arrowup keyboard events for scrolling inside the iframe for flow is scrolled
+  // useEffect(() => {
+  //   if (rendition) {
+  //     if (currentFlow === "scrolled") {
+  //       rendition.on("rendered", () => {
+  //         // Get the content from the currently rendered section
+  //         const contents = rendition.getContents();
+
+  //         if (contents && contents.length > 0) {
+  //           const iframeDocument = contents[0].document; // Get the document from the first content item
+
+  //           // Add keydown event listener for up and down arrow keys
+  //           iframeDocument.addEventListener(
+  //             "keydown",
+  //             (event: KeyboardEvent) => {
+  //               const scrollAmount = 100; // Adjust this value to control scroll speed
+  //               console.log("inside iframe", scrollAmount);
+
+  //               if (event.key === "ArrowDown") {
+  //                 event.preventDefault(); // Prevent the default behavior
+  //                 // Scroll down
+  //                 iframeDocument.documentElement.scrollTop += scrollAmount;
+  //               } else if (event.key === "ArrowUp") {
+  //                 event.preventDefault(); // Prevent the default behavior
+  //                 // Scroll up
+  //                 iframeDocument.documentElement.scrollTop -= scrollAmount;
+  //               }
+  //             }
+  //           );
+  //         }
+  //       });
+  //     }
+  //   }
+
+  //   // Cleanup event listeners when the component unmounts
+  //   return () => {
+  //     if (rendition) {
+  //       const contents = rendition.getContents();
+  //       if (contents && contents.length > 0) {
+  //         const iframeDocument = contents[0].document;
+  //         iframeDocument.removeEventListener("keydown", () => {});
+  //       }
+  //     }
+  //   };
+  // }, [rendition, currentFlow]); // Added currentFlow as a dependency to re-run when it changes
+
+  // // Handle mouse wheel events which happen between iframe(epub.js) and arrow ui if flow is paginated
+  // useEffect(() => {
+  //   if (currentFlow === "scrolled") {
+  //     const handleArrows = (event: KeyboardEvent) => {
+  //       const scrollAmount = 100; // Adjust this value to control scroll speed
+  //       console.log("inside document", scrollAmount);
+
+  //       if (event.key === "ArrowDown") {
+  //         console.log(event.key);
+  //         event.preventDefault(); // Prevent the default behavior
+  //         // Scroll down
+  //         document.documentElement.scrollTop += scrollAmount;
+  //       } else if (event.key === "ArrowUp") {
+  //         event.preventDefault(); // Prevent the default behavior
+  //         // Scroll up
+  //         document.documentElement.scrollTop -= scrollAmount;
+  //       }
+  //       document.addEventListener("keydown", handleArrows);
+
+  //       // Cleanup function to remove the event listener
+  //       return () => {
+  //         document.removeEventListener("keydown", handleArrows);
+  //       };
+  //     };
+  //   }
+  // }, [currentFlow]);
+
   const goToNextPage = async () => {
     if (rendition) {
       await rendition.next(); // Navigate to the next page
@@ -383,6 +456,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             bookId={bookId}
             onOpen={() => setIsHighlightMenuOpen(true)} // Set menu open handler
             onClose={() => {
+              // adding timeout so that click and selection event listener willnot trigger at once
               setTimeout(() => {
                 setIsHighlightMenuOpen(false);
               }, 200); // 0.1 second delay

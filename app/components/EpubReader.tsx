@@ -56,6 +56,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   const isTOCVisibleRef = useRef(isTOCVisible);
   const isHighlightMenuOpenRef = useRef(isTOCVisible);
 
+  // State to track touch positions for swipe gestures
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
   useEffect(() => {
     // Destroy the existing rendition before reinitializing
     if (rendition) {
@@ -304,6 +308,59 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       };
     }
   });
+
+  // Add swipe detection event listeners when flow is scrolled
+  useEffect(() => {
+    if (currentFlow === "scrolled") {
+      const viewer = viewerRef.current;
+
+      // Start touch
+      const handleTouchStart = (e: TouchEvent) => {
+        setTouchStartX(e.touches[0].clientX);
+      };
+
+      // Move touch (optional, used to prevent swipe when user scrolls)
+      const handleTouchMove = (e: TouchEvent) => {
+        setTouchEndX(e.touches[0].clientX);
+      };
+
+      // End touch
+      const handleTouchEnd = () => {
+        if (touchStartX !== null && touchEndX !== null) {
+          const swipeDistance = touchStartX - touchEndX;
+
+          // Set minimum swipe distance
+          const minSwipeDistance = 50;
+
+          // If swipe distance exceeds minimum swipe distance
+          if (swipeDistance > minSwipeDistance) {
+            goToNextPage(); // Swipe left
+          } else if (swipeDistance < -minSwipeDistance) {
+            goToPreviousPage(); // Swipe right
+          }
+        }
+
+        // Reset touch positions
+        setTouchStartX(null);
+        setTouchEndX(null);
+      };
+
+      if (viewer) {
+        viewer.addEventListener("touchstart", handleTouchStart);
+        viewer.addEventListener("touchmove", handleTouchMove);
+        viewer.addEventListener("touchend", handleTouchEnd);
+      }
+
+      // Clean up
+      return () => {
+        if (viewer) {
+          viewer.removeEventListener("touchstart", handleTouchStart);
+          viewer.removeEventListener("touchmove", handleTouchMove);
+          viewer.removeEventListener("touchend", handleTouchEnd);
+        }
+      };
+    }
+  }, [currentFlow, touchStartX, touchEndX]);
 
   const goToNextPage = async () => {
     if (rendition) {

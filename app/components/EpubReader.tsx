@@ -56,10 +56,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   const isTOCVisibleRef = useRef(isTOCVisible);
   const isHighlightMenuOpenRef = useRef(isTOCVisible);
 
-  // State to track touch positions for swipe gestures
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const [touchEndX, setTouchEndX] = useState<number | null>(null);
-
   useEffect(() => {
     // Destroy the existing rendition before reinitializing
     if (rendition) {
@@ -94,7 +90,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
               "font-family": "Georgia, serif", // Continue with Georgia for a comfortable reading experience
               "font-size": "18px !important", // Keep font size
               "line-height": "1.75 !important", // Keep line-height for readability
-              "background-color": isDarkTheme ? "#1c1c28" : "#f4f4f9", // Softer dark mode background
+              "background-color": isDarkTheme ? "#000000" : "#f4f4f9", // Softer dark mode background
               color: isDarkTheme ? "#d1d5db" : "#333333", // Softer text color for dark mode
               padding: "20px", // Add padding for comfortable spacing
             },
@@ -309,59 +305,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   });
 
-  useEffect(() => {
-    if (rendition) {
-      // Listen for the "rendered" event to add touch events to the newly rendered section
-      //@ts-ignore
-      rendition.on("rendered", (section) => {
-        // Directly access the document of the rendered section
-        const content = section.document;
-
-        // Define touch event handlers
-        const handleTouchStart = (e: TouchEvent) => {
-          setTouchStartX(e.touches[0].clientX);
-        };
-
-        const handleTouchMove = (e: TouchEvent) => {
-          setTouchEndX(e.touches[0].clientX);
-        };
-
-        const handleTouchEnd = () => {
-          if (touchStartX !== null && touchEndX !== null) {
-            const swipeDistance = touchStartX - touchEndX;
-            const minSwipeDistance = 50; // Minimum swipe distance to trigger navigation
-
-            if (swipeDistance > minSwipeDistance) {
-              goToNextPage(); // Swipe left
-            } else if (swipeDistance < -minSwipeDistance) {
-              goToPreviousPage(); // Swipe right
-            }
-          }
-
-          // Reset touch positions
-          setTouchStartX(null);
-          setTouchEndX(null);
-        };
-
-        // Add touch event listeners to the iframe's document
-        if (content) {
-          content.addEventListener("touchstart", handleTouchStart);
-          content.addEventListener("touchmove", handleTouchMove);
-          content.addEventListener("touchend", handleTouchEnd);
-        }
-
-        // Clean up the event listeners
-        return () => {
-          if (content) {
-            content.removeEventListener("touchstart", handleTouchStart);
-            content.removeEventListener("touchmove", handleTouchMove);
-            content.removeEventListener("touchend", handleTouchEnd);
-          }
-        };
-      });
-    }
-  }, [rendition, touchStartX, touchEndX]);
-
   const goToNextPage = async () => {
     if (rendition) {
       await rendition.next(); // Navigate to the next page
@@ -377,7 +320,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   return (
     <div
       className={`flex h-[95vh] relative transition-colors duration-300 ${
-        isDarkTheme ? "bg-[#1c1c28] text-white" : "bg-[#f4f4f9] text-black"
+        isDarkTheme ? "bg-[#000000] text-white" : "bg-[#f4f4f9] text-black"
       }`}
     >
       <div className="flex-1 relative flex h-full overflow-hidden">

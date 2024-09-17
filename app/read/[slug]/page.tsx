@@ -64,7 +64,7 @@ const ReadBook: React.FC = () => {
   return (
     <div
       className={`flex flex-col h-screen transition-colors duration-300 ${
-        isDarkTheme ? "bg-[#1c1c28] text-white" : "bg-[#f4f4f9] text-gray-900"
+        isDarkTheme ? "bg-[#000000] text-white" : "bg-[#f4f4f9] text-gray-900"
       }`}
     >
       {isNavbarVisible && (

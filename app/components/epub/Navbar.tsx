@@ -44,8 +44,8 @@ const Navbar: React.FC<NavbarProps> = ({
     <nav
       className={`pl-1.5	p-4 flex items-center justify-between shadow-md transition-all duration-300 ${
         isDarkTheme
-          ? "bg-gradient-to-r from-[#2c2c38] to-[#3a3a4a]"
-          : "bg-[#d3d3e0]"
+          ? "bg-gradient-to-r from-[#1e1e28] to-[#2b2b36]"
+          : "bg-[#e0e4eb]"
       } rounded-lg`}
       onClick={() => setIsNavbarActive(true)}
     >
@@ -54,7 +54,7 @@ const Navbar: React.FC<NavbarProps> = ({
           <div
             className={`mr-3.5 p-2  flex transform scale-110 p-2 rounded-full cursor-pointer transition-transform duration-300 ${
               isFullscreen ? "" : " "
-            } ${isDarkTheme ? "hover:bg-[#444455]" : "hover:bg-[#dde1f9]"}
+            } ${isDarkTheme ? "hover:bg-[#3d3d4a]" : "hover:bg-[#cdd3f3]"}
         `}
           >
             <FaArrowLeft size={17} />
@@ -63,14 +63,23 @@ const Navbar: React.FC<NavbarProps> = ({
 
         <div
           className={`text-lg font-semibold ${
-            isDarkTheme ? " " : "text-[#333]"
+            isDarkTheme ? "text-gray-200" : "text-[#333]"
           }`}
         >
           {title}
         </div>
       </div>
       <div className="flex items-center">
-        <button onClick={() => newCurrentFlow()}>View Mode</button>
+        <button
+          onClick={() => newCurrentFlow()}
+          className={`text-sm px-3 py-1 rounded-md transition-all duration-300 ${
+            isDarkTheme
+              ? "bg-[#444455] text-gray-100 hover:bg-[#525268]"
+              : "bg-[#d3d3e0] text-gray-800 hover:bg-[#b3b7d8]"
+          }`} // Added button styling for consistency
+        >
+          View Mode
+        </button>
         <button
           onClick={() => {
             setIsTOCVisible(!isTOCVisible); // Invert the current navbar visibility
@@ -82,10 +91,10 @@ const Navbar: React.FC<NavbarProps> = ({
             isTOCVisible
               ? isDarkTheme
                 ? "bg-[#5a5a68] text-gray-100 shadow-lg"
-                : "bg-[#d3d3e0] text-gray-800 shadow-lg"
+                : "bg-[#c3c7d5] text-gray-800 shadow-lg"
               : isDarkTheme
-              ? "bg-transparent text-gray-100 hover:bg-[#444455] hover:text-white"
-              : "bg-transparent text-gray-800 hover:bg-[#dde1f9]  hover:text-black hover:text-gray-900"
+              ? "bg-transparent text-gray-100 hover:bg-[#3d3d4a] hover:text-white"
+              : "bg-transparent text-gray-800 hover:bg-[#cdd3f3]  hover:text-black"
           }`}
           style={{ transition: "background-color 0.3s ease, color 0.3s ease" }}
         >
@@ -100,7 +109,7 @@ const Navbar: React.FC<NavbarProps> = ({
           onClick={handleFullscreen}
           className={`transform scale-110 p-2 rounded-full cursor-pointer transition-transform duration-300 ${
             isFullscreen ? "" : " "
-          } ${isDarkTheme ? "hover:bg-[#444455]" : "hover:bg-[#dde1f9]"}
+          } ${isDarkTheme ? "hover:bg-[#3d3d4a]" : "hover:bg-[#cdd3f3]"}
         `}
         >
           {isFullscreen ? <FaCompress size={20} /> : <FaExpand size={20} />}

@@ -93,6 +93,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
               "background-color": isDarkTheme ? "#000000" : "#f4f4f9", // Softer dark mode background
               color: isDarkTheme ? "#d1d5db" : "#333333", // Softer text color for dark mode
               padding: "20px", // Add padding for comfortable spacing
+              "max-width": currentFlow === "scrolled" ? "48rem" : "inherit",
+              "margin-left":
+                currentFlow === "scrolled" ? "auto !important" : "0px",
+              "margin-right":
+                currentFlow === "scrolled" ? "auto !important" : "0px",
             },
             ".epub-container": {
               "overflow-x": "hidden", // Hide horizontal overflow for the body element

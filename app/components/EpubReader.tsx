@@ -23,6 +23,7 @@ interface EpubReaderProps {
   isNavbarVisible: boolean;
   isnavbarActive: boolean;
   setIsTOCVisible: (isTOCVisible: boolean) => void;
+  currentFlow: string;
 }
 
 const EpubReader: React.FC<EpubReaderProps> = ({
@@ -35,6 +36,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   isNavbarVisible,
   isnavbarActive,
   setIsTOCVisible,
+  currentFlow,
 }) => {
   const viewerRef = useRef<HTMLDivElement>(null);
   const [book, setBook] = useState<Book | null>(null);
@@ -65,7 +67,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           const loadedRendition = loadedBook.renderTo(viewerRef.current, {
             width: "100%",
             height: "100%",
-            flow: "paginated", // Use paginated flow
+            flow: currentFlow, // flow determined through the navbar button
             spread: "auto", // Enable two-column layout if applicable
           });
 
@@ -80,6 +82,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
               "background-color": isDarkTheme ? "#1c1c28" : "#f4f4f9", // Softer dark mode background
               color: isDarkTheme ? "#d1d5db" : "#333333", // Softer text color for dark mode
               padding: "20px", // Add padding for comfortable spacing
+            },
+            ".epub-container": {
+              "overflow-x": "hidden", // Hide horizontal overflow for the body element
             },
           });
 
@@ -139,7 +144,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }
       };
     }
-  }, [fileUrl, user, isDarkTheme]);
+  }, [fileUrl, user, isDarkTheme, currentFlow]);
 
   // This function will manage when the Navbar is shown/hidden
   const toggleNavbarVisibility = () => {
@@ -161,11 +166,12 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     setIsHighlightMenuOpen(true); // Open the highlight menu
   };
 
-  // Keep the ref updated with the latest state value
+  // Keep the ref updated with the latest isTOCVisible state value
   useEffect(() => {
     isTOCVisibleRef.current = isTOCVisible;
   }, [isTOCVisible]);
 
+  // Keep the ref updated with the latest isHighlightMenuOpen state value
   useEffect(() => {
     isHighlightMenuOpenRef.current = isHighlightMenuOpen;
   }, [isHighlightMenuOpen]);
@@ -182,25 +188,27 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }
       });
 
-      //Give page change when wheels changes from the mouse
-      rendition.on("rendered", () => {
-        // Get the content from the currently rendered section
-        const contents = rendition.getContents();
+      //Give page change when wheels changes from the mouse if flow is paginated
+      if (currentFlow === "paginated") {
+        rendition.on("rendered", () => {
+          // Get the content from the currently rendered section
+          const contents = rendition.getContents();
 
-        //@ts-ignore
-        if (contents && contents.length > 0) {
           //@ts-ignore
-          const iframeDocument = contents[0].document; // Get the document from the first content item
+          if (contents && contents.length > 0) {
+            //@ts-ignore
+            const iframeDocument = contents[0].document; // Get the document from the first content item
 
-          iframeDocument.addEventListener("wheel", (event: WheelEvent) => {
-            if (event.deltaY > 0) {
-              goToNextPage();
-            } else if (event.deltaY < 0) {
-              goToPreviousPage();
-            }
-          });
-        }
-      });
+            iframeDocument.addEventListener("wheel", (event: WheelEvent) => {
+              if (event.deltaY > 0) {
+                goToNextPage();
+              } else if (event.deltaY < 0) {
+                goToPreviousPage();
+              }
+            });
+          }
+        });
+      }
 
       // Attach rendition event listeners for selection and mouse clicks
       rendition.on("selected", handleSelection);
@@ -244,7 +252,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   }, [rendition, isHighlightMenuOpen]);
 
-  // Handle key press & mouse wheel events which happen between iframe(epub.js) and arrow ui
+  // Handle key press events which happen between iframe(epub.js) and arrow ui
   useEffect(() => {
     if (!isnavbarActive) {
       const handleKeys = (event: KeyboardEvent) => {
@@ -256,6 +264,19 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }
       };
 
+      // Attach the event listener
+      document.addEventListener("keydown", handleKeys);
+
+      // Cleanup function to remove the event listener
+      return () => {
+        document.removeEventListener("keydown", handleKeys);
+      };
+    }
+  });
+
+  // Handle mouse wheel events which happen between iframe(epub.js) and arrow ui if flow is paginated
+  useEffect(() => {
+    if (currentFlow === "paginated") {
       const handleWheels = (event: WheelEvent) => {
         if (event.deltaY < 0) {
           goToNextPage();
@@ -264,14 +285,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           goToPreviousPage();
         }
       };
-
-      // Attach the event listener
-      document.addEventListener("keydown", handleKeys);
       document.addEventListener("wheel", handleWheels);
 
       // Cleanup function to remove the event listener
       return () => {
-        document.removeEventListener("keydown", handleKeys);
         document.removeEventListener("wheel", handleWheels);
       };
     }
@@ -295,43 +312,52 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         isDarkTheme ? "bg-[#1c1c28] text-white" : "bg-[#f4f4f9] text-black"
       }`}
     >
-      {/* EPUB Viewer */}
-
       <div className="flex-1 relative flex h-full overflow-hidden">
-        <div
-          className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
-          onClick={goToPreviousPage}
-        >
-          <button
-            className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 ${
-              isDarkTheme
-                ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
-                : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]"
-            } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+        {/* EPUB Viewer */}
+        {currentFlow === "paginated" ? (
+          <div
+            className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
+            onClick={goToPreviousPage}
           >
-            &#10094; {/* Stylized arrow for a modern look */}
-          </button>
-        </div>
+            <button
+              className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 ${
+                isDarkTheme
+                  ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
+                  : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]"
+              } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+            >
+              &#10094; {/* Stylized arrow for a modern look */}
+            </button>
+          </div>
+        ) : (
+          " "
+        )}
         <div
           id="viewer"
           ref={viewerRef}
-          className="flex-1 h-full p-[20px]"
+          className={`flex-1 h-full ${
+            currentFlow === "paginated" ? "p-[20px]" : ""
+          }`}
           onClick={toggleNavbarVisibility}
         />
-        <div
-          className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
-          onClick={goToNextPage}
-        >
-          <button
-            className={`absolute right-2.5 top-1/2 transform -translate-y-1/2 ${
-              isDarkTheme
-                ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
-                : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]" // Softer light mode styles
-            } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+        {currentFlow === "paginated" ? (
+          <div
+            className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
+            onClick={goToNextPage}
           >
-            &#10095; {/* Stylized arrow for a modern look */}
-          </button>
-        </div>
+            <button
+              className={`absolute right-2.5 top-1/2 transform -translate-y-1/2 ${
+                isDarkTheme
+                  ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
+                  : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]" // Softer light mode styles
+              } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+            >
+              &#10095; {/* Stylized arrow for a modern look */}
+            </button>
+          </div>
+        ) : (
+          " "
+        )}
 
         {rendition && user && (
           <HighlightMenu

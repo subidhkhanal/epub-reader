@@ -11,6 +11,8 @@ interface NavbarProps {
   isTOCVisible: boolean; // Current state of the TOC visibility
   setIsNavbarActive: (isActive: boolean) => void;
   setIsTOCVisible: (isTOCVisible: boolean) => void;
+  currentFlow: string;
+  setCurrentFlow: (currentFlow: string) => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -19,6 +21,8 @@ const Navbar: React.FC<NavbarProps> = ({
   isTOCVisible,
   setIsNavbarActive,
   setIsTOCVisible,
+  currentFlow,
+  setCurrentFlow,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -30,6 +34,11 @@ const Navbar: React.FC<NavbarProps> = ({
       document.exitFullscreen();
       setIsFullscreen(false);
     }
+  };
+
+  const newCurrentFlow = () => {
+    const newFlow = currentFlow === "paginated" ? "scrolled" : "paginated";
+    setCurrentFlow(newFlow);
   };
   return (
     <nav
@@ -61,6 +70,7 @@ const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
       <div className="flex items-center">
+        <button onClick={() => newCurrentFlow()}>View Mode</button>
         <button
           onClick={() => {
             setIsTOCVisible(!isTOCVisible); // Invert the current navbar visibility

@@ -59,8 +59,13 @@ li button.active {
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  padding: 20px;
   box-sizing: border-box;
+}
+
+/* Used to hide the x-axis scrollbar for div below viewer div and above the iframe  */
+.epub-container {
+  overflow-x: hidden !important; /* Hide horizontal overflow */
+  max-width: 100%; /* Ensure container width doesn't exceed the viewport */
 }
 
 .uploaded-books {

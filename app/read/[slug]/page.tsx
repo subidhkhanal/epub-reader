@@ -24,7 +24,11 @@ const ReadBook: React.FC = () => {
   const [isTOCVisible, setIsTOCVisible] = useState<boolean>(false); // TOC visibility state
   const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // Navbar visibility state
   const [isnavbarActive, setIsNavbarActive] = useState(false);
-
+  // Determine the initial flow based on the screen width
+  const [currentFlow, setCurrentFlow] = useState(() => {
+    // Check the screen width
+    return window.innerWidth < 940 ? "scrolled" : "paginated";
+  });
   //@ts-ignore
   const { isDarkTheme } = useContext(ThemeContext); // Access the theme from the context
 
@@ -70,6 +74,8 @@ const ReadBook: React.FC = () => {
           setIsTOCVisible={setIsTOCVisible}
           isTOCVisible={isTOCVisible}
           setIsNavbarActive={setIsNavbarActive}
+          currentFlow={currentFlow}
+          setCurrentFlow={setCurrentFlow}
         />
       )}
       <EpubReader
@@ -81,6 +87,7 @@ const ReadBook: React.FC = () => {
         isNavbarVisible={isNavbarVisible}
         isnavbarActive={isNavbarVisible}
         setIsTOCVisible={setIsTOCVisible}
+        currentFlow={currentFlow}
       />
     </div>
   );

@@ -57,12 +57,23 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   const isHighlightMenuOpenRef = useRef(isTOCVisible);
 
   useEffect(() => {
+    // Destroy the existing rendition before reinitializing
+    if (rendition) {
+      rendition.destroy();
+    }
+
     if (fileUrl && viewerRef.current && user) {
       const loadBook = async () => {
         try {
           const loadedBook = ePub(fileUrl);
           const userData = await loadUserData(user.uid, bookId);
           const highlights = await loadHighlights(user.uid, bookId);
+
+          // Clear the previous content
+          if (viewerRef.current) {
+            viewerRef.current.innerHTML = "";
+          }
+
           //@ts-ignore
           const loadedRendition = loadedBook.renderTo(viewerRef.current, {
             width: "100%",

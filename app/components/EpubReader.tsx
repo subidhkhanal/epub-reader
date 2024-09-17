@@ -346,7 +346,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         <div
           id="viewer"
           ref={viewerRef}
-          className={`flex-1 h-full ${
+          className={`flex-1 h-full toc-scrollbar ${
             currentFlow === "paginated" ? "p-[20px]" : ""
           }`}
           onClick={toggleNavbarVisibility}

@@ -68,6 +68,26 @@ li button.active {
   max-width: 100%; /* Ensure container width doesn't exceed the viewport */
 }
 
+.epub-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  transition: 1s;
+}
+
+.epub-container::-webkit-scrollbar-track {
+  border-radius: 100vh;
+  background: none;
+}
+
+.epub-container::-webkit-scrollbar-thumb {
+  background-color: rgba(127, 127, 127, 0.6);
+  background-clip: padding-box;
+  border-width: 2px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 5px;
+  transition: 1s;
+}
 .uploaded-books {
   margin-top: 20px;
 }

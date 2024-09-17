@@ -67,17 +67,16 @@ const ReadBook: React.FC = () => {
         isDarkTheme ? "bg-[#000000] text-white" : "bg-[#f4f4f9] text-gray-900"
       }`}
     >
-      {isNavbarVisible && (
-        <Navbar
-          title={title}
-          isDarkTheme={isDarkTheme}
-          setIsTOCVisible={setIsTOCVisible}
-          isTOCVisible={isTOCVisible}
-          setIsNavbarActive={setIsNavbarActive}
-          currentFlow={currentFlow}
-          setCurrentFlow={setCurrentFlow}
-        />
-      )}
+      <Navbar
+        title={title}
+        isDarkTheme={isDarkTheme}
+        setIsTOCVisible={setIsTOCVisible}
+        isTOCVisible={isTOCVisible}
+        setIsNavbarActive={setIsNavbarActive}
+        currentFlow={currentFlow}
+        setCurrentFlow={setCurrentFlow}
+        isNavbarVisible={isNavbarVisible}
+      />
       <EpubReader
         fileUrl={fileUrl}
         onChapterChange={setCurrentChapter}

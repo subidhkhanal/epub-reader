@@ -13,6 +13,7 @@ interface NavbarProps {
   setIsTOCVisible: (isTOCVisible: boolean) => void;
   currentFlow: string;
   setCurrentFlow: (currentFlow: string) => void;
+  isNavbarVisible: boolean;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -23,6 +24,7 @@ const Navbar: React.FC<NavbarProps> = ({
   setIsTOCVisible,
   currentFlow,
   setCurrentFlow,
+  isNavbarVisible,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -42,11 +44,11 @@ const Navbar: React.FC<NavbarProps> = ({
   };
   return (
     <nav
-      className={`pl-1.5	p-4 flex items-center justify-between shadow-md transition-all duration-300 ${
+      className={`fixed top-0 left-0 w-full z-40 transition-transform transform transition-colors duration-700 ease-in-out pl-1.5 p-4 flex items-center justify-between shadow-md ${
         isDarkTheme
           ? "bg-gradient-to-r from-[#1e1e28] to-[#2b2b36]"
           : "bg-[#e0e4eb]"
-      } rounded-lg`}
+      } rounded-lg ${isNavbarVisible ? "translate-y-0" : "-translate-y-full"} `}
       onClick={() => setIsNavbarActive(true)}
     >
       <div className="flex items-center">
@@ -87,7 +89,7 @@ const Navbar: React.FC<NavbarProps> = ({
           aria-label={
             isTOCVisible ? "Hide Table of Contents" : "Show Table of Contents"
           }
-          className={`p-2 text-sm rounded-md transition-transform hover:scale-105 active:scale-95 mr-[21px] ${
+          className={`p-2 text-sm rounded-md transition-transform hover:scale-105 active:scale-95 ${
             isTOCVisible
               ? isDarkTheme
                 ? "bg-[#5a5a68] text-gray-100 shadow-lg"

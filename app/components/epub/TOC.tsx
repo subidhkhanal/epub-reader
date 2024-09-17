@@ -24,10 +24,21 @@ const TOC: React.FC<TOCProps> = ({
   activeChapterHref,
   setIsTOCVisible,
 }) => {
+  // Function to handle chapter selection and conditional TOC closing
+  const handleChapterClick = (chapterHref: string) => {
+    // Call the passed-in handleChapterSelect function
+    handleChapterSelect(chapterHref);
+
+    // Check the window width
+    if (window.innerWidth < 768) {
+      // If the window width is less than 768px (mobile view), close the TOC
+      setIsTOCVisible(false);
+    }
+  };
   return (
     <>
       <aside
-        className={` fixed top-0 shadow-custom right-0 z-50 md:w-[400px] overflow-x-hidden pb-6 mb-4 transition-transform transform transition-colors duration-500 ease-in-out ${
+        className={`fixed top-0 shadow-custom right-0 z-50 md:w-[400px] w-[70%] overflow-x-hidden pb-6 mb-4 transition-transform transform transition-colors duration-500 ease-in-out ${
           isDarkTheme
             ? "bg-[#1a1a2e] text-gray-300 border-[#444]"
             : "bg-white text-black border-[#ddd]"
@@ -65,7 +76,7 @@ const TOC: React.FC<TOCProps> = ({
                   className={`toc-item ${
                     isDarkTheme ? "" : "hover:text-[#2c5282]"
                   } text-lg cursor-pointer flex justify-between items-center py-3 transition-colors duration-300 ${activeStyles}`}
-                  onClick={() => handleChapterSelect(chapter.href)}
+                  onClick={() => handleChapterClick(chapter.href)} // Use the new handleChapterClick function here
                 >
                   <div className="flex items-center space-x-2">
                     <span

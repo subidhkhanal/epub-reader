@@ -309,58 +309,58 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   });
 
-  // Add swipe detection event listeners when flow is scrolled
   useEffect(() => {
-    if (currentFlow === "scrolled") {
-      const viewer = viewerRef.current;
+    if (rendition) {
+      // Listen for the "rendered" event to add touch events to the newly rendered section
+      //@ts-ignore
+      rendition.on("rendered", (section) => {
+        // Directly access the document of the rendered section
+        const content = section.document;
 
-      // Start touch
-      const handleTouchStart = (e: TouchEvent) => {
-        setTouchStartX(e.touches[0].clientX);
-      };
+        // Define touch event handlers
+        const handleTouchStart = (e: TouchEvent) => {
+          setTouchStartX(e.touches[0].clientX);
+        };
 
-      // Move touch (optional, used to prevent swipe when user scrolls)
-      const handleTouchMove = (e: TouchEvent) => {
-        setTouchEndX(e.touches[0].clientX);
-      };
+        const handleTouchMove = (e: TouchEvent) => {
+          setTouchEndX(e.touches[0].clientX);
+        };
 
-      // End touch
-      const handleTouchEnd = () => {
-        if (touchStartX !== null && touchEndX !== null) {
-          const swipeDistance = touchStartX - touchEndX;
+        const handleTouchEnd = () => {
+          if (touchStartX !== null && touchEndX !== null) {
+            const swipeDistance = touchStartX - touchEndX;
+            const minSwipeDistance = 50; // Minimum swipe distance to trigger navigation
 
-          // Set minimum swipe distance
-          const minSwipeDistance = 50;
-
-          // If swipe distance exceeds minimum swipe distance
-          if (swipeDistance > minSwipeDistance) {
-            goToNextPage(); // Swipe left
-          } else if (swipeDistance < -minSwipeDistance) {
-            goToPreviousPage(); // Swipe right
+            if (swipeDistance > minSwipeDistance) {
+              goToNextPage(); // Swipe left
+            } else if (swipeDistance < -minSwipeDistance) {
+              goToPreviousPage(); // Swipe right
+            }
           }
+
+          // Reset touch positions
+          setTouchStartX(null);
+          setTouchEndX(null);
+        };
+
+        // Add touch event listeners to the iframe's document
+        if (content) {
+          content.addEventListener("touchstart", handleTouchStart);
+          content.addEventListener("touchmove", handleTouchMove);
+          content.addEventListener("touchend", handleTouchEnd);
         }
 
-        // Reset touch positions
-        setTouchStartX(null);
-        setTouchEndX(null);
-      };
-
-      if (viewer) {
-        viewer.addEventListener("touchstart", handleTouchStart);
-        viewer.addEventListener("touchmove", handleTouchMove);
-        viewer.addEventListener("touchend", handleTouchEnd);
-      }
-
-      // Clean up
-      return () => {
-        if (viewer) {
-          viewer.removeEventListener("touchstart", handleTouchStart);
-          viewer.removeEventListener("touchmove", handleTouchMove);
-          viewer.removeEventListener("touchend", handleTouchEnd);
-        }
-      };
+        // Clean up the event listeners
+        return () => {
+          if (content) {
+            content.removeEventListener("touchstart", handleTouchStart);
+            content.removeEventListener("touchmove", handleTouchMove);
+            content.removeEventListener("touchend", handleTouchEnd);
+          }
+        };
+      });
     }
-  }, [currentFlow, touchStartX, touchEndX]);
+  }, [rendition, touchStartX, touchEndX]);
 
   const goToNextPage = async () => {
     if (rendition) {

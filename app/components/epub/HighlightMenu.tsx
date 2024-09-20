@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import { saveHighlight } from "../utils/firebaseFunctions";
+import { saveHighlight } from "../../utils/firebaseFunctions";
 import { Rendition } from "epubjs";
-import { connectStorageEmulator } from "firebase/storage";
 
 interface HighlightMenuProps {
   rendition: Rendition;
   userId: string;
   bookId: string;
+  currentFlow: string;
   onClose: () => void; // Add onClose prop to manage closing
   onOpen: () => void; // Add onOpen prop to manage opening
 }
@@ -15,6 +15,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
   rendition,
   userId,
   bookId,
+  currentFlow,
   onClose,
   onOpen,
 }) => {
@@ -72,34 +73,41 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
 
         if (range) {
           const rect = range.getBoundingClientRect();
-          let newTop = rect.top - 50;
+          let newTop;
           let newLeft;
-          // Calculate the current page index based on rect.left and container width
-          const pageIndex = Math.floor(rect.left / containerWidth);
-          if (pageIndex === 0) {
+          if (currentFlow === "paginated") {
+            newTop = rect.top - 50;
+            // Calculate the current page index based on rect.left and container width
+            const pageIndex = Math.floor(rect.left / containerWidth);
+            if (pageIndex === 0) {
+              newLeft = rect.left;
+            } else if (pageIndex > 0) {
+              newLeft = rect.left - containerWidth * pageIndex;
+            }
+
+            // Adjust position to ensure it stays within the viewport
+            const menuHeight = 40; // Approximate menu height
+            const menuWidth = 220; // Adjust based on your menu width
+            const padding = 8;
+
+            // Ensure menu doesn't overflow the right edge of the screen
+            if (newLeft + menuWidth > window.innerWidth) {
+              newLeft = window.innerWidth - menuWidth - padding;
+            }
+
+            // Ensure menu doesn't overflow the left edge of the screen
+            if (newLeft < padding) {
+              newLeft = padding;
+            }
+
+            // Ensure menu doesn't overflow the top of the screen
+            if (newTop < padding) {
+              newTop = rect.bottom + padding; // Place it below the text if there's not enough space above
+            }
+          } else if (currentFlow === "scrolled") {
+            // console.log(rect);
+            newTop = rect.height + 50;
             newLeft = rect.left;
-          } else if (pageIndex > 0) {
-            newLeft = rect.left - containerWidth * pageIndex;
-          }
-
-          // Adjust position to ensure it stays within the viewport
-          const menuHeight = 40; // Approximate menu height
-          const menuWidth = 220; // Adjust based on your menu width
-          const padding = 8;
-
-          // Ensure menu doesn't overflow the right edge of the screen
-          if (newLeft + menuWidth > window.innerWidth) {
-            newLeft = window.innerWidth - menuWidth - padding;
-          }
-
-          // Ensure menu doesn't overflow the left edge of the screen
-          if (newLeft < padding) {
-            newLeft = padding;
-          }
-
-          // Ensure menu doesn't overflow the top of the screen
-          if (newTop < padding) {
-            newTop = rect.bottom + padding; // Place it below the text if there's not enough space above
           }
 
           setHighlightMenuPosition({ top: newTop, left: newLeft });
@@ -116,7 +124,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
     return () => {
       rendition.off("selected", handleTextSelection);
     };
-  }, [rendition]);
+  }, [rendition, currentFlow]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

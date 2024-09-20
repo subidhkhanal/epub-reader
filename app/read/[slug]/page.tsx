@@ -9,7 +9,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import React, { useEffect, useState, useContext } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
-import EpubReader from "@/app/components/EpubReader";
+import EpubReader from "@/app/components/epub/EpubReader";
 import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 import Navbar from "@/app/components/epub/Navbar"; // Import the Navbar component
 
@@ -83,7 +83,6 @@ const ReadBook: React.FC = () => {
         isDarkTheme={isDarkTheme}
         isTOCVisible={isTOCVisible}
         setNavbarVisible={setIsNavbarVisible} // Pass the function to control navbar visibility
-        isNavbarVisible={isNavbarVisible}
         isnavbarActive={isNavbarVisible}
         setIsTOCVisible={setIsTOCVisible}
         currentFlow={currentFlow}

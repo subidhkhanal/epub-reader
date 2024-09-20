@@ -1,11 +1,11 @@
 /** @format */
-import React, { useState, useRef, useEffect, useContext } from "react";
-import { FaBars, FaSearch, FaGoogle, FaSun, FaMoon } from "react-icons/fa";
+import React, { useState, useRef, useEffect } from "react";
+import { FaBars, FaSearch, FaGoogle } from "react-icons/fa";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, provider } from "@/firebaseConfig";
 import { signInWithPopup, signOut } from "firebase/auth";
-import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 import ThemeToggleButton from "./ThemeToggleButton"; // Import ThemeToggleButton
+import AddBook from "./AddBook"; // Import the AddBook component
 
 interface NavBarProps {
   searchTerm: string;
@@ -105,7 +105,7 @@ const NavBar: React.FC<NavBarProps> = ({
       {/* Left: Menu and Logo */}
       <div className="flex items-center">
         <FaBars
-          className="text-lg cursor-pointer block"
+          className="text-lg cursor-pointer sm:hidden block"
           onClick={onMenuClick}
         />
         <span className="ml-2 font-bold text-xl sm:block hidden">My Books</span>
@@ -167,7 +167,9 @@ const NavBar: React.FC<NavBarProps> = ({
         ) : (
           " "
         )}
-
+        <div className="sm:block hidden">
+          <AddBook isDarkTheme={isDarkTheme} />
+        </div>
         <ThemeToggleButton />
 
         {user ? (

@@ -90,7 +90,6 @@ const Home: React.FC = () => {
       <div ref={sidebarRef}>
         <Sidebar
           isOpen={isSidebarOpen}
-          onBookUpload={() => console.log("Book uploaded!")}
           onClose={handleSidebarClose}
           isDarkTheme={isDarkTheme} // Pass dark theme state
         />

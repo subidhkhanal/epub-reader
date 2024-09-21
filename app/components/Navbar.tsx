@@ -105,17 +105,19 @@ const NavBar: React.FC<NavBarProps> = ({
       {/* Left: Menu and Logo */}
       <div className="flex items-center">
         <FaBars
-          className="text-lg cursor-pointer sm:hidden block"
+          className="text-lg cursor-pointer [@media(min-width:786px)]:hidden block"
           onClick={onMenuClick}
         />
-        <span className="ml-2 font-bold text-xl sm:block hidden">My Books</span>
+        <span className="ml-2 font-bold text-xl [@media(min-width:786px)]:block hidden">
+          My Books
+        </span>
       </div>
 
       {/* Middle: Search Bar */}
-      <div className="flex-1 sm:flex justify-center items-center">
+      <div className="flex-1 [@media(min-width:786px)]:flex justify-center items-center">
         {showSmallSearch ? (
           <div
-            className={`sm:hidden flex items-center rounded-full px-4 py-2 w-full max-w-xl ${
+            className={`[@media(min-width:786px)]:hidden flex items-center rounded-full px-4 py-2 w-full max-w-xl ${
               isDarkTheme
                 ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
                 : "bg-white text-gray-800 shadow-md" // Light theme styles
@@ -132,19 +134,19 @@ const NavBar: React.FC<NavBarProps> = ({
           </div>
         ) : (
           <div
-            className={`sm:flex hidden items-center rounded-full px-4 py-2 w-full max-w-xl ${
+            className={`[@media(min-width:786px)]:flex hidden items-center rounded-full px-4 py-2 w-full max-w-xl ${
               isDarkTheme
                 ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
                 : "bg-white text-gray-800 shadow-md" // Light theme styles
             }`}
           >
-            <FaSearch className="text-gray-400 mr-2 sm:block hidden" />
+            <FaSearch className="text-gray-400 mr-2 [@media(min-width:786px)]:block hidden" />
             <input
               type="text"
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-grow bg-transparent border-none outline-none text-base sm:block hidden"
+              className="flex-grow bg-transparent border-none outline-none text-base [@media(min-width:786px)]:block hidden"
             />
           </div>
         )}
@@ -154,7 +156,10 @@ const NavBar: React.FC<NavBarProps> = ({
       <div className="flex items-center relative">
         {user ? (
           /* Small Devices: Search Icon and Search Input */
-          <div className="sm:hidden" ref={smallSearchRef}>
+          <div
+            className="[@media(min-width:786px)]:hidden"
+            ref={smallSearchRef}
+          >
             <FaSearch
               className={`text-gray-400 mr-4 cursor-pointer ${
                 showSmallSearch ? "hidden" : "block"
@@ -167,7 +172,7 @@ const NavBar: React.FC<NavBarProps> = ({
         ) : (
           " "
         )}
-        <div className="sm:block hidden">
+        <div className="[@media(min-width:786px)]:block hidden">
           <AddBook isDarkTheme={isDarkTheme} />
         </div>
         <ThemeToggleButton />

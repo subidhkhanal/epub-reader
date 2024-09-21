@@ -105,8 +105,20 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
               newTop = rect.bottom + padding; // Place it below the text if there's not enough space above
             }
           } else if (currentFlow === "scrolled") {
-            // console.log(rect);
-            newTop = rect.height + 50;
+            // / Get the iframe that contains the EPUB content
+            const iframe = contents.document.defaultView.frameElement; // Correct way to access iframe
+
+            // Get the iframe's bounding rect relative to the main document
+            const iframeRect = iframe.getBoundingClientRect();
+
+            // Adjust rect values by subtracting the iframe's top and left position
+            // console.log("rect", rect);
+            // console.log("iframeRect", iframeRect);
+            newTop = rect.top + iframeRect.top - 60;
+            if (newTop < 0) {
+              newTop = newTop + 100;
+            }
+            console.log("new Top", newTop);
             newLeft = rect.left;
           }
 

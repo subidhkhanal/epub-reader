@@ -316,7 +316,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   return (
     <div
-      className={`flex h-[95vh] relative transition-colors duration-300 ${
+      className={`flex h-screen relative transition-colors duration-300 ${
         isDarkTheme ? "bg-[#000000] text-white" : "bg-[#f4f4f9] text-black"
       }`}
     >

@@ -19,6 +19,7 @@ const AddBook: React.FC<AddBookProps> = ({ isDarkTheme }) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // New state to handle error
 
   const handleAddBookClick = async () => {
     if (!user) {
@@ -42,6 +43,15 @@ const AddBook: React.FC<AddBookProps> = ({ isDarkTheme }) => {
         .replace(/[^\w-]+/g, "")
         .toLowerCase();
 
+      const bookDocRef = doc(db, "users", user.uid, "books", bookId);
+      const docSnapshot = await getDoc(bookDocRef);
+
+      // Check if the book already exists in Firestore
+      if (docSnapshot.exists()) {
+        setErrorMessage("This book has already been uploaded.");
+        return;
+      }
+
       const storageRef = ref(storage, `books/${user.uid}/${bookId}.epub`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -62,35 +72,30 @@ const AddBook: React.FC<AddBookProps> = ({ isDarkTheme }) => {
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
-          const bookDocRef = doc(db, "users", user.uid, "books", bookId);
-          const docSnapshot = await getDoc(bookDocRef);
+          //@ts-ignore
+          const book = ePub(file);
+          const metadata = await book.loaded.metadata;
+          const coverUrl = await book.coverUrl();
 
-          if (!docSnapshot.exists()) {
-            //@ts-ignore
-            const book = ePub(file);
-            const metadata = await book.loaded.metadata;
-            const coverUrl = await book.coverUrl();
-
-            let coverDownloadURL = "";
-            if (coverUrl) {
-              const response = await fetch(coverUrl);
-              const blob = await response.blob();
-              const coverStorageRef = ref(
-                storage,
-                `covers/${user.uid}/${bookId}.jpg`
-              );
-              await uploadBytesResumable(coverStorageRef, blob);
-              coverDownloadURL = await getDownloadURL(coverStorageRef);
-            }
-
-            await setDoc(bookDocRef, {
-              title: metadata.title || file.name,
-              author: metadata.creator || "Unknown Author",
-              fileUrl: downloadURL,
-              coverImage: coverDownloadURL,
-              uploadedAt: serverTimestamp(),
-            });
+          let coverDownloadURL = "";
+          if (coverUrl) {
+            const response = await fetch(coverUrl);
+            const blob = await response.blob();
+            const coverStorageRef = ref(
+              storage,
+              `covers/${user.uid}/${bookId}.jpg`
+            );
+            await uploadBytesResumable(coverStorageRef, blob);
+            coverDownloadURL = await getDownloadURL(coverStorageRef);
           }
+
+          await setDoc(bookDocRef, {
+            title: metadata.title || file.name,
+            author: metadata.creator || "Unknown Author",
+            fileUrl: downloadURL,
+            coverImage: coverDownloadURL,
+            uploadedAt: serverTimestamp(),
+          });
 
           setUploading(false);
           setUploadSuccess(true);
@@ -130,6 +135,11 @@ const AddBook: React.FC<AddBookProps> = ({ isDarkTheme }) => {
       {uploadSuccess && (
         <div className="mt-5 p-3 bg-green-500 text-white text-center rounded-lg sm:hidden block">
           Book uploaded successfully!
+        </div>
+      )}
+      {errorMessage && (
+        <div className="mt-5 p-3 bg-red-500 text-white text-center rounded-lg sm:hidden block">
+          {errorMessage}
         </div>
       )}
       <input

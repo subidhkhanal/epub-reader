@@ -16,20 +16,26 @@ const Setting: React.FC<SettingProps> = ({
   setCurrentFlow,
   currentFlow,
 }) => {
-  // const handleChapterClick = (chapterHref: string) => {
-  //   // Check the window width
-  //   if (window.innerWidth < 768) {
-  //     // If the window width is less than 768px (mobile view), close the TOC
-  //     setIsSettingVisible(false);
-  //   }
-  // };
-
-  const [isChecked, setIsChecked] = useState(false);
-
+  const [isChecked, setIsChecked] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedChecked = localStorage.getItem("isChecked");
+      return savedChecked === "true"; // localStorage stores everything as string
+    }
+    return false;
+  });
   const toggleCheckbox = () => {
-    setIsChecked(!isChecked);
     const newFlow = currentFlow === "paginated" ? "scrolled" : "paginated";
     setCurrentFlow(newFlow);
+
+    setIsChecked((prevState) => {
+      const newIsChecked = !prevState;
+
+      // Save the new values to localStorage inside the state update function
+      localStorage.setItem("isChecked", newIsChecked.toString());
+
+      return newIsChecked;
+    });
+    localStorage.setItem("currentFlow", newFlow);
   };
 
   return (

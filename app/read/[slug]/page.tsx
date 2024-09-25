@@ -25,10 +25,19 @@ const ReadBook: React.FC = () => {
   const [isSettingVisible, setIsSettingVisible] = useState<boolean>(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false);
   const [isnavbarActive, setIsNavbarActive] = useState(false);
-  // Determine the initial flow based on the screen width
+
+  // Load initial state from localStorage or determine based on window width
   const [currentFlow, setCurrentFlow] = useState(() => {
-    // Check the screen width
-    return window.innerWidth < 940 ? "scrolled" : "paginated";
+    if (typeof window !== "undefined") {
+      const savedFlow = localStorage.getItem("currentFlow");
+      // Check the screen width
+      return savedFlow
+        ? savedFlow
+        : window.innerWidth < 940
+        ? "scrolled"
+        : "paginated";
+    }
+    return "paginated"; // Fallback for SSR
   });
   //@ts-ignore
   const { isDarkTheme } = useContext(ThemeContext); // Access the theme from the context
@@ -37,7 +46,6 @@ const ReadBook: React.FC = () => {
     const fetchBook = async () => {
       //@ts-ignore
       const encodedSlug = encodeURIComponent(slug); // Encode the slug
-      // console.log("Fetching book with encoded slug:", encodedSlug);
 
       try {
         //@ts-ignore
@@ -74,8 +82,6 @@ const ReadBook: React.FC = () => {
         setIsTOCVisible={setIsTOCVisible}
         isTOCVisible={isTOCVisible}
         setIsNavbarActive={setIsNavbarActive}
-        currentFlow={currentFlow}
-        setCurrentFlow={setCurrentFlow}
         isNavbarVisible={isNavbarVisible}
         setIsSettingVisible={setIsSettingVisible}
         isSettingVisible={isSettingVisible}
@@ -85,7 +91,7 @@ const ReadBook: React.FC = () => {
         onChapterChange={setCurrentChapter}
         isDarkTheme={isDarkTheme}
         isTOCVisible={isTOCVisible}
-        setNavbarVisible={setIsNavbarVisible} // Pass the function to control navbar visibility
+        setNavbarVisible={setIsNavbarVisible}
         isnavbarActive={isNavbarVisible}
         setIsTOCVisible={setIsTOCVisible}
         setIsSettingVisible={setIsSettingVisible}

@@ -13,8 +13,6 @@ interface NavbarProps {
   setIsNavbarActive: (isActive: boolean) => void;
   setIsTOCVisible: (isTOCVisible: boolean) => void;
   setIsSettingVisible: (isSettingVisible: boolean) => void;
-  currentFlow: string;
-  setCurrentFlow: (currentFlow: string) => void;
   isNavbarVisible: boolean;
   isSettingVisible: boolean;
 }
@@ -25,8 +23,6 @@ const Navbar: React.FC<NavbarProps> = ({
   isTOCVisible,
   setIsNavbarActive,
   setIsTOCVisible,
-  currentFlow,
-  setCurrentFlow,
   isNavbarVisible,
   setIsSettingVisible,
   isSettingVisible,
@@ -43,10 +39,6 @@ const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
-  // const newCurrentFlow = () => {
-  //   const newFlow = currentFlow === "paginated" ? "scrolled" : "paginated";
-  //   setCurrentFlow(newFlow);
-  // };
   return (
     <nav
       className={`fixed top-0 left-0 w-full z-40 transition-transform transform transition-colors duration-700 ease-in-out pl-1.5 p-4 flex items-center justify-between shadow-md ${
@@ -93,7 +85,6 @@ const Navbar: React.FC<NavbarProps> = ({
           style={{ transition: "background-color 0.3s ease, color 0.3s ease" }}
         >
           <FiSettings
-            // onClick={() => newCurrentFlow()}
             style={{ transform: "scaleX(-1) scale(1.3)" }}
             size={18}
             className="scale-125"

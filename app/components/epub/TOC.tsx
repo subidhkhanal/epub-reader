@@ -94,6 +94,8 @@ const TOC: React.FC<TOCProps> = ({
           </ul>
         </div>
       </aside>
+      {/* Used to close the toc component if clicked anywhere else than the aside tag */}
+
       <div
         className={`${
           isVisible

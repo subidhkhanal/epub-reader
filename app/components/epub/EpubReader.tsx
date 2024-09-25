@@ -11,7 +11,8 @@ import {
 } from "../../utils/firebaseFunctions";
 import { useParams } from "next/navigation";
 import HighlightMenu from "./HighlightMenu"; // Import the HighlightMenu component
-import TOC from "@/app/components/epub/TOC"; // Import the TOC component
+import TOC from "./TOC"; // Import the TOC component
+import Setting from "./Setting"; // Import the TOC component
 
 interface EpubReaderProps {
   fileUrl: string; // The URL to the EPUB file
@@ -22,6 +23,9 @@ interface EpubReaderProps {
   isnavbarActive: boolean;
   setIsTOCVisible: (isTOCVisible: boolean) => void;
   currentFlow: string;
+  setCurrentFlow: (currentFlow: string) => void;
+  isSettingVisible: boolean;
+  setIsSettingVisible: (isSettingVisible: boolean) => void;
 }
 
 const EpubReader: React.FC<EpubReaderProps> = ({
@@ -33,6 +37,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   isnavbarActive,
   setIsTOCVisible,
   currentFlow,
+  setCurrentFlow,
+  isSettingVisible,
+  setIsSettingVisible,
 }) => {
   const viewerRef = useRef<HTMLDivElement>(null);
   const [book, setBook] = useState<Book | null>(null);
@@ -394,6 +401,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           //Check it later on most probably this import isnot used in toc component
           //@ts-ignore
           activeChapterHref={currentChapterHref} // Pass current chapter href
+        />
+        <Setting
+          isSettingVisible={isSettingVisible}
+          isDarkTheme={isDarkTheme}
+          setIsSettingVisible={setIsSettingVisible}
+          currentFlow={currentFlow}
+          setCurrentFlow={setCurrentFlow}
         />
       </div>
     </div>

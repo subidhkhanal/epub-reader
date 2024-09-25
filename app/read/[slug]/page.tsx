@@ -21,8 +21,9 @@ const ReadBook: React.FC = () => {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("Untitled");
   const [currentChapter, setCurrentChapter] = useState<string>("");
-  const [isTOCVisible, setIsTOCVisible] = useState<boolean>(false); // TOC visibility state
-  const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // Navbar visibility state
+  const [isTOCVisible, setIsTOCVisible] = useState<boolean>(false);
+  const [isSettingVisible, setIsSettingVisible] = useState<boolean>(false);
+  const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false);
   const [isnavbarActive, setIsNavbarActive] = useState(false);
   // Determine the initial flow based on the screen width
   const [currentFlow, setCurrentFlow] = useState(() => {
@@ -76,6 +77,8 @@ const ReadBook: React.FC = () => {
         currentFlow={currentFlow}
         setCurrentFlow={setCurrentFlow}
         isNavbarVisible={isNavbarVisible}
+        setIsSettingVisible={setIsSettingVisible}
+        isSettingVisible={isSettingVisible}
       />
       <EpubReader
         fileUrl={fileUrl}
@@ -85,7 +88,10 @@ const ReadBook: React.FC = () => {
         setNavbarVisible={setIsNavbarVisible} // Pass the function to control navbar visibility
         isnavbarActive={isNavbarVisible}
         setIsTOCVisible={setIsTOCVisible}
+        setIsSettingVisible={setIsSettingVisible}
+        isSettingVisible={isSettingVisible}
         currentFlow={currentFlow}
+        setCurrentFlow={setCurrentFlow}
       />
     </div>
   );

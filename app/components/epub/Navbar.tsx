@@ -12,9 +12,11 @@ interface NavbarProps {
   isTOCVisible: boolean; // Current state of the TOC visibility
   setIsNavbarActive: (isActive: boolean) => void;
   setIsTOCVisible: (isTOCVisible: boolean) => void;
+  setIsSettingVisible: (isSettingVisible: boolean) => void;
   currentFlow: string;
   setCurrentFlow: (currentFlow: string) => void;
   isNavbarVisible: boolean;
+  isSettingVisible: boolean;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -26,6 +28,8 @@ const Navbar: React.FC<NavbarProps> = ({
   currentFlow,
   setCurrentFlow,
   isNavbarVisible,
+  setIsSettingVisible,
+  isSettingVisible,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -39,10 +43,10 @@ const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
-  const newCurrentFlow = () => {
-    const newFlow = currentFlow === "paginated" ? "scrolled" : "paginated";
-    setCurrentFlow(newFlow);
-  };
+  // const newCurrentFlow = () => {
+  //   const newFlow = currentFlow === "paginated" ? "scrolled" : "paginated";
+  //   setCurrentFlow(newFlow);
+  // };
   return (
     <nav
       className={`fixed top-0 left-0 w-full z-40 transition-transform transform transition-colors duration-700 ease-in-out pl-1.5 p-4 flex items-center justify-between shadow-md ${
@@ -73,20 +77,32 @@ const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
       <div className="flex items-center">
-        <FiSettings
-          onClick={() => newCurrentFlow()}
-          className={`transition-all duration-300 cursor-pointer ${
-            isDarkTheme ? "hover:bg-[#525268]" : "hover:bg-[#b3b7d8]"
-          }`} // Added button styling for consistency
-          size={24}
-        />
+        <button
+          onClick={() => {
+            setIsSettingVisible(!isSettingVisible);
+          }}
+          className={`p-2 text-sm rounded-md transition-transform hover:scale-105 active:scale-95 ${
+            isSettingVisible
+              ? isDarkTheme
+                ? "bg-[#5a5a68] text-gray-100 shadow-lg"
+                : "bg-[#c3c7d5] text-gray-800 shadow-lg"
+              : isDarkTheme
+              ? "bg-transparent text-gray-100 hover:bg-[#3d3d4a] hover:text-white"
+              : "bg-transparent text-gray-800 hover:bg-[#cdd3f3]  hover:text-black"
+          }`}
+          style={{ transition: "background-color 0.3s ease, color 0.3s ease" }}
+        >
+          <FiSettings
+            // onClick={() => newCurrentFlow()}
+            style={{ transform: "scaleX(-1) scale(1.3)" }}
+            size={18}
+            className="scale-125"
+          />
+        </button>
         <button
           onClick={() => {
             setIsTOCVisible(!isTOCVisible); // Invert the current navbar visibility
           }}
-          aria-label={
-            isTOCVisible ? "Hide Table of Contents" : "Show Table of Contents"
-          }
           className={`p-2 text-sm rounded-md transition-transform hover:scale-105 active:scale-95 ${
             isTOCVisible
               ? isDarkTheme

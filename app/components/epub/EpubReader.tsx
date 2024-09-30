@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import ePub, { Book, Rendition, Location } from "epubjs";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/firebaseConfig";
@@ -141,7 +141,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           });
 
           loadedRendition.on("relocated", (location: Location) => {
-            // console.log("location", location);
             const cfi = location.start.cfi;
             saveUserData(user.uid, bookId, { location: cfi });
 
@@ -164,26 +163,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       };
     }
   }, [fileUrl, user, isDarkTheme, currentFlow]);
-
-  // This function will manage when the Navbar is shown/hidden
-  const toggleNavbarVisibility = () => {
-    //@ts-ignore
-    setNavbarVisible((prevState) => !prevState); // Show the Navbar
-  };
-
-  // Move to the selected chapter
-  const handleChapterSelect = (chapterHref: string) => {
-    if (rendition) {
-      rendition.display(chapterHref);
-      onChapterChange(chapterHref);
-    }
-  };
-
-  // Handle text selection
-  const handleSelection = () => {
-    setIsTextSelected(true); // Flag that text is selected
-    setIsHighlightMenuOpen(true); // Open the highlight menu
-  };
 
   // Keep the ref updated with the latest isTOCVisible state value
   useEffect(() => {
@@ -307,6 +286,100 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   });
 
+  // Handle mouse wheel events at top and bottom of the chapter if flow is scrolled
+  useEffect(() => {
+    if (currentFlow === "scrolled") {
+      if (rendition) {
+        // Define the wheel event handlers for previous and next page
+        const handleWheelUp = (event: WheelEvent) => {
+          if (event.deltaY < 0) {
+            goToPreviousPage();
+          }
+        };
+
+        const handleWheelDown = (event: WheelEvent) => {
+          if (event.deltaY > 0) {
+            goToNextPage();
+          }
+        };
+
+        // Handle relocated event
+        const handleRelocated = (location: Location) => {
+          const contents = rendition.getContents();
+
+          //@ts-ignore
+          if (contents && contents.length > 0) {
+            //@ts-ignore
+            const iframeDocument = contents[0].document;
+
+            // Cleanup any previous event listeners before adding new ones
+            iframeDocument.removeEventListener("wheel", handleWheelUp);
+            iframeDocument.removeEventListener("wheel", handleWheelDown);
+
+            // Check if the user is at the top of the chapter
+            if (location.start.displayed.page === 1) {
+              console.log("You've reached the top of the chapter.");
+              iframeDocument.addEventListener("wheel", handleWheelUp);
+            }
+
+            // Check if the user is at the bottom of the chapter
+            else if (
+              location.end.displayed.page > location.end.displayed.total
+            ) {
+              console.log(location);
+              iframeDocument.addEventListener("wheel", handleWheelDown);
+            }
+          }
+        };
+
+        // Attach the relocated event listener
+        rendition.on("relocated", handleRelocated);
+
+        // Cleanup function to remove event listeners when component unmounts or changes
+        return () => {
+          const contents = rendition.getContents();
+          //@ts-ignore
+          if (contents && contents.length > 0) {
+            //@ts-ignore
+            const iframeDocument = contents[0].document;
+            iframeDocument.removeEventListener("wheel", handleWheelUp);
+            iframeDocument.removeEventListener("wheel", handleWheelDown);
+          }
+          rendition.off("relocated", handleRelocated);
+        };
+      }
+    }
+  }, [currentFlow, rendition]); // Only re-run when currentFlow or rendition changes
+
+  // useEffect(() => {
+  //   if (rendition && currentFlow === "scrolled") {
+  //     rendition.on("locationChanged", (location) => {
+  //       console.log("The location has changed:", location);
+  //       // Typically used to save progress or bookmark
+  //     });
+  //   }
+  // }, [rendition]);
+
+  // This function will manage when the Navbar is shown/hidden
+  const toggleNavbarVisibility = () => {
+    //@ts-ignore
+    setNavbarVisible((prevState) => !prevState); // Show the Navbar
+  };
+
+  // Move to the selected chapter
+  const handleChapterSelect = (chapterHref: string) => {
+    if (rendition) {
+      rendition.display(chapterHref);
+      onChapterChange(chapterHref);
+    }
+  };
+
+  // Handle text selection
+  const handleSelection = () => {
+    setIsTextSelected(true); // Flag that text is selected
+    setIsHighlightMenuOpen(true); // Open the highlight menu
+  };
+
   // Navigate to the previous page
   const goToPreviousPage = async () => {
     if (rendition) {
@@ -317,7 +390,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   // Navigate to the next page
   const goToNextPage = async () => {
     if (rendition) {
-      await rendition.next();
+      try {
+        await rendition.next();
+      } catch (error) {
+        console.error("Error navigating to the next page:", error);
+      }
     }
   };
 
@@ -341,7 +418,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
                   : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]"
               } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
             >
-              &#10094; {/* Stylized arrow for a modern look */}
+              &#10094;
             </button>
           </div>
         ) : (
@@ -367,7 +444,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
                   : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]" // Softer light mode styles
               } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
             >
-              &#10095; {/* Stylized arrow for a modern look */}
+              &#10095;
             </button>
           </div>
         ) : (

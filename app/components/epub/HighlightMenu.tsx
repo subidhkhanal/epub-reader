@@ -112,13 +112,10 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
             const iframeRect = iframe.getBoundingClientRect();
 
             // Adjust rect values by subtracting the iframe's top and left position
-            // console.log("rect", rect);
-            // console.log("iframeRect", iframeRect);
             newTop = rect.top + iframeRect.top - 60;
             if (newTop < 0) {
               newTop = newTop + 100;
             }
-            console.log("new Top", newTop);
             newLeft = rect.left;
           }
 

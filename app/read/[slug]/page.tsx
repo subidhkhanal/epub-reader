@@ -23,8 +23,8 @@ const ReadBook: React.FC = () => {
   const [currentChapter, setCurrentChapter] = useState<string>("");
   const [isTOCVisible, setIsTOCVisible] = useState<boolean>(false);
   const [isSettingVisible, setIsSettingVisible] = useState<boolean>(false);
-  const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false);
-  const [isnavbarActive, setIsNavbarActive] = useState(false);
+  const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // gives the sliding view to the navbar when I click on the screen
+  const [isnavbarActive, setIsNavbarActive] = useState(false); // make sure that the arrow keywords only works when the navbar active is true
 
   // Load initial state from localStorage or determine based on window width
   const [currentFlow, setCurrentFlow] = useState(() => {
@@ -91,7 +91,7 @@ const ReadBook: React.FC = () => {
         onChapterChange={setCurrentChapter}
         isDarkTheme={isDarkTheme}
         isTOCVisible={isTOCVisible}
-        setNavbarVisible={setIsNavbarVisible}
+        setIsNavbarVisible={setIsNavbarVisible}
         isnavbarActive={isNavbarVisible}
         setIsTOCVisible={setIsTOCVisible}
         setIsSettingVisible={setIsSettingVisible}

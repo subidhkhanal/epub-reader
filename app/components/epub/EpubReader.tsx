@@ -18,7 +18,7 @@ interface EpubReaderProps {
   fileUrl: string; // The URL to the EPUB file
   onChapterChange: (chapter: string) => void; // Callback for chapter change
   isTOCVisible: boolean; // State to manage TOC visibility
-  setNavbarVisible: (isVisible: boolean) => void; // Function to control Navbar visibility
+  setIsNavbarVisible: (isVisible: boolean) => void; // Function to control Navbar visibility
   isDarkTheme: boolean; // Dark mode toggle
   isnavbarActive: boolean;
   setIsTOCVisible: (isTOCVisible: boolean) => void;
@@ -33,7 +33,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   onChapterChange,
   isDarkTheme,
   isTOCVisible,
-  setNavbarVisible,
+  setIsNavbarVisible,
   isnavbarActive,
   setIsTOCVisible,
   currentFlow,
@@ -164,10 +164,16 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   }, [fileUrl, user, isDarkTheme, currentFlow]);
 
-  // Keep the ref updated with the latest isTOCVisible state value
+  // Keep the ref updated along with making the navbar disappear slowly with the latest isTOCVisible state value
   useEffect(() => {
     isTOCVisibleRef.current = isTOCVisible;
+    setIsNavbarVisible(false);
   }, [isTOCVisible]);
+
+  // Makes the navbar disappear slowly with the latest state value
+  useEffect(() => {
+    setIsNavbarVisible(false);
+  }, [isSettingVisible]);
 
   // Keep the ref updated with the latest isHighlightMenuOpen state value
   useEffect(() => {
@@ -228,7 +234,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         if (isMouseDown && event.target === mouseDownTarget && !mouseMoved) {
           if (!isTOCVisibleRef.current && !isHighlightMenuOpenRef.current) {
             //@ts-ignore
-            setNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
+            setIsNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
           } else {
             setIsTOCVisible(false);
           }
@@ -351,19 +357,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   }, [currentFlow, rendition]); // Only re-run when currentFlow or rendition changes
 
-  // useEffect(() => {
-  //   if (rendition && currentFlow === "scrolled") {
-  //     rendition.on("locationChanged", (location) => {
-  //       console.log("The location has changed:", location);
-  //       // Typically used to save progress or bookmark
-  //     });
-  //   }
-  // }, [rendition]);
-
   // This function will manage when the Navbar is shown/hidden
   const toggleNavbarVisibility = () => {
     //@ts-ignore
-    setNavbarVisible((prevState) => !prevState); // Show the Navbar
+    setIsNavbarVisible((prevState) => !prevState); // Show the Navbar
   };
 
   // Move to the selected chapter

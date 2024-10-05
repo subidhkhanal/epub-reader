@@ -41,7 +41,7 @@ const Setting: React.FC<SettingProps> = ({
   return (
     <>
       <aside
-        className={`h-screen fixed top-0 shadow-custom right-0 z-50 md:w-[400px] w-[70%] overflow-x-hidden pb-6 mb-4 transition-transform transform transition-colors duration-700 ease-in-out ${
+        className={`h-screen fixed top-0 shadow-custom right-0 z-50 md:w-[400px] w-[70%] overflow-x-hidden overflow-y-hidden pb-6 mb-4 transition-transform transform transition-colors duration-700 ease-in-out ${
           isDarkTheme
             ? "bg-[#1a1a2e] text-gray-300 border-[#444]"
             : "bg-white text-black border-[#ddd]"
@@ -64,18 +64,8 @@ const Setting: React.FC<SettingProps> = ({
             role="menu"
             aria-orientation="vertical"
           >
-            {/* Text and Font section */}
-            {/* <div className="px-4 py-2 text-gray-700 font-medium">
-              <p>Text style</p>
-              <div className="flex space-x-4 mt-2">
-                <button className="text-blue-500">Default</button>
-                <button className="text-gray-700">Serif</button>
-                <button className="text-gray-700">Mono</button>
-              </div>
-            </div> */}
-
-            {/* Toggles */}
-            <div className="space-y-4">
+            {/* Toggles the scrollbar */}
+            <div className="space-y-4 pt-4">
               <div
                 className="flex items-center justify-between cursor-pointer"
                 onClick={toggleCheckbox}

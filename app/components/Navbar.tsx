@@ -102,119 +102,131 @@ const NavBar: React.FC<NavBarProps> = ({
           : "bg-gradient-to-br from-[#1d2b64] to-[#f8cdda] text-white shadow-md" // Light theme styles
       }`}
     >
-      {/* Left: Menu and Logo */}
-      <div className="flex items-center">
-        <FaBars
-          className="text-lg cursor-pointer [@media(min-width:786px)]:hidden block"
-          onClick={onMenuClick}
-        />
-        <span className="ml-2 font-bold text-xl [@media(min-width:786px)]:block hidden">
-          My Books
-        </span>
-      </div>
-
-      {/* Middle: Search Bar */}
-      <div className="flex-1 [@media(min-width:786px)]:flex justify-center items-center">
-        {showSmallSearch ? (
-          <div
-            className={`[@media(min-width:786px)]:hidden flex items-center rounded-full px-4 py-2 w-full max-w-xl ${
-              isDarkTheme
-                ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
-                : "bg-white text-gray-800 shadow-md" // Light theme styles
-            }`}
-            ref={smallSearchRef}
-          >
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm
-              className="w-full bg-transparent border-none outline-none text-base"
+      {user ? (
+        <>
+          {/* Left: Menu and Logo */}
+          <div className="flex items-center">
+            <FaBars
+              className="text-lg cursor-pointer [@media(min-width:786px)]:hidden block"
+              onClick={onMenuClick}
             />
+            <span className="ml-2 font-bold text-xl [@media(min-width:786px)]:block hidden">
+              My Books
+            </span>
           </div>
-        ) : (
-          <div
-            className={`[@media(min-width:786px)]:flex hidden items-center rounded-full px-4 py-2 w-full max-w-xl ${
-              isDarkTheme
-                ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
-                : "bg-white text-gray-800 shadow-md" // Light theme styles
-            }`}
-          >
-            <FaSearch className="text-gray-400 mr-2 [@media(min-width:786px)]:block hidden" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-grow bg-transparent border-none outline-none text-base [@media(min-width:786px)]:block hidden"
-            />
-          </div>
-        )}
-      </div>
 
-      {/* Right: Theme Toggle and User Profile */}
-      <div className="flex items-center relative">
-        {user ? (
-          /* Small Devices: Search Icon and Search Input */
-          <div
-            className="[@media(min-width:786px)]:hidden"
-            ref={smallSearchRef}
-          >
-            <FaSearch
-              className={`text-gray-400 mr-4 cursor-pointer ${
-                showSmallSearch ? "hidden" : "block"
-              }`}
-              onClick={() => {
-                setShowSmallSearch(true); // Show the search input
-              }}
-            />
-          </div>
-        ) : (
-          " "
-        )}
-        <div className="[@media(min-width:786px)]:block hidden">
-          <AddBook isDarkTheme={isDarkTheme} />
-        </div>
-        <ThemeToggleButton />
-
-        {user ? (
-          <div className="flex items-center ml-4">
-            <img
-              src={user.photoURL || "/default-avatar.png"}
-              alt="User Avatar"
-              className="w-10 h-10 rounded-full mr-2 cursor-pointer"
-              onClick={toggleDropdown}
-            />
-            {dropdownVisible && (
+          {/* Middle: Search Bar */}
+          <div className="flex-1 [@media(min-width:786px)]:flex justify-center items-center">
+            {showSmallSearch ? (
               <div
-                ref={dropdownRef}
-                className={`absolute top-12 right-0 mt-2 w-48 ${
-                  isDarkTheme ? "bg-[#18212f] text-gray-200" : "bg-white"
-                } rounded-lg shadow-lg overflow-hidden z-50`}
+                className={`[@media(min-width:786px)]:hidden flex items-center rounded-full px-4 py-2 w-full max-w-xl ${
+                  isDarkTheme
+                    ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
+                    : "bg-white text-gray-800 shadow-md" // Light theme styles
+                }`}
+                ref={smallSearchRef}
               >
-                <button
-                  onClick={handleSignOut}
-                  className={`block w-full px-4 py-2 text-left ${
-                    isDarkTheme
-                      ? "hover:bg-[#111827] text-white"
-                      : "hover:bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  Log Out
-                </button>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm
+                  className="w-full bg-transparent border-none outline-none text-base"
+                />
+              </div>
+            ) : (
+              <div
+                className={`[@media(min-width:786px)]:flex hidden items-center rounded-full px-4 py-2 w-full max-w-xl ${
+                  isDarkTheme
+                    ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
+                    : "bg-white text-gray-800 shadow-md" // Light theme styles
+                }`}
+              >
+                <FaSearch className="text-gray-400 mr-2 [@media(min-width:786px)]:block hidden" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-grow bg-transparent border-none outline-none text-base [@media(min-width:786px)]:block hidden"
+                />
               </div>
             )}
           </div>
-        ) : (
-          <button
-            className="flex items-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-all duration-300"
-            onClick={handleGoogleSignIn}
-          >
-            <FaGoogle className="mr-2 text-lg" />
-            Sign in with Google
-          </button>
-        )}
-      </div>
+
+          {/* Right: Theme Toggle and User Profile */}
+          <div className="flex items-center relative">
+            {/* Small Devices: Search Icon and Search Input  */}
+            <div
+              className="[@media(min-width:786px)]:hidden"
+              ref={smallSearchRef}
+            >
+              <FaSearch
+                className={`text-gray-400 mr-4 cursor-pointer ${
+                  showSmallSearch ? "hidden" : "block"
+                }`}
+                onClick={() => {
+                  setShowSmallSearch(true); // Show the search input
+                }}
+              />
+            </div>
+            <div className="[@media(min-width:786px)]:block hidden">
+              <AddBook isDarkTheme={isDarkTheme} />
+            </div>
+            <ThemeToggleButton />
+            <div className="flex items-center ml-4">
+              <img
+                src={user.photoURL || "/default-avatar.png"}
+                alt="User Avatar"
+                className="w-10 h-10 rounded-full mr-2 cursor-pointer"
+                onClick={toggleDropdown}
+              />
+              {dropdownVisible && (
+                <div
+                  ref={dropdownRef}
+                  className={`absolute top-12 right-0 mt-2 w-48 ${
+                    isDarkTheme ? "bg-[#18212f] text-gray-200" : "bg-white"
+                  } rounded-lg shadow-lg overflow-hidden z-50`}
+                >
+                  <button
+                    onClick={handleSignOut}
+                    className={`block w-full px-4 py-2 text-left ${
+                      isDarkTheme
+                        ? "hover:bg-[#111827] text-white"
+                        : "hover:bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Left: Menu and Logo */}
+          <div className="flex items-center">
+            <span className="ml-2 font-bold text-xl [@media(min-width:786px)]:block ">
+              Epub Reader
+            </span>
+          </div>
+
+          {/* Middle: Search Bar */}
+          <div className="flex-1 [@media(min-width:786px)]:flex justify-center items-center"></div>
+
+          {/* Right: Theme Toggle and User Profile */}
+          <div className="flex items-center relative">
+            <button
+              className="flex items-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-all duration-300"
+              onClick={handleGoogleSignIn}
+            >
+              <FaGoogle className="mr-2 text-lg" />
+              Sign in with Google
+            </button>
+          </div>
+        </>
+      )}
     </header>
   );
 };

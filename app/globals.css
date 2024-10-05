@@ -8,7 +8,7 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent the entire page from scrolling */
+  overflow-x: hidden; /* Prevent the entire page from scrolling */
 }
 
 h1 {

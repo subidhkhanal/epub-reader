@@ -6,6 +6,7 @@ import { auth, provider } from "@/firebaseConfig";
 import { signInWithPopup, signOut } from "firebase/auth";
 import ThemeToggleButton from "./ThemeToggleButton"; // Import ThemeToggleButton
 import AddBook from "./AddBook"; // Import the AddBook component
+import Link from "next/link";
 
 interface NavBarProps {
   searchTerm: string;
@@ -110,9 +111,11 @@ const NavBar: React.FC<NavBarProps> = ({
               className="text-lg cursor-pointer [@media(min-width:786px)]:hidden block"
               onClick={onMenuClick}
             />
-            <span className="ml-2 font-bold text-xl [@media(min-width:786px)]:block hidden">
-              My Books
-            </span>
+            <Link href="/">
+              <span className="ml-2 font-bold text-xl [@media(min-width:786px)]:block hidden">
+                My Books
+              </span>
+            </Link>
           </div>
 
           {/* Middle: Search Bar */}

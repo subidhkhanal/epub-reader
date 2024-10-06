@@ -10,6 +10,7 @@ import BookGrid from "@/app/components/BookGrid";
 import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 import { signInWithPopup } from "firebase/auth"; // Import signInWithPopup
 import Footer from "./components/footer";
+import FaqSection from "./components/landingpage/faq_section";
 
 const Home: React.FC = () => {
   const [user, loading] = useAuthState(auth);
@@ -125,6 +126,7 @@ const Home: React.FC = () => {
               </span>{" "}
               to view and manage your books.
             </p>
+            <FaqSection />
             <Footer />
           </div>
         )}

@@ -170,7 +170,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     setIsNavbarVisible(false);
   }, [isTOCVisible]);
 
-  // Makes the navbar disappear slowly with the latest state value
+  // Makes the navbar disappear slowly with the latest issettingvisible state value
   useEffect(() => {
     setIsNavbarVisible(false);
   }, [isSettingVisible]);
@@ -261,6 +261,26 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           goToNextPage();
         }
         if (event.key === "ArrowLeft") {
+          goToPreviousPage();
+        }
+      };
+
+      document.addEventListener("keydown", handleKeys);
+
+      return () => {
+        document.removeEventListener("keydown", handleKeys);
+      };
+    }
+  });
+
+  // Handle key press events which happen between iframe(epub.js) and arrow ui for both flows
+  useEffect(() => {
+    if (!isnavbarActive && currentFlow === "scrolled") {
+      const handleKeys = (event: KeyboardEvent) => {
+        if (event.key === "ArrowUp") {
+          goToNextPage();
+        }
+        if (event.key === "ArrowDown") {
           goToPreviousPage();
         }
       };
@@ -379,18 +399,22 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   // Navigate to the previous page
   const goToPreviousPage = async () => {
-    if (rendition) {
-      await rendition.prev();
+    if (!isTOCVisible) {
+      if (rendition) {
+        await rendition.prev();
+      }
     }
   };
 
   // Navigate to the next page
   const goToNextPage = async () => {
-    if (rendition) {
-      try {
-        await rendition.next();
-      } catch (error) {
-        console.error("Error navigating to the next page:", error);
+    if (!isTOCVisible) {
+      if (rendition) {
+        try {
+          await rendition.next();
+        } catch (error) {
+          console.error("Error navigating to the next page:", error);
+        }
       }
     }
   };

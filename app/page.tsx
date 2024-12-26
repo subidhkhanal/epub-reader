@@ -107,11 +107,19 @@ const Home: React.FC = () => {
         {loading ? (
           <div>Loading...</div>
         ) : user ? (
-          <BookGrid
-            books={filteredBooks}
-            userId={user.uid}
-            isDarkTheme={isDarkTheme}
-          />
+          <div>
+            <BookGrid
+              books={filteredBooks}
+              userId={user.uid}
+              isDarkTheme={isDarkTheme}
+            />
+            <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
+              <p className="text-xs leading-5 text-gray-500">
+                {" "}
+                Contact Us at subidhkhanal38@gmail.com to add any new features
+              </p>
+            </div>
+          </div>
         ) : (
           <div className="text-center mt-5">
             <h1 className="text-3xl font-bold">Welcome to Epub Reader</h1>

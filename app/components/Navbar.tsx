@@ -211,7 +211,7 @@ const NavBar: React.FC<NavBarProps> = ({
             onClick={handleGoogleSignIn}
           >
             <FaGoogle className="mr-2 text-lg" />
-            Sign in with Google
+            Sign Up
           </button>
         )}
       </div>

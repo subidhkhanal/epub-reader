@@ -50,6 +50,8 @@ export default function RootLayout({
             />
           </>
         )}
+        {/* Add the Google AdSense meta tag */}
+        <meta name="google-adsense-account" content="ca-pub-9170257595958465" />
       </head>
       <body className={inter.className}>
         <ThemeProvider>{children} </ThemeProvider>

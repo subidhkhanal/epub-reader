@@ -6,6 +6,7 @@ import { auth, provider } from "@/firebaseConfig";
 import { signInWithPopup, signOut } from "firebase/auth";
 import ThemeToggleButton from "./ThemeToggleButton"; // Import ThemeToggleButton
 import AddBook from "./AddBook"; // Import the AddBook component
+import Link from "next/link";
 
 interface NavBarProps {
   searchTerm: string;
@@ -102,55 +103,59 @@ const NavBar: React.FC<NavBarProps> = ({
           : "bg-gradient-to-br from-[#1d2b64] to-[#f8cdda] text-white shadow-md" // Light theme styles
       }`}
     >
-      {/* Left: Menu and Logo */}
-      <div className="flex items-center">
-        <FaBars
-          className="text-lg cursor-pointer [@media(min-width:786px)]:hidden block"
-          onClick={onMenuClick}
-        />
-        <span className="ml-2 font-bold text-xl [@media(min-width:786px)]:block hidden">
-          My Books
-        </span>
-      </div>
+      {user ? (
+        <>
+          {/* Left: Menu and Logo */}
+          <div className="flex items-center">
+            <FaBars
+              className="text-lg cursor-pointer [@media(min-width:786px)]:hidden block"
+              onClick={onMenuClick}
+            />
+            <Link href="/">
+              <span className="ml-2 font-bold text-xl [@media(min-width:786px)]:block hidden">
+                My Books
+              </span>
+            </Link>
+          </div>
 
-      {/* Middle: Search Bar */}
-      <div className="flex-1 [@media(min-width:786px)]:flex justify-center items-center">
-        {showSmallSearch ? (
-          <div
-            className={`[@media(min-width:786px)]:hidden flex items-center rounded-full px-4 py-2 w-full max-w-xl ${
-              isDarkTheme
-                ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
-                : "bg-white text-gray-800 shadow-md" // Light theme styles
-            }`}
-            ref={smallSearchRef}
-          >
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm
-              className="w-full bg-transparent border-none outline-none text-base"
-            />
+          {/* Middle: Search Bar */}
+          <div className="flex-1 [@media(min-width:786px)]:flex justify-center items-center">
+            {showSmallSearch ? (
+              <div
+                className={`[@media(min-width:786px)]:hidden flex items-center rounded-full px-4 py-2 w-full max-w-xl ${
+                  isDarkTheme
+                    ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
+                    : "bg-white text-gray-800 shadow-md" // Light theme styles
+                }`}
+                ref={smallSearchRef}
+              >
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm
+                  className="w-full bg-transparent border-none outline-none text-base"
+                />
+              </div>
+            ) : (
+              <div
+                className={`[@media(min-width:786px)]:flex hidden items-center rounded-full px-4 py-2 w-full max-w-xl ${
+                  isDarkTheme
+                    ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
+                    : "bg-white text-gray-800 shadow-md" // Light theme styles
+                }`}
+              >
+                <FaSearch className="text-gray-400 mr-2 [@media(min-width:786px)]:block hidden" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-grow bg-transparent border-none outline-none text-base [@media(min-width:786px)]:block hidden"
+                />
+              </div>
+            )}
           </div>
-        ) : (
-          <div
-            className={`[@media(min-width:786px)]:flex hidden items-center rounded-full px-4 py-2 w-full max-w-xl ${
-              isDarkTheme
-                ? "bg-[#111827] text-[#D1D5DB] shadow-inner" // Dark theme styles with dark navy background
-                : "bg-white text-gray-800 shadow-md" // Light theme styles
-            }`}
-          >
-            <FaSearch className="text-gray-400 mr-2 [@media(min-width:786px)]:block hidden" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-grow bg-transparent border-none outline-none text-base [@media(min-width:786px)]:block hidden"
-            />
-          </div>
-        )}
-      </div>
 
       {/* Right: Theme Toggle and User Profile */}
       <div className="flex items-center relative">

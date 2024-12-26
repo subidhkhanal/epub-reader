@@ -9,6 +9,8 @@ import Sidebar from "@/app/components/Sidebar";
 import BookGrid from "@/app/components/BookGrid";
 import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 import { signInWithPopup } from "firebase/auth"; // Import signInWithPopup
+import Footer from "./components/footer";
+import FaqSection from "./components/landingpage/faq_section";
 
 const Home: React.FC = () => {
   const [user, loading] = useAuthState(auth);
@@ -95,7 +97,7 @@ const Home: React.FC = () => {
         />
       </div>
       <div
-        className={`flex-1 p-5 mt-16 overflow-y-auto transition-all duration-300 
+        className={`flex-1 py-5 mt-16 overflow-y-auto transition-all duration-300 
            ${
              isDarkTheme
                ? "bg-[#0e131f] text-white"
@@ -124,6 +126,8 @@ const Home: React.FC = () => {
               </span>{" "}
               to view and manage your books.
             </p>
+            <FaqSection />
+            <Footer />
           </div>
         )}
       </div>

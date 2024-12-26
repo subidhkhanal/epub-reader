@@ -114,9 +114,11 @@ const Home: React.FC = () => {
               isDarkTheme={isDarkTheme}
             />
             <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
-              <p className="text-xs leading-5 text-gray-500">
+              <p className="text-xs leading-5 text-gray-500 text-center	">
                 {" "}
-                Contact Us at subidhkhanal38@gmail.com to add any new features
+                Contact Us at{" "}
+                <span className="font-bold	">subidhkhanal38@gmail.com</span> for
+                any queries
               </p>
             </div>
           </div>

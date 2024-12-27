@@ -11,12 +11,11 @@ const faqs = [
   {
     question: "Does it saves my highlights and reading progress?",
     answer:
-      "Yes, we automatically save the highlights and reading progress on the cloud",
+      "Yes, we automatically save the highlights and reading progress on the cloud.",
   },
   {
-    question: "What new features can I expect in coming days?",
-    answer:
-      "In coming days, you will be able to select fonts between Georgia, Merriweather, Literata, and Vollkorn",
+    question: "Can I upload pdf files?",
+    answer: "No, right now we only support epub files.",
   },
 ];
 
@@ -29,7 +28,7 @@ export default function FaqSection() {
 
   return (
     <div>
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:pt-32 lg:px-8 lg:py-40">
+      <div className="mx-auto max-w-7xl px-6 pt-24 sm:pt-32 lg:px-8 lg:pt-40">
         <div className="lg:grid lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-5">
             <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900">

@@ -5,7 +5,7 @@ const Footer: React.FC = () => {
   return (
     <>
       <footer aria-labelledby="footer-heading">
-        <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
+        <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 lg:px-8">
           <div className="xl:grid xl:grid-cols-3 xl:gap-8">
             <div className="space-y-8">
               <span className="flex">
@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
               </span>
 
               <p className="text-sm leading-6 text-gray-600 text-left">
-                Read Books on any devices
+                Read ebooks online.
               </p>
               {/* <>
                 <div className="flex space-x-6">
@@ -167,7 +167,7 @@ const Footer: React.FC = () => {
               {/*</div>*/}
             </div>
           </div>
-          <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
+          <div className="mt-4 border-t border-gray-900/10 pt-8">
             <p className="text-xs leading-5 text-gray-500">
               &copy; 2022 - {date.getFullYear()} Epub Reader. All rights
               reserved.

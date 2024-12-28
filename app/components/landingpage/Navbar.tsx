@@ -88,7 +88,7 @@ const NavBar = () => {
       {/* Left: Menu and Logo */}
       <div className="flex items-center">
         <span className="ml-2 font-bold text-xl [@media(min-width:786px)]:block ">
-          Epub Online
+          Epub Reader
         </span>
       </div>
 
@@ -112,7 +112,7 @@ const NavBar = () => {
               target="_blank"
             >
               <span className="ml-2 font-bold text-lg [@media(min-width:786px)]:block ">
-                Roadmap{" "}
+                {/* Roadmap{" "} */}
               </span>
             </Link>
           </div>

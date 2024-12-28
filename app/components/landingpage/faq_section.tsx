@@ -27,11 +27,11 @@ export default function FaqSection() {
   };
 
   return (
-    <div>
+    <div className="bg-[#181a1b]">
       <div className="mx-auto max-w-7xl px-6 pt-24 sm:pt-32 lg:px-8 lg:pt-40">
         <div className="lg:grid lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-5">
-            <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900">
+            <h2 className="text-2xl font-bold leading-10 tracking-tight text-white">
               Frequently asked questions
             </h2>
             {/* <p className="mt-4 text-base leading-7 text-gray-600">
@@ -50,7 +50,7 @@ export default function FaqSection() {
                 <div key={faq.question} className="py-6">
                   <dt>
                     <button
-                      className="flex w-full items-start justify-between text-left text-gray-900"
+                      className="flex w-full items-start justify-between text-left text-white"
                       onClick={() => toggleFaq(index)}
                     >
                       <span className="text-base font-semibold leading-7">
@@ -67,7 +67,7 @@ export default function FaqSection() {
                   </dt>
                   {openFaq === index && (
                     <dd className="mt-2 pr-12">
-                      <p className="text-base leading-7 text-gray-600">
+                      <p className="text-base leading-7 text-white">
                         {faq.answer}
                       </p>
                     </dd>

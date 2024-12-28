@@ -4,7 +4,10 @@ const Footer: React.FC = () => {
   let date = new Date();
   return (
     <>
-      <footer aria-labelledby="footer-heading">
+      <footer
+        aria-labelledby="footer-heading"
+        className="bg-[#181a1b] text-[#bab4ab]"
+      >
         <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 lg:px-8">
           <div className="xl:grid xl:grid-cols-3 xl:gap-8">
             <div className="space-y-8">
@@ -12,7 +15,7 @@ const Footer: React.FC = () => {
                 <span className="font-bold sm:inline-block">Epub Reader</span>
               </span>
 
-              <p className="text-sm leading-6 text-gray-600 text-left">
+              <p className="text-sm leading-6 text-[#bab4ab] text-left">
                 Read ebooks online.
               </p>
               {/* <>
@@ -167,7 +170,7 @@ const Footer: React.FC = () => {
               {/*</div>*/}
             </div>
           </div>
-          <div className="mt-4 border-t border-gray-900/10 pt-8">
+          <div className="mt-4 border-t border-[#5c5c5c] pt-4">
             <p className="text-xs leading-5 text-gray-500">
               &copy; 2022 - {date.getFullYear()} Epub Reader. All rights
               reserved.

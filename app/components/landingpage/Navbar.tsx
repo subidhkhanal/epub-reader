@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { FaSearch, FaGoogle } from "react-icons/fa";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, provider } from "@/firebaseConfig";
-import { signInWithPopup, signOut } from "firebase/auth";
+import { signInWithPopup } from "firebase/auth";
 import Link from "next/link";
 
 const NavBar = () => {
@@ -19,19 +19,6 @@ const NavBar = () => {
     } catch (error) {
       console.error("Google Sign-In error:", error);
     }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      setDropdownVisible(false); // Hide dropdown after signing out
-    } catch (error) {
-      console.error("Sign Out error:", error);
-    }
-  };
-
-  const toggleDropdown = () => {
-    setDropdownVisible(!dropdownVisible);
   };
 
   // Close dropdown if clicked outside

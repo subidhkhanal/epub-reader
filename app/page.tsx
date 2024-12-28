@@ -11,7 +11,9 @@ import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContex
 import { signInWithPopup } from "firebase/auth"; // Import signInWithPopup
 import Footer from "./components/footer";
 import FaqSection from "./components/landingpage/faq_section";
+import Banner from "./components/landingpage/Banner";
 import Navbar from "./components/landingpage/Navbar";
+import Features from "./components/landingpage/Features";
 const Home: React.FC = () => {
   const [user, loading] = useAuthState(auth);
   const [books, setBooks] = useState<any[]>([]);
@@ -127,28 +129,17 @@ const Home: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="text-center mt-5">
-                <h1 className="text-3xl font-bold">Welcome to Epub Reader</h1>
-                <h2 className="text-2xl mt-4">
-                  Read ePub Files Online for Free
-                </h2>
-                <p className="mt-2">
-                  Please{" "}
-                  <span
-                    onClick={handleGoogleSignIn}
-                    className="text-blue-500 cursor-pointer"
-                  >
-                    sign in with Google
-                  </span>{" "}
-                  to view and manage your books.
-                </p>
-              </div>
+              <></>
             )}
           </div>
         </div>
       ) : (
         <div>
           <Navbar />
+          <div className="pt-[127px] bg-[#181a1b]">
+            <Banner />
+          </div>
+          <Features />
           <FaqSection />
           <Footer />
         </div>

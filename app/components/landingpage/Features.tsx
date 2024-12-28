@@ -57,73 +57,73 @@ const data = [
 ];
 
 //We update the data according to
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "dayToDayClicked":
-      return {
-        id: data[0].id,
-        tabDescription: data[0].tabDescription,
-        firstHexagonText: data[0].firstHexagonText,
-        secondHexagonText: data[0].secondHexagonText,
-        thirdHexagonText: data[0].thirdHexagonText,
-        fourthHexagonText: data[0].fourthHexagonText,
-        fifthHexagonText: data[0].fifthHexagonText,
-        sixthHexagonText: data[0].sixthHexagonText,
-        image: data[0].image,
-      };
-    case "examAnnouncedClicked":
-      return {
-        id: data[1].id,
-        tabDescription: data[1].tabDescription,
-        firstHexagonText: data[1].firstHexagonText,
-        secondHexagonText: data[1].secondHexagonText,
-        thirdHexagonText: data[1].thirdHexagonText,
-        fourthHexagonText: data[1].fourthHexagonText,
-        fifthHexagonText: data[1].fifthHexagonText,
-        sixthHexagonText: data[1].sixthHexagonText,
-        image: data[1].image,
-      };
-    case "examDayClicked":
-      return {
-        id: data[2].id,
-        tabDescription: data[2].tabDescription,
-        firstHexagonText: data[2].firstHexagonText,
-        secondHexagonText: data[2].secondHexagonText,
-        thirdHexagonText: data[2].thirdHexagonText,
-        fourthHexagonText: data[2].fourthHexagonText,
-        fifthHexagonText: data[2].fifthHexagonText,
-        sixthHexagonText: data[2].sixthHexagonText,
-        image: data[2].image,
-      };
-    case "resultsAnnounced":
-      return {
-        id: data[3].id,
-        tabDescription: data[3].tabDescription,
-        firstHexagonText: data[3].firstHexagonText,
-        secondHexagonText: data[3].secondHexagonText,
-        thirdHexagonText: data[3].thirdHexagonText,
-        fourthHexagonText: data[3].fourthHexagonText,
-        fifthHexagonText: data[3].fifthHexagonText,
-        sixthHexagonText: data[3].sixthHexagonText,
-        image: data[3].image,
-      };
-  }
-};
+// const reducer = (state, action) => {
+//   switch (action.type) {
+//     case "dayToDayClicked":
+//       return {
+//         id: data[0].id,
+//         tabDescription: data[0].tabDescription,
+//         firstHexagonText: data[0].firstHexagonText,
+//         secondHexagonText: data[0].secondHexagonText,
+//         thirdHexagonText: data[0].thirdHexagonText,
+//         fourthHexagonText: data[0].fourthHexagonText,
+//         fifthHexagonText: data[0].fifthHexagonText,
+//         sixthHexagonText: data[0].sixthHexagonText,
+//         // image: data[0].image,
+//       };
+//     case "examAnnouncedClicked":
+//       return {
+//         id: data[1].id,
+//         tabDescription: data[1].tabDescription,
+//         firstHexagonText: data[1].firstHexagonText,
+//         secondHexagonText: data[1].secondHexagonText,
+//         thirdHexagonText: data[1].thirdHexagonText,
+//         fourthHexagonText: data[1].fourthHexagonText,
+//         fifthHexagonText: data[1].fifthHexagonText,
+//         sixthHexagonText: data[1].sixthHexagonText,
+//         // image: data[1].image,
+//       };
+//     case "examDayClicked":
+//       return {
+//         id: data[2].id,
+//         tabDescription: data[2].tabDescription,
+//         firstHexagonText: data[2].firstHexagonText,
+//         secondHexagonText: data[2].secondHexagonText,
+//         thirdHexagonText: data[2].thirdHexagonText,
+//         fourthHexagonText: data[2].fourthHexagonText,
+//         fifthHexagonText: data[2].fifthHexagonText,
+//         sixthHexagonText: data[2].sixthHexagonText,
+//         // image: data[2].image,
+//       };
+//     case "resultsAnnounced":
+//       return {
+//         id: data[3].id,
+//         tabDescription: data[3].tabDescription,
+//         firstHexagonText: data[3].firstHexagonText,
+//         secondHexagonText: data[3].secondHexagonText,
+//         thirdHexagonText: data[3].thirdHexagonText,
+//         fourthHexagonText: data[3].fourthHexagonText,
+//         fifthHexagonText: data[3].fifthHexagonText,
+//         sixthHexagonText: data[3].sixthHexagonText,
+//         // image: data[3].image,
+//       };
+//   }
+// };
 
 export default function Features() {
   //We will use Reducer for passing data to the Hexagonal icons
   // noinspection JSCheckFunctionSignatures
-  const [state, dispatch] = useReducer(reducer, {
-    id: data[0].id,
-    tabDescription: data[0].tabDescription,
-    firstHexagonText: data[0].firstHexagonText,
-    secondHexagonText: data[0].secondHexagonText,
-    thirdHexagonText: data[0].thirdHexagonText,
-    fourthHexagonText: data[0].fourthHexagonText,
-    fifthHexagonText: data[0].fifthHexagonText,
-    sixthHexagonText: data[0].sixthHexagonText,
-    image: data[0].image,
-  });
+  //   const [state, dispatch] = useReducer(reducer, {
+  //     id: data[0].id,
+  //     tabDescription: data[0].tabDescription,
+  //     firstHexagonText: data[0].firstHexagonText,
+  //     secondHexagonText: data[0].secondHexagonText,
+  //     thirdHexagonText: data[0].thirdHexagonText,
+  //     fourthHexagonText: data[0].fourthHexagonText,
+  //     fifthHexagonText: data[0].fifthHexagonText,
+  //     sixthHexagonText: data[0].sixthHexagonText,
+  //     // image: data[0].image,
+  //   });
 
   //This is  for selecting the icon correctly
   const [dayToDay, setDayToDay] = useState(true); //As something needs to be true first
@@ -181,7 +181,7 @@ export default function Features() {
 
             <span
               onClick={() => {
-                dispatch({ type: "dayToDayClicked" });
+                // dispatch({ type: "dayToDayClicked" });
               }}
             >
               <button
@@ -204,7 +204,7 @@ export default function Features() {
             {/*    Second Button*/}
             <span
               onClick={() => {
-                dispatch({ type: "examAnnouncedClicked" });
+                // dispatch({ type: "examAnnouncedClicked" });
               }}
             >
               <button
@@ -227,7 +227,7 @@ export default function Features() {
             {/*    Third Button*/}
             <span
               onClick={() => {
-                dispatch({ type: "examDayClicked" });
+                // dispatch({ type: "examDayClicked" });
               }}
             >
               <button

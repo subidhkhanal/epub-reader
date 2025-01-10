@@ -14,6 +14,8 @@ import FaqSection from "./components/landingpage/faq_section";
 import Banner from "./components/landingpage/Banner";
 import Navbar from "./components/landingpage/Navbar";
 import Features from "./components/landingpage/Features";
+import FeedbackForm from "@/app/components/FeedbackForm"; // Import the FeedbackForm component';
+
 const Home: React.FC = () => {
   const [user, loading] = useAuthState(auth);
   const [books, setBooks] = useState<any[]>([]);
@@ -83,7 +85,11 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className={`flex flex-col h-screen ${isDarkTheme ? "dark" : ""}`}>
+    <div
+      className={`flex flex-col h-screen  ${
+        isDarkTheme ? "dark bg-[#0e131f]" : "bg-gray-200"
+      }`}
+    >
       {user ? (
         <div>
           <NavBar
@@ -117,6 +123,7 @@ const Home: React.FC = () => {
                   userId={user.uid}
                   isDarkTheme={isDarkTheme}
                 />
+                <FeedbackForm />
                 <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
                   <p className="text-xs leading-5 text-gray-500 text-center	">
                     {" "}

@@ -14,7 +14,7 @@ import FaqSection from "./components/landingpage/faq_section";
 import Banner from "./components/landingpage/Banner";
 import Navbar from "./components/landingpage/Navbar";
 import Features from "./components/landingpage/Features";
-import FeedbackForm from "@/app/components/FeedbackForm"; // Import the FeedbackForm component';
+// import FeedbackForm from "@/app/components/FeedbackForm"; // Import the FeedbackForm component';
 
 const Home: React.FC = () => {
   const [user, loading] = useAuthState(auth);
@@ -123,7 +123,7 @@ const Home: React.FC = () => {
                   userId={user.uid}
                   isDarkTheme={isDarkTheme}
                 />
-                <FeedbackForm />
+                {/* <FeedbackForm /> */}
                 <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
                   <p className="text-xs leading-5 text-gray-500 text-center	">
                     {" "}

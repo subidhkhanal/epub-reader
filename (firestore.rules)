@@ -3,12 +3,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // Rules for the users collection
-    match /users/{userId} {
-      // Allow users to access their own documents
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
+    match /users/{userId}/books/{bookId} {
       // Rules for the books subcollection
-      match /books/{bookId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
@@ -18,4 +14,3 @@ service cloud.firestore {
       allow read, write: if false;
     }
   }
-}

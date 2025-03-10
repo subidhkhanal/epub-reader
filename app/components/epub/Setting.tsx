@@ -7,6 +7,7 @@ interface SettingProps {
   setIsSettingVisible: (isSettingVisible: boolean) => void;
   setCurrentFlow: (currentFlow: string) => void;
   currentFlow: string;
+  setFontSize?: (size: number) => void;
 }
 
 const Setting: React.FC<SettingProps> = ({
@@ -15,27 +16,42 @@ const Setting: React.FC<SettingProps> = ({
   setIsSettingVisible,
   setCurrentFlow,
   currentFlow,
+  setFontSize,
 }) => {
   const [isChecked, setIsChecked] = useState(() => {
     if (typeof window !== "undefined") {
       const savedChecked = localStorage.getItem("isChecked");
-      return savedChecked === "true"; // localStorage stores everything as string
+      return savedChecked === "true";
     }
     return false;
   });
+
+  // Initialize font size from localStorage or default to 100
+  const [fontSize, setLocalFontSize] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedFontSize = localStorage.getItem("fontSize");
+      return savedFontSize ? parseInt(savedFontSize) : 100;
+    }
+    return 100;
+  });
+
   const toggleCheckbox = () => {
     const newFlow = currentFlow === "paginated" ? "scrolled" : "paginated";
     setCurrentFlow(newFlow);
 
     setIsChecked((prevState) => {
       const newIsChecked = !prevState;
-
-      // Save the new values to localStorage inside the state update function
       localStorage.setItem("isChecked", newIsChecked.toString());
-
       return newIsChecked;
     });
     localStorage.setItem("currentFlow", newFlow);
+  };
+
+  const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSize = parseInt(e.target.value);
+    setLocalFontSize(newSize);
+    localStorage.setItem("fontSize", newSize.toString());
+    setFontSize?.(newSize);
   };
 
   return (
@@ -45,14 +61,14 @@ const Setting: React.FC<SettingProps> = ({
           isDarkTheme
             ? "bg-[#1a1a2e] text-gray-300 border-[#444]"
             : "bg-white text-black border-[#ddd]"
-        } ${isSettingVisible ? "translate-x-0" : "translate-x-full"}`} // Change here to slide from the right
+        } ${isSettingVisible ? "translate-x-0" : "translate-x-full"}`}
       >
         {/* Header Section */}
         <div
           className={`toc-header sticky top-0 h-[81px] flex items-center pl-4 text-[18px] leading-[1.75] ${
             isDarkTheme
               ? "bg-[#1a1a2e] text-white"
-              : "bg-gray-100 text-gray-900 border-b "
+              : "bg-gray-100 text-gray-900 border-b"
           }`}
           style={{ fontFamily: "Lora, serif" }}
         >
@@ -64,13 +80,14 @@ const Setting: React.FC<SettingProps> = ({
             role="menu"
             aria-orientation="vertical"
           >
-            {/* Toggles the scrollbar */}
-            <div className="space-y-4 pt-4">
+            {/* Settings Container */}
+            <div className="space-y-8 pt-4">
+              {/* Scroll Toggle */}
               <div
                 className="flex items-center justify-between cursor-pointer"
                 onClick={toggleCheckbox}
               >
-                <span>Scrolled</span>
+                <span className="text-base font-medium">Scrolled</span>
                 <label className="relative inline-block w-8 h-5">
                   <input
                     type="checkbox"
@@ -82,11 +99,40 @@ const Setting: React.FC<SettingProps> = ({
                   <div className="absolute top-[4px] left-[4px] w-3 h-3 bg-white rounded-full transform transition-all duration-300 peer-checked:translate-x-3"></div>
                 </label>
               </div>
+
+              {/* Font Size Control */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-base font-medium">Font Size</span>
+                  <span className="text-sm text-gray-500">{fontSize}%</span>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm">A</span>
+                  <input
+                    type="range"
+                    min="50"
+                    max="200"
+                    value={fontSize}
+                    onChange={handleFontSizeChange}
+                    className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${
+                      isDarkTheme ? "bg-gray-700" : "bg-gray-200"
+                    }`}
+                    style={{
+                      backgroundImage: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${
+                        ((fontSize - 50) * 100) / 150
+                      }%, ${isDarkTheme ? "#374151" : "#E5E7EB"} ${
+                        ((fontSize - 50) * 100) / 150
+                      }%, ${isDarkTheme ? "#374151" : "#E5E7EB"} 100%)`,
+                    }}
+                  />
+                  <span className="text-lg font-medium">A</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </aside>
-      {/* Used to close the setting component if clicked anywhere else than the aside tag */}
+      {/* Backdrop */}
       <div
         className={`${
           isSettingVisible

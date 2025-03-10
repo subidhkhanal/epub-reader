@@ -46,10 +46,26 @@ const Setting: React.FC<SettingProps> = ({
   });
 
   const fonts = [
-    { name: "Georgia", family: "Georgia, serif" },
-    { name: "Palatino", family: "Palatino, 'Palatino Linotype', serif" },
-    { name: "Merriweather", family: "'Merriweather', serif" },
-    { name: "Literata", family: "'Literata', serif" },
+    {
+      name: "Georgia",
+      family: "Georgia, serif",
+      preview: "The quick brown fox jumps over the lazy dog",
+    },
+    {
+      name: "Palatino",
+      family: "Palatino, 'Palatino Linotype', serif",
+      preview: "The quick brown fox jumps over the lazy dog",
+    },
+    {
+      name: "Merriweather",
+      family: "'Merriweather', serif",
+      preview: "The quick brown fox jumps over the lazy dog",
+    },
+    {
+      name: "Literata",
+      family: "'Literata', serif",
+      preview: "The quick brown fox jumps over the lazy dog",
+    },
   ];
 
   const toggleCheckbox = () => {
@@ -74,7 +90,9 @@ const Setting: React.FC<SettingProps> = ({
   const handleFontFamilyChange = (font: string) => {
     setSelectedFont(font);
     localStorage.setItem("fontFamily", font);
-    setFontFamily?.(font);
+    if (setFontFamily) {
+      setFontFamily(font);
+    }
   };
 
   return (
@@ -126,7 +144,7 @@ const Setting: React.FC<SettingProps> = ({
               {/* Font Family Selection */}
               <div className="space-y-3">
                 <span className="text-base font-medium">Font Family</span>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                   {fonts.map((font) => (
                     <button
                       key={font.name}
@@ -140,9 +158,16 @@ const Setting: React.FC<SettingProps> = ({
                           ? "bg-gray-800 hover:bg-gray-700"
                           : "bg-gray-100 hover:bg-gray-200"
                       }`}
-                      style={{ fontFamily: font.family }}
                     >
-                      {font.name}
+                      <div className="flex flex-col items-start gap-2">
+                        <span className="font-medium">{font.name}</span>
+                        <span
+                          className="text-sm opacity-80"
+                          style={{ fontFamily: font.family }}
+                        >
+                          {font.preview}
+                        </span>
+                      </div>
                     </button>
                   ))}
                 </div>

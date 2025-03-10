@@ -13,6 +13,7 @@ import { useParams } from "next/navigation";
 import HighlightMenu from "./HighlightMenu"; // Import the HighlightMenu component
 import TOC from "./TOC"; // Import the TOC component
 import Setting from "./Setting"; // Import the TOC component
+import Head from "next/head";
 
 interface EpubReaderProps {
   fileUrl: string; // The URL to the EPUB file
@@ -87,6 +88,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     fontSize: number
   ) => {
     rendition.themes.default({
+      head: {
+        "link[href*='googleapis']": { display: "none" },
+      },
       body: {
         "font-family": getFontFamilyStyle(fontFamily),
         "font-size": `${fontSize}% !important`,
@@ -101,6 +105,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         "padding-right": currentFlow === "scrolled" ? "max(5%, 32px)" : "20px",
       },
       "p, h1, h2, h3, h4, h5, h6": {
+        "font-family": "inherit",
         "max-width": currentFlow === "scrolled" ? "100ch" : "inherit",
         "margin-left": "auto",
         "margin-right": "auto",
@@ -461,97 +466,105 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   };
 
   return (
-    <div
-      className={`flex h-screen relative transition-colors duration-300 ${
-        isDarkTheme ? "bg-[#000000] text-white" : "bg-[#f4f4f9] text-black"
-      }`}
-    >
-      <div className="flex-1 relative flex h-full overflow-hidden">
-        {/* EPUB Viewer */}
-        {currentFlow === "paginated" ? (
-          <div
-            className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
-            onClick={goToPreviousPage}
-          >
-            <button
-              className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 ${
-                isDarkTheme
-                  ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
-                  : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]"
-              } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
-            >
-              &#10094;
-            </button>
-          </div>
-        ) : (
-          " "
-        )}
-        <div
-          id="viewer"
-          ref={viewerRef}
-          className={`flex-1 h-full ${
-            currentFlow === "paginated" ? "p-[20px]" : ""
-          }`}
-          onClick={toggleNavbarVisibility}
+    <>
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Literata:wght@400;700&display=swap"
+          rel="stylesheet"
         />
-        {currentFlow === "paginated" ? (
-          <div
-            className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
-            onClick={goToNextPage}
-          >
-            <button
-              className={`absolute right-2.5 top-1/2 transform -translate-y-1/2 ${
-                isDarkTheme
-                  ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
-                  : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]" // Softer light mode styles
-              } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+      </Head>
+      <div
+        className={`flex h-screen relative transition-colors duration-300 ${
+          isDarkTheme ? "bg-[#000000] text-white" : "bg-[#f4f4f9] text-black"
+        }`}
+      >
+        <div className="flex-1 relative flex h-full overflow-hidden">
+          {/* EPUB Viewer */}
+          {currentFlow === "paginated" ? (
+            <div
+              className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
+              onClick={goToPreviousPage}
             >
-              &#10095;
-            </button>
-          </div>
-        ) : (
-          " "
-        )}
-
-        {rendition && user && (
-          <HighlightMenu
-            rendition={rendition}
-            userId={user.uid}
-            //@ts-ignore
-            bookId={bookId}
-            currentFlow={currentFlow}
-            onOpen={() => setIsHighlightMenuOpen(true)} // Set menu open handler
-            onClose={() => {
-              // adding timeout so that click and selection event listener willnot trigger at once
-              setTimeout(() => {
-                setIsHighlightMenuOpen(false);
-              }, 200); // 0.1 second delay
-            }}
+              <button
+                className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 ${
+                  isDarkTheme
+                    ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
+                    : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]"
+                } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+              >
+                &#10094;
+              </button>
+            </div>
+          ) : (
+            " "
+          )}
+          <div
+            id="viewer"
+            ref={viewerRef}
+            className={`flex-1 h-full ${
+              currentFlow === "paginated" ? "p-[20px]" : ""
+            }`}
+            onClick={toggleNavbarVisibility}
           />
-        )}
+          {currentFlow === "paginated" ? (
+            <div
+              className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
+              onClick={goToNextPage}
+            >
+              <button
+                className={`absolute right-2.5 top-1/2 transform -translate-y-1/2 ${
+                  isDarkTheme
+                    ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
+                    : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]" // Softer light mode styles
+                } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+              >
+                &#10095;
+              </button>
+            </div>
+          ) : (
+            " "
+          )}
 
-        {/* Table of Contents */}
-        <TOC
-          chapters={chapters}
-          isVisible={isTOCVisible}
-          handleChapterSelect={handleChapterSelect}
-          isDarkTheme={isDarkTheme}
-          setIsTOCVisible={setIsTOCVisible}
-          //Check it later on most probably this import isnot used in toc component
-          //@ts-ignore
-          activeChapterHref={currentChapterHref} // Pass current chapter href
-        />
-        <Setting
-          isSettingVisible={isSettingVisible}
-          isDarkTheme={isDarkTheme}
-          setIsSettingVisible={setIsSettingVisible}
-          currentFlow={currentFlow}
-          setCurrentFlow={setCurrentFlow}
-          setFontSize={setFontSize}
-          setFontFamily={setFontFamily}
-        />
+          {rendition && user && (
+            <HighlightMenu
+              rendition={rendition}
+              userId={user.uid}
+              //@ts-ignore
+              bookId={bookId}
+              currentFlow={currentFlow}
+              onOpen={() => setIsHighlightMenuOpen(true)} // Set menu open handler
+              onClose={() => {
+                // adding timeout so that click and selection event listener willnot trigger at once
+                setTimeout(() => {
+                  setIsHighlightMenuOpen(false);
+                }, 200); // 0.1 second delay
+              }}
+            />
+          )}
+
+          {/* Table of Contents */}
+          <TOC
+            chapters={chapters}
+            isVisible={isTOCVisible}
+            handleChapterSelect={handleChapterSelect}
+            isDarkTheme={isDarkTheme}
+            setIsTOCVisible={setIsTOCVisible}
+            //Check it later on most probably this import isnot used in toc component
+            //@ts-ignore
+            activeChapterHref={currentChapterHref} // Pass current chapter href
+          />
+          <Setting
+            isSettingVisible={isSettingVisible}
+            isDarkTheme={isDarkTheme}
+            setIsSettingVisible={setIsSettingVisible}
+            currentFlow={currentFlow}
+            setCurrentFlow={setCurrentFlow}
+            setFontSize={setFontSize}
+            setFontFamily={setFontFamily}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

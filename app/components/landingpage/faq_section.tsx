@@ -1,83 +1,105 @@
 "use client";
 
-import { useState } from "react";
-import { FaMinus, FaPlus } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaChevronDown } from "react-icons/fa";
 
-const faqs = [
-  {
-    question: "Is the epub file stored in cloud storage?",
-    answer: "Yes, We store the epub file in cloud.",
-  },
-  {
-    question: "Does it saves my highlights and reading progress?",
-    answer:
-      "Yes, we automatically save the highlights and reading progress on the cloud.",
-  },
-  {
-    question: "Can I upload pdf files?",
-    answer: "No, right now we only support epub files.",
-  },
-];
+const FAQSection: React.FC = () => {
+  const faqs = [
+    {
+      question: "What file formats are supported?",
+      answer:
+        "Our reader currently supports EPUB format, which is the most widely used format for digital books. We're continuously working to add support for more formats.",
+    },
+    {
+      question: "Is my library data secure?",
+      answer:
+        "Yes, your library data is securely stored in the cloud and protected by Google's authentication system. We never share your reading data with third parties.",
+    },
+    {
+      question: "Can I access my books offline?",
+      answer:
+        "Currently, you need an internet connection to access your books. We're working on an offline reading feature that will be available in a future update.",
+    },
+    {
+      question: "Is there a limit to how many books I can store?",
+      answer:
+        "There's no strict limit on the number of books you can store. However, individual book files should be under 50MB for optimal performance.",
+    },
+    {
+      question: "How do I add books to my library?",
+      answer:
+        "Simply click the 'Add Book' button in your library, select an EPUB file from your device, and it will be uploaded to your personal cloud library.",
+    },
+  ];
 
-export default function FaqSection() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index); // Open or close the clicked FAQ
+  const toggleFAQ = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <div className="bg-[#181a1b]">
-      <div className="mx-auto max-w-7xl px-6 pt-24 sm:pt-32 lg:px-8 lg:pt-40">
-        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-5">
-            <h2 className="text-2xl font-bold leading-10 tracking-tight text-white">
-              Frequently asked questions
-            </h2>
-            {/* <p className="mt-4 text-base leading-7 text-gray-600">
-              Can’t find the answer you’re looking for? Reach out to our{" "}
-              <a
-                href="/contactus"
-                className="font-semibold text-indigo-600 hover:text-indigo-500"
-              >
-                team.
-              </a>{" "}
-            </p> */}
-          </div>
-          <div className="mt-10 lg:col-span-7 lg:mt-0">
-            <dl className="mt-10 space-y-6 divide-y divide-gray-900/10">
-              {faqs.map((faq, index) => (
-                <div key={faq.question} className="py-6">
-                  <dt>
-                    <button
-                      className="flex w-full items-start justify-between text-left text-white"
-                      onClick={() => toggleFaq(index)}
-                    >
-                      <span className="text-base font-semibold leading-7">
-                        {faq.question}
-                      </span>
-                      <span className="ml-6 flex h-7 items-center">
-                        {openFaq === index ? (
-                          <FaMinus className="h-6 w-6" aria-hidden="true" />
-                        ) : (
-                          <FaPlus className="h-6 w-6" aria-hidden="true" />
-                        )}
-                      </span>
-                    </button>
-                  </dt>
-                  {openFaq === index && (
-                    <dd className="mt-2 pr-12">
-                      <p className="text-base leading-7 text-white">
-                        {faq.answer}
-                      </p>
-                    </dd>
-                  )}
-                </div>
-              ))}
-            </dl>
-          </div>
+    <div className="py-24 bg-[#1a1c1d]">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-white mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-xl text-gray-400">
+            Everything you need to know about the EPUB Reader
+          </p>
         </div>
+
+        {/* FAQ List */}
+        <div className="space-y-4">
+          {faqs.map((faq, index) => (
+            <div
+              key={index}
+              className="bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden transition-all duration-300 ease-out"
+            >
+              <button
+                className="w-full px-6 py-4 text-left flex items-center justify-between focus:outline-none"
+                onClick={() => toggleFAQ(index)}
+              >
+                <span className="text-lg font-medium text-white">
+                  {faq.question}
+                </span>
+                <FaChevronDown
+                  className={`w-5 h-5 text-gray-400 transform transition-transform duration-300 ${
+                    openIndex === index ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-out ${
+                  openIndex === index ? "max-h-96" : "max-h-0"
+                }`}
+              >
+                <div className="px-6 pb-4">
+                  <p className="text-gray-400">{faq.answer}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Contact Section */}
+        {/* <div className="mt-16 text-center">
+          <p className="text-gray-400">
+            Still have questions?{" "}
+            <a
+              href="mailto:subidhkhanal38@gmail.com"
+              className="text-blue-400 hover:text-blue-300 transition-colors duration-300"
+            >
+              Contact us
+            </a>
+          </p>
+        </div> */}
       </div>
     </div>
   );
-}
+};
+
+export default FAQSection;

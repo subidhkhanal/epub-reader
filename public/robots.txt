@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /reader
+Allow: /features
+Allow: /faq
+Allow: /sitemap.xml
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+Disallow: /private/
+Disallow: /admin/
+Sitemap: https://epubreader.online/sitemap.xml 

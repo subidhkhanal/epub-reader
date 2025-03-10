@@ -62,6 +62,7 @@ export const saveBookmark = async (userId, bookId, bookmark) => {
     await setDoc(userDocRef, { bookmarks: [] });
   } else if (!userDoc.data().bookmarks) {
     // If the document exists but the bookmarks array doesn't, initialize it
+
     await updateDoc(userDocRef, { bookmarks: [] });
   }
 

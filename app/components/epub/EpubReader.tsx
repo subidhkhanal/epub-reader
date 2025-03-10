@@ -87,12 +87,16 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     isDark: boolean,
     fontSize: number
   ) => {
-    rendition.themes.default({
-      head: {
-        "link[href*='googleapis']": { display: "none" },
+    console.log("Updating styles with font family:", fontFamily);
+    const fontStyle = getFontFamilyStyle(fontFamily);
+    console.log("Using font style:", fontStyle);
+
+    rendition.themes.register("default", {
+      "*": {
+        "font-family": fontStyle,
       },
       body: {
-        "font-family": getFontFamilyStyle(fontFamily),
+        "font-family": fontStyle,
         "font-size": `${fontSize}% !important`,
         "line-height": "1.75 !important",
         "background-color": isDark ? "#000000" : "#f4f4f9",
@@ -114,6 +118,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         "overflow-x": "hidden",
       },
     });
+
+    rendition.themes.select("default");
   };
 
   useEffect(() => {
@@ -468,10 +474,28 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   return (
     <>
       <Head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Literata:wght@400;700&display=swap"
           rel="stylesheet"
         />
+        <style>{`
+          @font-face {
+            font-family: 'Merriweather';
+            font-display: swap;
+            src: local('Merriweather');
+          }
+          @font-face {
+            font-family: 'Literata';
+            font-display: swap;
+            src: local('Literata');
+          }
+        `}</style>
       </Head>
       <div
         className={`flex h-screen relative transition-colors duration-300 ${

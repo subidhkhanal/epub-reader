@@ -88,9 +88,11 @@ const Setting: React.FC<SettingProps> = ({
   };
 
   const handleFontFamilyChange = (font: string) => {
+    console.log("Changing font to:", font);
     setSelectedFont(font);
     localStorage.setItem("fontFamily", font);
     if (setFontFamily) {
+      console.log("Calling parent setFontFamily with:", font);
       setFontFamily(font);
     }
   };

@@ -78,9 +78,16 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         "background-color": isDark ? "#000000" : "#f4f4f9",
         color: isDark ? "#d1d5db" : "#333333",
         padding: "20px",
-        "max-width": currentFlow === "scrolled" ? "48rem" : "inherit",
+        "max-width": currentFlow === "scrolled" ? "75%" : "inherit",
         "margin-left": currentFlow === "scrolled" ? "auto !important" : "0px",
         "margin-right": currentFlow === "scrolled" ? "auto !important" : "0px",
+        "padding-left": currentFlow === "scrolled" ? "max(5%, 32px)" : "20px",
+        "padding-right": currentFlow === "scrolled" ? "max(5%, 32px)" : "20px",
+      },
+      "p, h1, h2, h3, h4, h5, h6": {
+        "max-width": currentFlow === "scrolled" ? "100ch" : "inherit",
+        "margin-left": "auto",
+        "margin-right": "auto",
       },
       ".epub-container": {
         "overflow-x": "hidden",

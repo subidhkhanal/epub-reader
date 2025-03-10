@@ -58,6 +58,41 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   // Ref to store the latest value of isTOCVisible
   const isTOCVisibleRef = useRef(isTOCVisible);
   const isHighlightMenuOpenRef = useRef(isTOCVisible);
+  const [fontSize, setFontSize] = useState(() => {
+    if (typeof window !== "undefined") {
+      return parseInt(localStorage.getItem("fontSize") || "100");
+    }
+    return 100;
+  });
+
+  const updateRenditionStyles = (
+    rendition: Rendition,
+    isDark: boolean,
+    fontSize: number
+  ) => {
+    rendition.themes.default({
+      body: {
+        "font-family": "Georgia, serif",
+        "font-size": `${fontSize}% !important`,
+        "line-height": "1.75 !important",
+        "background-color": isDark ? "#000000" : "#f4f4f9",
+        color: isDark ? "#d1d5db" : "#333333",
+        padding: "20px",
+        "max-width": currentFlow === "scrolled" ? "48rem" : "inherit",
+        "margin-left": currentFlow === "scrolled" ? "auto !important" : "0px",
+        "margin-right": currentFlow === "scrolled" ? "auto !important" : "0px",
+      },
+      ".epub-container": {
+        "overflow-x": "hidden",
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (rendition) {
+      updateRenditionStyles(rendition, isDarkTheme, fontSize);
+    }
+  }, [fontSize, isDarkTheme, currentFlow]);
 
   useEffect(() => {
     // Destroy the existing rendition before reinitializing
@@ -87,25 +122,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
           setRendition(loadedRendition);
 
-          // Use to set the css for the code inside the iframe
-          loadedRendition.themes.default({
-            body: {
-              "font-family": "Georgia, serif",
-              "font-size": "18px !important",
-              "line-height": "1.75 !important",
-              "background-color": isDarkTheme ? "#000000" : "#f4f4f9",
-              color: isDarkTheme ? "#d1d5db" : "#333333",
-              padding: "20px",
-              "max-width": currentFlow === "scrolled" ? "48rem" : "inherit",
-              "margin-left":
-                currentFlow === "scrolled" ? "auto !important" : "0px",
-              "margin-right":
-                currentFlow === "scrolled" ? "auto !important" : "0px",
-            },
-            ".epub-container": {
-              "overflow-x": "hidden", // Hide horizontal overflow for the body element
-            },
-          });
+          // Apply initial styles
+          updateRenditionStyles(loadedRendition, isDarkTheme, fontSize);
 
           if (userData?.location) {
             await loadedRendition.display(userData.location);
@@ -506,6 +524,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           setIsSettingVisible={setIsSettingVisible}
           currentFlow={currentFlow}
           setCurrentFlow={setCurrentFlow}
+          setFontSize={setFontSize}
         />
       </div>
     </div>

@@ -33,13 +33,23 @@ const Home: React.FC = () => {
 
   const fetchBooks = async () => {
     if (user) {
-      const booksCollection = collection(db, "users", user.uid, "books");
-      const booksSnapshot = await getDocs(booksCollection);
-      const booksList = booksSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setBooks(booksList);
+      try {
+        const booksCollection = collection(db, "users", user.uid, "books");
+        const booksSnapshot = await getDocs(booksCollection);
+        const booksList = booksSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            epubPath:
+              data.epubUrl || data.epubPath || `books/${user.uid}/${doc.id}`,
+          };
+        });
+        setBooks(booksList);
+      } catch (error) {
+        // Handle error silently in production
+        setBooks([]);
+      }
     }
   };
 
@@ -122,6 +132,7 @@ const Home: React.FC = () => {
                   books={filteredBooks}
                   userId={user.uid}
                   isDarkTheme={isDarkTheme}
+                  onBookDeleted={fetchBooks}
                 />
                 {/* <FeedbackForm /> */}
                 <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">

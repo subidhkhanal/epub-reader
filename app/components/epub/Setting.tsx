@@ -144,7 +144,7 @@ const Setting: React.FC<SettingProps> = ({
               </div>
 
               {/* Font Family Selection */}
-              <div className="space-y-3">
+              {/* <div className="space-y-3">
                 <span className="text-base font-medium">Font Family</span>
                 <div className="grid grid-cols-1 gap-2">
                   {fonts.map((font) => (
@@ -173,7 +173,7 @@ const Setting: React.FC<SettingProps> = ({
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Font Size Control */}
               <div className="space-y-3">

@@ -8,6 +8,7 @@ interface SettingProps {
   setCurrentFlow: (currentFlow: string) => void;
   currentFlow: string;
   setFontSize?: (size: number) => void;
+  setFontFamily?: (family: string) => void;
 }
 
 const Setting: React.FC<SettingProps> = ({
@@ -17,6 +18,7 @@ const Setting: React.FC<SettingProps> = ({
   setCurrentFlow,
   currentFlow,
   setFontSize,
+  setFontFamily,
 }) => {
   const [isChecked, setIsChecked] = useState(() => {
     if (typeof window !== "undefined") {
@@ -35,6 +37,21 @@ const Setting: React.FC<SettingProps> = ({
     return 100;
   });
 
+  // Initialize font family from localStorage or default to Georgia
+  const [selectedFont, setSelectedFont] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("fontFamily") || "Georgia";
+    }
+    return "Georgia";
+  });
+
+  const fonts = [
+    { name: "Georgia", family: "Georgia, serif" },
+    { name: "Palatino", family: "Palatino, 'Palatino Linotype', serif" },
+    { name: "Merriweather", family: "'Merriweather', serif" },
+    { name: "Literata", family: "'Literata', serif" },
+  ];
+
   const toggleCheckbox = () => {
     const newFlow = currentFlow === "paginated" ? "scrolled" : "paginated";
     setCurrentFlow(newFlow);
@@ -52,6 +69,12 @@ const Setting: React.FC<SettingProps> = ({
     setLocalFontSize(newSize);
     localStorage.setItem("fontSize", newSize.toString());
     setFontSize?.(newSize);
+  };
+
+  const handleFontFamilyChange = (font: string) => {
+    setSelectedFont(font);
+    localStorage.setItem("fontFamily", font);
+    setFontFamily?.(font);
   };
 
   return (
@@ -98,6 +121,31 @@ const Setting: React.FC<SettingProps> = ({
                   <div className="w-full h-full bg-gray-300 rounded-full peer-checked:bg-green-500 transition-all duration-300"></div>
                   <div className="absolute top-[4px] left-[4px] w-3 h-3 bg-white rounded-full transform transition-all duration-300 peer-checked:translate-x-3"></div>
                 </label>
+              </div>
+
+              {/* Font Family Selection */}
+              <div className="space-y-3">
+                <span className="text-base font-medium">Font Family</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {fonts.map((font) => (
+                    <button
+                      key={font.name}
+                      onClick={() => handleFontFamilyChange(font.name)}
+                      className={`p-3 rounded-lg text-sm transition-all duration-200 ${
+                        selectedFont === font.name
+                          ? isDarkTheme
+                            ? "bg-blue-600 text-white"
+                            : "bg-blue-500 text-white"
+                          : isDarkTheme
+                          ? "bg-gray-800 hover:bg-gray-700"
+                          : "bg-gray-100 hover:bg-gray-200"
+                      }`}
+                      style={{ fontFamily: font.family }}
+                    >
+                      {font.name}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Font Size Control */}

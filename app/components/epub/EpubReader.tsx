@@ -64,6 +64,22 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
     return 100;
   });
+  const [fontFamily, setFontFamily] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("fontFamily") || "Georgia";
+    }
+    return "Georgia";
+  });
+
+  const getFontFamilyStyle = (fontName: string) => {
+    const fonts = {
+      Georgia: "Georgia, serif",
+      Palatino: "Palatino, 'Palatino Linotype', serif",
+      Merriweather: "'Merriweather', serif",
+      Literata: "'Literata', serif",
+    };
+    return fonts[fontName as keyof typeof fonts] || "Georgia, serif";
+  };
 
   const updateRenditionStyles = (
     rendition: Rendition,
@@ -72,7 +88,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   ) => {
     rendition.themes.default({
       body: {
-        "font-family": "Georgia, serif",
+        "font-family": getFontFamilyStyle(fontFamily),
         "font-size": `${fontSize}% !important`,
         "line-height": "1.75 !important",
         "background-color": isDark ? "#000000" : "#f4f4f9",
@@ -99,7 +115,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     if (rendition) {
       updateRenditionStyles(rendition, isDarkTheme, fontSize);
     }
-  }, [fontSize, isDarkTheme, currentFlow]);
+  }, [fontSize, isDarkTheme, currentFlow, fontFamily]);
 
   useEffect(() => {
     // Destroy the existing rendition before reinitializing
@@ -532,6 +548,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           currentFlow={currentFlow}
           setCurrentFlow={setCurrentFlow}
           setFontSize={setFontSize}
+          setFontFamily={setFontFamily}
         />
       </div>
     </div>

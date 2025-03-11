@@ -49,17 +49,14 @@ const Setting: React.FC<SettingProps> = ({
     {
       name: "Georgia",
       family: "Georgia, serif",
-      fallback: "serif",
     },
     {
       name: "Palatino",
-      family: "'Palatino', 'Palatino Linotype', serif",
-      fallback: "serif",
+      family: "Palatino, 'Palatino Linotype', serif",
     },
     {
       name: "Merriweather",
-      family: "var(--font-merriweather)",
-      fallback: "serif",
+      family: "'Merriweather', serif",
     },
   ];
 
@@ -83,14 +80,12 @@ const Setting: React.FC<SettingProps> = ({
   };
 
   const handleFontFamilyChange = (font: string) => {
-    const selectedFontObj = fonts.find((f) => f.name === font);
-    const fontFamily = selectedFontObj
-      ? `${selectedFontObj.family}, ${selectedFontObj.fallback}`
-      : font;
+    console.log("Changing font to:", font);
     setSelectedFont(font);
     localStorage.setItem("fontFamily", font);
     if (setFontFamily) {
-      setFontFamily(fontFamily);
+      console.log("Calling parent setFontFamily with:", font);
+      setFontFamily(font);
     }
   };
 
@@ -141,7 +136,7 @@ const Setting: React.FC<SettingProps> = ({
               </div>
 
               {/* Font Family Selection */}
-              <div className="space-y-3">
+              {/* <div className="space-y-3">
                 <span className="text-base font-medium">Font Family</span>
                 <div className="grid grid-cols-1 gap-2">
                   {fonts.map((font) => (
@@ -164,7 +159,7 @@ const Setting: React.FC<SettingProps> = ({
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Font Size Control */}
               <div className="space-y-3">

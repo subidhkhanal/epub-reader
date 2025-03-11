@@ -103,8 +103,6 @@ const Home: React.FC = () => {
       {user ? (
         <div>
           <NavBar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
             onMenuClick={toggleSidebar}
             // onThemeToggle={toggleTheme} // Pass toggle function
             isDarkTheme={isDarkTheme} // Pass dark theme state

@@ -77,7 +77,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       Georgia: "Georgia, serif",
       Palatino: "Palatino, 'Palatino Linotype', serif",
       Merriweather: "'Merriweather', serif",
-      Literata: "'Literata', serif",
     };
     return fonts[fontName as keyof typeof fonts] || "Georgia, serif";
   };
@@ -489,12 +488,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             font-family: 'Merriweather';
             font-display: swap;
             src: local('Merriweather');
-          }
-          @font-face {
-            font-family: 'Literata';
-            font-display: swap;
-            src: local('Literata');
-          }
         `}</style>
       </Head>
       <div

@@ -49,22 +49,14 @@ const Setting: React.FC<SettingProps> = ({
     {
       name: "Georgia",
       family: "Georgia, serif",
-      preview: "The quick brown fox jumps over the lazy dog",
     },
     {
       name: "Palatino",
       family: "Palatino, 'Palatino Linotype', serif",
-      preview: "The quick brown fox jumps over the lazy dog",
     },
     {
       name: "Merriweather",
       family: "'Merriweather', serif",
-      preview: "The quick brown fox jumps over the lazy dog",
-    },
-    {
-      name: "Literata",
-      family: "'Literata', serif",
-      preview: "The quick brown fox jumps over the lazy dog",
     },
   ];
 
@@ -144,7 +136,7 @@ const Setting: React.FC<SettingProps> = ({
               </div>
 
               {/* Font Family Selection */}
-              {/* <div className="space-y-3">
+              <div className="space-y-3">
                 <span className="text-base font-medium">Font Family</span>
                 <div className="grid grid-cols-1 gap-2">
                   {fonts.map((font) => (
@@ -163,17 +155,11 @@ const Setting: React.FC<SettingProps> = ({
                     >
                       <div className="flex flex-col items-start gap-2">
                         <span className="font-medium">{font.name}</span>
-                        <span
-                          className="text-sm opacity-80"
-                          style={{ fontFamily: font.family }}
-                        >
-                          {font.preview}
-                        </span>
                       </div>
                     </button>
                   ))}
                 </div>
-              </div> */}
+              </div>
 
               {/* Font Size Control */}
               <div className="space-y-3">

@@ -154,7 +154,7 @@ const Home: React.FC = () => {
       ) : (
         <div>
           <Navbar />
-          <div className="pt-[127px] bg-[#181a1b]">
+          <div className="pt-[68px] bg-[#181a1b]">
             <Banner />
           </div>
           <Features />

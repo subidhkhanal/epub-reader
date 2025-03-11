@@ -49,14 +49,17 @@ const Setting: React.FC<SettingProps> = ({
     {
       name: "Georgia",
       family: "Georgia, serif",
+      fallback: "serif",
     },
     {
       name: "Palatino",
-      family: "Palatino, 'Palatino Linotype', serif",
+      family: "'Palatino', 'Palatino Linotype', serif",
+      fallback: "serif",
     },
     {
       name: "Merriweather",
-      family: "'Merriweather', serif",
+      family: "var(--font-merriweather)",
+      fallback: "serif",
     },
   ];
 
@@ -80,12 +83,14 @@ const Setting: React.FC<SettingProps> = ({
   };
 
   const handleFontFamilyChange = (font: string) => {
-    console.log("Changing font to:", font);
+    const selectedFontObj = fonts.find((f) => f.name === font);
+    const fontFamily = selectedFontObj
+      ? `${selectedFontObj.family}, ${selectedFontObj.fallback}`
+      : font;
     setSelectedFont(font);
     localStorage.setItem("fontFamily", font);
     if (setFontFamily) {
-      console.log("Calling parent setFontFamily with:", font);
-      setFontFamily(font);
+      setFontFamily(fontFamily);
     }
   };
 

@@ -1,11 +1,18 @@
 /** @format */
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Merriweather, Georgia, Palatino } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/app/context/ThemeContext";
 
 const inter = Inter({ subsets: ["latin"] });
+
+// Load the fonts
+const merriweather = Merriweather({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-merriweather",
+});
 
 export const metadata: Metadata = {
   title: "Free ePub Reader Online - Read ePub Files in Browser Instantly",

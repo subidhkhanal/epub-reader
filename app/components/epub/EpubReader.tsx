@@ -20,19 +20,19 @@ interface EpubReaderProps {
   onChapterChange: (chapter: string) => void; // Callback for chapter change
   isTOCVisible: boolean; // State to manage TOC visibility
   setIsNavbarVisible: (isVisible: boolean) => void; // Function to control Navbar visibility
-  isDarkTheme: boolean; // Dark mode toggle
   isnavbarActive: boolean;
   setIsTOCVisible: (isTOCVisible: boolean) => void;
   currentFlow: string;
   setCurrentFlow: (currentFlow: string) => void;
   isSettingVisible: boolean;
   setIsSettingVisible: (isSettingVisible: boolean) => void;
+  isDarkTheme: boolean; // Dark theme support
+  setIsDarkTheme: (isDarkTheme: boolean) => void;
 }
 
 const EpubReader: React.FC<EpubReaderProps> = ({
   fileUrl,
   onChapterChange,
-  isDarkTheme,
   isTOCVisible,
   setIsNavbarVisible,
   isnavbarActive,
@@ -41,6 +41,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   setCurrentFlow,
   isSettingVisible,
   setIsSettingVisible,
+  isDarkTheme,
+  setIsDarkTheme,
 }) => {
   const viewerRef = useRef<HTMLDivElement>(null);
   const [book, setBook] = useState<Book | null>(null);
@@ -71,6 +73,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
     return "Georgia";
   });
+  // const [isDarkTheme, setIsDarkTheme] = useState(() => {
+  //   if (typeof window !== "undefined") {
+  //     const savedTheme = localStorage.getItem("isDarkTheme");
+  //     return savedTheme === "true";
+  //   }
+  //   return true; // Default to dark theme
+  // });
 
   const getFontFamilyStyle = (fontName: string) => {
     const fonts = {
@@ -578,6 +587,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             setCurrentFlow={setCurrentFlow}
             setFontSize={setFontSize}
             setFontFamily={setFontFamily}
+            setIsDarkTheme={setIsDarkTheme}
           />
         </div>
       </div>

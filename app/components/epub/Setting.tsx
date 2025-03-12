@@ -9,6 +9,7 @@ interface SettingProps {
   currentFlow: string;
   setFontSize?: (size: number) => void;
   setFontFamily?: (family: string) => void;
+  setIsDarkTheme: (isDarkTheme: boolean) => void;
 }
 
 const Setting: React.FC<SettingProps> = ({
@@ -19,6 +20,7 @@ const Setting: React.FC<SettingProps> = ({
   currentFlow,
   setFontSize,
   setFontFamily,
+  setIsDarkTheme,
 }) => {
   const [isChecked, setIsChecked] = useState(() => {
     if (typeof window !== "undefined") {
@@ -89,6 +91,12 @@ const Setting: React.FC<SettingProps> = ({
     }
   };
 
+  const handleDarkThemeToggle = () => {
+    const newTheme = !isDarkTheme;
+    setIsDarkTheme(newTheme);
+    localStorage.setItem("isDarkTheme", newTheme.toString());
+  };
+
   return (
     <>
       <aside
@@ -129,6 +137,24 @@ const Setting: React.FC<SettingProps> = ({
                     className="sr-only peer"
                     checked={isChecked}
                     onChange={() => setIsChecked(!isChecked)}
+                  />
+                  <div className="w-full h-full bg-gray-300 rounded-full peer-checked:bg-green-500 transition-all duration-300"></div>
+                  <div className="absolute top-[4px] left-[4px] w-3 h-3 bg-white rounded-full transform transition-all duration-300 peer-checked:translate-x-3"></div>
+                </label>
+              </div>
+
+              {/* Dark Theme Toggle */}
+              <div
+                className="flex items-center justify-between cursor-pointer"
+                onClick={handleDarkThemeToggle}
+              >
+                <span className="text-base font-medium">Dark Theme</span>
+                <label className="relative inline-block w-8 h-5">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={isDarkTheme}
+                    onChange={handleDarkThemeToggle}
                   />
                   <div className="w-full h-full bg-gray-300 rounded-full peer-checked:bg-green-500 transition-all duration-300"></div>
                   <div className="absolute top-[4px] left-[4px] w-3 h-3 bg-white rounded-full transform transition-all duration-300 peer-checked:translate-x-3"></div>

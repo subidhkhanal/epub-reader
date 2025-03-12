@@ -4,7 +4,6 @@ import { FaBars, FaGoogle } from "react-icons/fa";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, provider } from "@/firebaseConfig";
 import { signInWithPopup, signOut } from "firebase/auth";
-import ThemeToggleButton from "./ThemeToggleButton";
 import AddBook from "./AddBook";
 
 interface NavBarProps {
@@ -12,7 +11,7 @@ interface NavBarProps {
   isDarkTheme: boolean;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ onMenuClick, isDarkTheme }) => {
+const NavBar: React.FC<NavBarProps> = ({ onMenuClick }) => {
   const [user] = useAuthState(auth);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -61,11 +60,7 @@ const NavBar: React.FC<NavBarProps> = ({ onMenuClick, isDarkTheme }) => {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-1000 flex justify-between items-center p-4 pl-2 transition-all duration-300 ${
-        isDarkTheme
-          ? "bg-[#18212f] text-[#F3F4F6] shadow-lg"
-          : "bg-gradient-to-br from-[#1d2b64] to-[#f8cdda] text-white shadow-md"
-      }`}
+      className={`fixed top-0 left-0 w-full z-1000 flex justify-between items-center p-4 pl-2 transition-all duration-300 bg-[#18212f] text-[#F3F4F6] shadow-lg`}
     >
       {/* Left: Menu and Logo */}
       <div className="flex items-center">
@@ -78,12 +73,11 @@ const NavBar: React.FC<NavBarProps> = ({ onMenuClick, isDarkTheme }) => {
         </span>
       </div>
 
-      {/* Right: Theme Toggle and User Profile */}
+      {/* Right: User Profile */}
       <div className="flex items-center relative">
         <div className="[@media(min-width:786px)]:block hidden">
-          <AddBook isDarkTheme={isDarkTheme} />
+          <AddBook isDarkTheme={true} />
         </div>
-        <ThemeToggleButton />
 
         {user ? (
           <div className="flex items-center ml-4">
@@ -96,17 +90,11 @@ const NavBar: React.FC<NavBarProps> = ({ onMenuClick, isDarkTheme }) => {
             {dropdownVisible && (
               <div
                 ref={dropdownRef}
-                className={`absolute top-12 right-0 mt-2 w-48 ${
-                  isDarkTheme ? "bg-[#18212f] text-gray-200" : "bg-white"
-                } rounded-lg shadow-lg overflow-hidden z-50`}
+                className="absolute top-12 right-0 mt-2 w-48 bg-[#18212f] text-gray-200 rounded-lg shadow-lg overflow-hidden z-50"
               >
                 <button
                   onClick={handleSignOut}
-                  className={`block w-full px-4 py-2 text-left ${
-                    isDarkTheme
-                      ? "hover:bg-[#111827] text-white"
-                      : "hover:bg-gray-100 text-gray-800"
-                  }`}
+                  className="block w-full px-4 py-2 text-left hover:bg-[#111827] text-white"
                 >
                   Log Out
                 </button>

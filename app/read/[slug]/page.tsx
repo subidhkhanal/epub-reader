@@ -39,9 +39,14 @@ const ReadBook: React.FC = () => {
     }
     return "paginated"; // Fallback for SSR
   });
-  //@ts-ignore
-  const { isDarkTheme } = useContext(ThemeContext); // Access the theme from the context
 
+  const [isDarkTheme, setIsDarkTheme] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("isDarkTheme");
+      return savedTheme === "true";
+    }
+    return true; // Default to dark theme
+  });
   useEffect(() => {
     const fetchBook = async () => {
       //@ts-ignore
@@ -90,6 +95,7 @@ const ReadBook: React.FC = () => {
         fileUrl={fileUrl}
         onChapterChange={setCurrentChapter}
         isDarkTheme={isDarkTheme}
+        setIsDarkTheme={setIsDarkTheme}
         isTOCVisible={isTOCVisible}
         setIsNavbarVisible={setIsNavbarVisible}
         isnavbarActive={isNavbarVisible}

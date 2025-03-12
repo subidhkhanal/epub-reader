@@ -100,14 +100,11 @@ const Setting: React.FC<SettingProps> = ({
   return (
     <>
       <aside
-        className={`fixed top-0 shadow-custom right-0 z-50 md:w-[400px] w-[70%] overflow-x-hidden pb-6 mb-4 transition-transform transform transition-colors duration-700 ease-in-out ${
+        className={`h-screen fixed top-0 shadow-custom right-0 z-50 md:w-[400px] w-[70%] overflow-x-hidden overflow-y-hidden pb-6 mb-4 transition-transform transform transition-colors duration-700 ease-in-out ${
           isDarkTheme
             ? "bg-[#1a1a2e] text-gray-300 border-[#444]"
             : "bg-white text-black border-[#ddd]"
         } ${isSettingVisible ? "translate-x-0" : "translate-x-full"}`}
-        onKeyDown={(e) => {
-          e.stopPropagation();
-        }}
       >
         {/* Header Section */}
         <div

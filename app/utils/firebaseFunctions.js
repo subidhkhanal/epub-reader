@@ -77,3 +77,20 @@ export const loadBookmarks = async (userId, bookId) => {
   const userDoc = await getDoc(userDocRef);
   return userDoc.exists() ? userDoc.data().bookmarks || [] : [];
 };
+
+export const removeHighlightFromDatabase = async (userId, bookId, cfiRange) => {
+  const userDocRef = doc(db, "users", userId, "books", bookId);
+
+  try {
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      const highlights = userDoc.data().highlights || [];
+      const updatedHighlights = highlights.filter(
+        (highlight) => highlight.cfiRange !== cfiRange
+      );
+      await updateDoc(userDocRef, { highlights: updatedHighlights });
+    }
+  } catch (error) {
+    console.error("Error removing highlight from database:", error);
+  }
+};

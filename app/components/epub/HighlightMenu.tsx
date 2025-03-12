@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
-import { saveHighlight } from "../../utils/firebaseFunctions";
+import {
+  saveHighlight,
+  removeHighlightFromDatabase,
+} from "../../utils/firebaseFunctions";
 import { Rendition } from "epubjs";
 
 interface HighlightMenuProps {
@@ -7,8 +10,8 @@ interface HighlightMenuProps {
   userId: string;
   bookId: string;
   currentFlow: string;
-  onClose: () => void; // Add onClose prop to manage closing
-  onOpen: () => void; // Add onOpen prop to manage opening
+  onClose: () => void;
+  onOpen: () => void;
 }
 
 const HighlightMenu: React.FC<HighlightMenuProps> = ({
@@ -27,10 +30,6 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
   } | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
-
-  const menuHeight = 40;
-  const menuWidth = 220;
-  const padding = 8;
 
   const addHighlight = async (color: string) => {
     if (highlightedText && selectedCFIRange) {
@@ -51,9 +50,23 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
           "highlight",
           { fill: color }
         );
-        setHighlightMenuPosition(null); // Close the menu after adding the highlight
+        setHighlightMenuPosition(null);
       } catch (error) {
         console.error("Error saving highlight:", error);
+      }
+    }
+  };
+
+  const removeHighlight = async () => {
+    if (selectedCFIRange) {
+      try {
+        // Remove highlight from the database
+        await removeHighlightFromDatabase(userId, bookId, selectedCFIRange);
+        // Remove highlight from the rendition
+        rendition?.annotations.remove(selectedCFIRange, "highlight");
+        setHighlightMenuPosition(null);
+      } catch (error) {
+        console.error("Error removing highlight:", error);
       }
     }
   };
@@ -66,7 +79,6 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
         setSelectedCFIRange(cfiRange);
 
         const range = contents.window.getSelection()?.getRangeAt(0);
-        // Get the width of the iframe or container holding the page
         const containerWidth =
           //@ts-ignore
           rendition.manager.container.getBoundingClientRect().width;
@@ -77,44 +89,29 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
           let newLeft;
           if (currentFlow === "paginated") {
             newTop = rect.top - 50;
-            // Calculate the current page index based on rect.left and container width
             const pageIndex = Math.floor(rect.left / containerWidth);
             if (pageIndex === 0) {
               newLeft = rect.left;
             } else if (pageIndex > 0) {
               newLeft = rect.left - containerWidth * pageIndex;
             }
-
-            // Adjust position to ensure it stays within the viewport
-            const menuHeight = 40; // Approximate menu height
-            const menuWidth = 220; // Adjust based on your menu width
+            const menuWidth = 220;
             const padding = 8;
-
-            // Ensure menu doesn't overflow the right edge of the screen
             if (newLeft + menuWidth > window.innerWidth) {
               newLeft = window.innerWidth - menuWidth - padding;
             }
-
-            // Ensure menu doesn't overflow the left edge of the screen
             if (newLeft < padding) {
               newLeft = padding;
             }
-
-            // Ensure menu doesn't overflow the top of the screen
             if (newTop < padding) {
-              newTop = rect.bottom + padding; // Place it below the text if there's not enough space above
+              newTop = rect.bottom + padding;
             }
           } else if (currentFlow === "scrolled") {
-            // / Get the iframe that contains the EPUB content
-            const iframe = contents.document.defaultView.frameElement; // Correct way to access iframe
-
-            // Get the iframe's bounding rect relative to the main document
+            const iframe = contents.document.defaultView.frameElement;
             const iframeRect = iframe.getBoundingClientRect();
-
-            // Adjust rect values by subtracting the iframe's top and left position
             newTop = rect.top + iframeRect.top - 60;
             if (newTop < 0) {
-              newTop = newTop + 100;
+              newTop += 100;
             }
             newLeft = rect.left;
           }
@@ -142,9 +139,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
       }
     };
 
-    // Handle highlightmenu if clicked outside of epub and arrow keys
     document.addEventListener("mousedown", handleClickOutside);
-    // Handle highlightmenu if clicked inside the epub
     rendition?.on("mousedown", () => setHighlightMenuPosition(null));
 
     return () => {
@@ -165,38 +160,44 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
     highlightMenuPosition && (
       <div
         ref={menuRef}
-        className="absolute p-[5px] border border-solid border-gray-300 rounded-[5px] flex gap-[10px] z-[1000]"
+        className="absolute p-3 border border-gray-200 rounded-lg flex space-x-2 z-[1000] bg-white/90 backdrop-blur-sm shadow-lg"
         style={{
-          backgroundColor: "white",
           top: `${highlightMenuPosition.top}px`,
           left: `${highlightMenuPosition.left}px`,
-          boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.1)",
         }}
       >
         <button
           onClick={() => addHighlight("#FFEB3B")}
-          className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
+          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
           style={{ backgroundColor: "#FFEB3B" }}
           title="Yellow Highlight"
         />
         <button
           onClick={() => addHighlight("#FF5252")}
-          className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
+          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
           style={{ backgroundColor: "#FF5252" }}
           title="Red Highlight"
         />
         <button
           onClick={() => addHighlight("#4CAF50")}
-          className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
+          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
           style={{ backgroundColor: "#4CAF50" }}
           title="Green Highlight"
         />
         <button
           onClick={() => addHighlight("#448AFF")}
-          className="w-[30px] h-[30px] rounded-full border border-solid border-gray-300 cursor-pointer"
+          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
           style={{ backgroundColor: "#448AFF" }}
           title="Blue Highlight"
         />
+        <button
+          onClick={removeHighlight}
+          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+          style={{ backgroundColor: "#FFFFFF" }}
+          title="Remove Highlight"
+        >
+          🗑️
+        </button>
       </div>
     )
   );

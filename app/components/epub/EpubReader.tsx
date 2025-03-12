@@ -496,6 +496,15 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (rendition && viewerRef.current) {
+      // Ensure the viewer is focusable
+      viewerRef.current.tabIndex = -1;
+      // Set focus on the viewer when the book is loaded
+      viewerRef.current.focus();
+    }
+  }, [rendition]);
+
   return (
     <>
       <Head>

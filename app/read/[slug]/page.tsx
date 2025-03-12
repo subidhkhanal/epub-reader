@@ -147,9 +147,11 @@ const ReadBook: React.FC = () => {
         currentFlow={currentFlow}
         setCurrentFlow={setCurrentFlow}
       />
-      <div className="w-full h-2 bg-gray-300">
+      <div
+        className={`w-full h-2 ${isDarkTheme ? "bg-gray-700" : "bg-gray-300"}`}
+      >
         <div
-          className="h-full bg-blue-500"
+          className={`h-full ${isDarkTheme ? "bg-blue-400" : "bg-blue-500"}`}
           style={{ width: `${readingProgress}%` }}
         ></div>
       </div>

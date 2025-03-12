@@ -97,10 +97,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
     rendition.themes.register("default", {
       "*": {
-        "font-family": fontStyle,
+        "font-family": `${fontStyle} !important`,
       },
       body: {
-        "font-family": fontStyle,
+        "font-family": `${fontStyle} !important`,
         "font-size": `${fontSize}% !important`,
         "line-height": "1.75 !important",
         "background-color": isDark ? "#000000" : "#f4f4f9",
@@ -113,7 +113,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         "padding-right": currentFlow === "scrolled" ? "max(5%, 32px)" : "20px",
       },
       "p, h1, h2, h3, h4, h5, h6": {
-        "font-family": "inherit",
+        "font-family": `${fontStyle} !important`,
         "max-width": currentFlow === "scrolled" ? "100ch" : "inherit",
         "margin-left": "auto",
         "margin-right": "auto",

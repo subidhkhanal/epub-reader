@@ -1,5 +1,4 @@
 /** @format */
-
 import React, { use, useEffect, useRef, useState } from "react";
 import ePub, { Book, Rendition, Location } from "epubjs";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -10,25 +9,25 @@ import {
   loadHighlights,
 } from "../../utils/firebaseFunctions";
 import { useParams } from "next/navigation";
-import HighlightMenu from "./HighlightMenu"; // Import the HighlightMenu component
-import TOC from "./TOC"; // Import the TOC component
-import Setting from "./Setting"; // Import the TOC component
+import HighlightMenu from "./HighlightMenu";
+import TOC from "./TOC";
+import Setting from "./Setting";
 import Head from "next/head";
 
 interface EpubReaderProps {
-  fileUrl: string; // The URL to the EPUB file
-  onChapterChange: (chapter: string) => void; // Callback for chapter change
-  isTOCVisible: boolean; // State to manage TOC visibility
-  setIsNavbarVisible: (isVisible: boolean) => void; // Function to control Navbar visibility
+  fileUrl: string;
+  onChapterChange: (chapter: string) => void;
+  isTOCVisible: boolean;
+  setIsNavbarVisible: (isVisible: boolean) => void;
   isnavbarActive: boolean;
   setIsTOCVisible: (isTOCVisible: boolean) => void;
   currentFlow: string;
   setCurrentFlow: (currentFlow: string) => void;
   isSettingVisible: boolean;
   setIsSettingVisible: (isSettingVisible: boolean) => void;
-  isDarkTheme: boolean; // Dark theme support
+  isDarkTheme: boolean;
   setIsDarkTheme: (isDarkTheme: boolean) => void;
-  updateChapters: (chapters: TocElement[]) => void; // Renamed prop to updateChapters
+  updateChapters: (chapters: TocElement[]) => void;
 }
 
 interface TocElement {
@@ -51,21 +50,20 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   setIsDarkTheme,
   updateChapters,
 }) => {
-  const viewerRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<HTMLDivElement | null>(null);
   const [book, setBook] = useState<Book | null>(null);
   const [rendition, setRendition] = useState<Rendition | null>(null);
   const [user] = useAuthState(auth);
   //@ts-ignore
-  const [chapters, setChapters] = useState<TocElement[]>([]); // Chapters from the Table of Contents
+  const [chapters, setChapters] = useState<TocElement[]>([]);
   const { slug } = useParams();
   const bookId = slug;
   //@ts-ignore
   const [isTextSelected, setIsTextSelected] = useState(false);
-  const [isHighlightMenuOpen, setIsHighlightMenuOpen] = useState(false); // New state for highlight menu
+  const [isHighlightMenuOpen, setIsHighlightMenuOpen] = useState(false);
   const [currentChapterHref, setCurrentChapterHref] = useState<string | null>(
     null
   );
-  // Ref to store the latest value of isTOCVisible
   const isTOCVisibleRef = useRef(isTOCVisible);
   const isHighlightMenuOpenRef = useRef(isTOCVisible);
   const [fontSize, setFontSize] = useState(() => {
@@ -80,13 +78,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
     return "Georgia";
   });
-  // const [isDarkTheme, setIsDarkTheme] = useState(() => {
-  //   if (typeof window !== "undefined") {
-  //     const savedTheme = localStorage.getItem("isDarkTheme");
-  //     return savedTheme === "true";
-  //   }
-  //   return true; // Default to dark theme
-  // });
 
   const getFontFamilyStyle = (fontName: string) => {
     const fonts = {
@@ -102,9 +93,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     isDark: boolean,
     fontSize: number
   ) => {
-    console.log("Updating styles with font family:", fontFamily);
     const fontStyle = getFontFamilyStyle(fontFamily);
-    console.log("Using font style:", fontStyle);
 
     rendition.themes.register("default", {
       "*": {
@@ -144,7 +133,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   }, [fontSize, isDarkTheme, currentFlow, fontFamily]);
 
   useEffect(() => {
-    // Destroy the existing rendition before reinitializing
     if (rendition) {
       rendition.destroy();
     }
@@ -156,7 +144,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           const userData = await loadUserData(user.uid, bookId);
           const highlights = await loadHighlights(user.uid, bookId);
 
-          // Clear the previous content explicitly
           if (viewerRef.current) {
             viewerRef.current.innerHTML = "";
           }
@@ -165,13 +152,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           const loadedRendition = loadedBook.renderTo(viewerRef.current, {
             width: "100%",
             height: "100%",
-            flow: currentFlow, // flow determined through the navbar button
-            spread: "auto", // Enable two-column layout if applicable
+            flow: currentFlow,
+            spread: "auto",
           });
 
           setRendition(loadedRendition);
-
-          // Apply initial styles
           updateRenditionStyles(loadedRendition, isDarkTheme, fontSize);
 
           if (userData?.location) {
@@ -182,7 +167,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
           setBook(loadedBook);
 
-          // Load Table of Contents (TOC)
           const toc = await loadedBook.loaded.navigation;
           updateChapters(toc.toc);
 
@@ -195,7 +179,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             onChapterChange(currentChapterHref || "Chapter");
           }
 
-          // Handle user highlights
           highlights?.forEach((highlight: any) => {
             loadedRendition.annotations.add(
               "highlight",
@@ -211,9 +194,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             const cfi = location.start.cfi;
             saveUserData(user.uid, bookId, { location: cfi });
 
-            // Set current chapter href based on the current location
             const currentChapterHref = location.start.href;
-            setCurrentChapterHref(currentChapterHref); // Track the current chapter
+            setCurrentChapterHref(currentChapterHref);
             onChapterChange(currentChapterHref || "Chapter");
           });
         } catch (error) {
@@ -231,26 +213,21 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   }, [fileUrl, user, isDarkTheme, currentFlow]);
 
-  // Keep the ref updated along with making the navbar disappear slowly with the latest isTOCVisible state value
   useEffect(() => {
     isTOCVisibleRef.current = isTOCVisible;
     setIsNavbarVisible(false);
   }, [isTOCVisible]);
 
-  // Makes the navbar disappear slowly with the latest issettingvisible state value
   useEffect(() => {
     setIsNavbarVisible(false);
   }, [isSettingVisible]);
 
-  // Keep the ref updated with the latest isHighlightMenuOpen state value
   useEffect(() => {
     isHighlightMenuOpenRef.current = isHighlightMenuOpen;
   }, [isHighlightMenuOpen]);
 
-  // Handle arrow key, mouse wheel events and navbar visibility for navigation inside the iframe using ePub.js events
   useEffect(() => {
     if (rendition) {
-      //Handles arrow keys
       rendition.on("keyup", (event: KeyboardEvent) => {
         if (event.key === "ArrowRight" || event.key === " ") {
           goToNextPage();
@@ -259,17 +236,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }
       });
 
-      //Give page change when wheels changes from the mouse if flow is paginated
       if (currentFlow === "paginated") {
         rendition.on("rendered", () => {
-          // Get the content from the currently rendered section
           const contents = rendition.getContents();
-
           //@ts-ignore
           if (contents && contents.length > 0) {
             //@ts-ignore
-            const iframeDocument = contents[0].document; // Get the document from the first content item
-
+            const iframeDocument = contents[0].document;
             iframeDocument.addEventListener("wheel", (event: WheelEvent) => {
               if (event.deltaY > 0) {
                 goToNextPage();
@@ -281,35 +254,33 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         });
       }
 
-      // Attach rendition event listeners for selection and mouse clicks
       rendition.on("selected", handleSelection);
       let isMouseDown = false;
       let mouseDownTarget: EventTarget | null = null;
       let mouseMoved = false;
       rendition.on("mousedown", (event: MouseEvent) => {
         isMouseDown = true;
-        mouseDownTarget = event.target; // Store the element where mousedown happened
-        mouseMoved = false; // Reset mouseMoved to false
+        mouseDownTarget = event.target;
+        mouseMoved = false;
       });
 
-      rendition.on("mousemove", (event: MouseEvent) => {
-        mouseMoved = true; // Set mouseMoved to true if the mouse moves
+      rendition.on("mousemove", () => {
+        mouseMoved = true;
       });
 
       rendition.on("mouseup", (event: MouseEvent) => {
-        // Check if the mouse was pressed and released on the same element, and no dragging occurred
         if (isMouseDown && event.target === mouseDownTarget && !mouseMoved) {
           if (!isTOCVisibleRef.current && !isHighlightMenuOpenRef.current) {
             //@ts-ignore
-            setIsNavbarVisible((prevState) => !prevState); // Invert the current navbar visibility
+            setIsNavbarVisible((prevState) => !prevState);
           } else {
             setIsTOCVisible(false);
           }
         }
-        isMouseDown = false; // Reset the state after mouseup
-        mouseDownTarget = null; // Reset the target
+        isMouseDown = false;
+        mouseDownTarget = null;
       });
-      // Cleanup event listeners on unmount
+
       return () => {
         rendition.off("keyup", KeyboardEvent);
         rendition.off("selected", handleSelection);
@@ -320,54 +291,31 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   }, [rendition, isHighlightMenuOpen]);
 
-  // Handle key press events which happen between iframe(epub.js) and arrow ui for both flows
+  // Global keydown listener to capture arrow keys
   useEffect(() => {
-    const handleKeys = (event: KeyboardEvent) => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowRight" || event.key === " ") {
+        event.preventDefault();
+        goToNextPage();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goToPreviousPage();
+      } else if (event.key === "ArrowUp" && currentFlow === "scrolled") {
+        event.preventDefault();
+        goToPreviousPage();
+      } else if (event.key === "ArrowDown" && currentFlow === "scrolled") {
+        event.preventDefault();
         goToNextPage();
       }
-      if (event.key === "ArrowLeft") {
-        goToPreviousPage();
-      }
     };
 
-    document.addEventListener("keydown", handleKeys);
-
+    window.addEventListener("keydown", handleGlobalKeyDown);
     return () => {
-      document.removeEventListener("keydown", handleKeys);
+      window.removeEventListener("keydown", handleGlobalKeyDown);
     };
-  }, [isnavbarActive, currentFlow]);
+  }, [currentFlow]);
 
-  // Handle key press events which happen between iframe(epub.js) and arrow ui for both flows
-  useEffect(() => {
-    if (!isnavbarActive && currentFlow === "scrolled") {
-      const handleKeys = (event: KeyboardEvent) => {
-        if (event.key === "ArrowUp" && rendition) {
-          const currentLocation = rendition.currentLocation();
-          if (
-            currentLocation &&
-            //@ts-ignore
-            currentLocation.start &&
-            //@ts-ignore
-            currentLocation.start.displayed.page !== 1
-          ) {
-            goToPreviousPage();
-          }
-        }
-        if (event.key === "ArrowDown") {
-          goToNextPage();
-        }
-      };
-
-      document.addEventListener("keydown", handleKeys);
-
-      return () => {
-        document.removeEventListener("keydown", handleKeys);
-      };
-    }
-  });
-
-  // Handle mouse wheel events which happen between iframe(epub.js) and arrow ui if flow is paginated
+  // Handle wheel events for paginated flow
   useEffect(() => {
     if (currentFlow === "paginated") {
       const handleWheels = (event: WheelEvent) => {
@@ -379,85 +327,88 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }
       };
       document.addEventListener("wheel", handleWheels);
-
       return () => {
         document.removeEventListener("wheel", handleWheels);
       };
     }
-  });
+  }, [currentFlow]);
 
-  // Handle mouse wheel events at top and bottom of the chapter if flow is scrolled
+  // Handle wheel events at chapter boundaries for scrolled flow
   useEffect(() => {
-    if (currentFlow === "scrolled") {
-      if (rendition) {
-        // Define the wheel event handlers for previous and next page
-        const handleWheelUp = (event: WheelEvent) => {
-          if (event.deltaY < 0) {
-            goToPreviousPage();
-          }
-        };
+    if (currentFlow === "scrolled" && rendition) {
+      const handleWheelUp = (event: WheelEvent) => {
+        if (event.deltaY < 0) {
+          goToPreviousPage();
+        }
+      };
 
-        const handleWheelDown = (event: WheelEvent) => {
-          if (event.deltaY > 0) {
-            goToNextPage();
-          }
-        };
+      const handleWheelDown = (event: WheelEvent) => {
+        if (event.deltaY > 0) {
+          goToNextPage();
+        }
+      };
 
-        // Handle relocated event
-        const handleRelocated = (location: Location) => {
-          const contents = rendition.getContents();
-
+      const handleRelocated = (location: Location) => {
+        const contents = rendition.getContents();
+        //@ts-ignore
+        if (contents && contents.length > 0) {
           //@ts-ignore
-          if (contents && contents.length > 0) {
-            //@ts-ignore
-            const iframeDocument = contents[0].document;
+          const iframeDocument = contents[0].document;
+          iframeDocument.removeEventListener("wheel", handleWheelUp);
+          iframeDocument.removeEventListener("wheel", handleWheelDown);
 
-            // Cleanup any previous event listeners before adding new ones
-            iframeDocument.removeEventListener("wheel", handleWheelUp);
-            iframeDocument.removeEventListener("wheel", handleWheelDown);
-
-            // Check if the user is at the top of the chapter
-            if (location.start.displayed.page === 1) {
-              console.log("You've reached the top of the chapter.");
-              iframeDocument.addEventListener("wheel", handleWheelUp);
-            }
-
-            // Check if the user is at the bottom of the chapter
-            else if (
-              location.end.displayed.page > location.end.displayed.total
-            ) {
-              console.log(location);
-              iframeDocument.addEventListener("wheel", handleWheelDown);
-            }
+          if (location.start.displayed.page === 1) {
+            iframeDocument.addEventListener("wheel", handleWheelUp);
+          } else if (
+            location.end.displayed.page > location.end.displayed.total
+          ) {
+            iframeDocument.addEventListener("wheel", handleWheelDown);
           }
-        };
+        }
+      };
 
-        // Attach the relocated event listener
-        rendition.on("relocated", handleRelocated);
-
-        // Cleanup function to remove event listeners when component unmounts or changes
-        return () => {
-          const contents = rendition.getContents();
+      rendition.on("relocated", handleRelocated);
+      return () => {
+        const contents = rendition.getContents();
+        //@ts-ignore
+        if (contents && contents.length > 0) {
           //@ts-ignore
-          if (contents && contents.length > 0) {
-            //@ts-ignore
-            const iframeDocument = contents[0].document;
-            iframeDocument.removeEventListener("wheel", handleWheelUp);
-            iframeDocument.removeEventListener("wheel", handleWheelDown);
-          }
-          rendition.off("relocated", handleRelocated);
-        };
-      }
+          const iframeDocument = contents[0].document;
+          iframeDocument.removeEventListener("wheel", handleWheelUp);
+          iframeDocument.removeEventListener("wheel", handleWheelDown);
+        }
+        rendition.off("relocated", handleRelocated);
+      };
     }
-  }, [currentFlow, rendition]); // Only re-run when currentFlow or rendition changes
+  }, [currentFlow, rendition]);
 
-  // This function will manage when the Navbar is shown/hidden
+  // New useEffect: Focus the iframe's window after rendering
+  useEffect(() => {
+    if (rendition) {
+      const focusIframe = () => {
+        const contents = rendition.getContents();
+        //@ts-ignore
+        if (contents && contents.length > 0) {
+          //@ts-ignore
+          contents[0].window.focus();
+        }
+      };
+
+      // Focus once immediately after a short delay
+      setTimeout(focusIframe, 100);
+      // Also, focus whenever a new section is rendered
+      rendition.on("rendered", focusIframe);
+      return () => {
+        rendition.off("rendered", focusIframe);
+      };
+    }
+  }, [rendition]);
+
   const toggleNavbarVisibility = () => {
     //@ts-ignore
-    setIsNavbarVisible((prevState) => !prevState); // Show the Navbar
+    setIsNavbarVisible((prevState) => !prevState);
   };
 
-  // Move to the selected chapter
   const handleChapterSelect = (chapterHref: string) => {
     if (rendition) {
       rendition.display(chapterHref);
@@ -465,13 +416,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   };
 
-  // Handle text selection
   const handleSelection = () => {
-    setIsTextSelected(true); // Flag that text is selected
-    setIsHighlightMenuOpen(true); // Open the highlight menu
+    setIsTextSelected(true);
+    setIsHighlightMenuOpen(true);
   };
 
-  // Navigate to the previous page
   const goToPreviousPage = async () => {
     if (!isTOCVisible && rendition) {
       if (currentFlow === "scrolled") {
@@ -489,21 +438,19 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   };
 
-  // Navigate to the next page
   const goToNextPage = async () => {
     if (!isTOCVisible && rendition) {
       await rendition.next();
     }
   };
 
+  // Focus the outer viewer as a fallback
   useEffect(() => {
-    if (rendition && viewerRef.current) {
-      // Ensure the viewer is focusable
-      viewerRef.current.tabIndex = -1;
-      // Set focus on the viewer when the book is loaded
+    if (viewerRef.current) {
       viewerRef.current.focus();
     }
-  }, [rendition]);
+    return undefined;
+  }, []);
 
   return (
     <>
@@ -531,7 +478,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }`}
       >
         <div className="flex-1 relative flex h-full overflow-hidden">
-          {/* EPUB Viewer */}
           {currentFlow === "paginated" ? (
             <div
               className="w-[50px] flex items-center justify-center opacity-100 hover:opacity-100 cursor-pointer transition-opacity duration-300"
@@ -557,6 +503,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
               currentFlow === "paginated" ? "p-[20px]" : ""
             }`}
             onClick={toggleNavbarVisibility}
+            tabIndex={0}
           />
           {currentFlow === "paginated" ? (
             <div
@@ -567,7 +514,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
                 className={`absolute right-2.5 top-1/2 transform -translate-y-1/2 ${
                   isDarkTheme
                     ? "bg-gray-800 hover:bg-gray-700 text-[#d1d5db]"
-                    : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]" // Softer light mode styles
+                    : "bg-gradient-to-r from-[#f4f4f9] to-[#fafafa] hover:from-[#fafafa] hover:to-[#f4f4f9] text-[#333333]"
                 } border-none rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300`}
               >
                 &#10095;
@@ -584,26 +531,23 @@ const EpubReader: React.FC<EpubReaderProps> = ({
               //@ts-ignore
               bookId={bookId}
               currentFlow={currentFlow}
-              onOpen={() => setIsHighlightMenuOpen(true)} // Set menu open handler
+              onOpen={() => setIsHighlightMenuOpen(true)}
               onClose={() => {
-                // adding timeout so that click and selection event listener willnot trigger at once
                 setTimeout(() => {
                   setIsHighlightMenuOpen(false);
-                }, 200); // 0.1 second delay
+                }, 200);
               }}
             />
           )}
 
-          {/* Table of Contents */}
           <TOC
             chapters={chapters}
             isVisible={isTOCVisible}
             handleChapterSelect={handleChapterSelect}
             isDarkTheme={isDarkTheme}
             setIsTOCVisible={setIsTOCVisible}
-            //Check it later on most probably this import isnot used in toc component
             //@ts-ignore
-            activeChapterHref={currentChapterHref} // Pass current chapter href
+            activeChapterHref={currentChapterHref}
           />
           <Setting
             isSettingVisible={isSettingVisible}

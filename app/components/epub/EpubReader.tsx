@@ -344,11 +344,18 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   useEffect(() => {
     if (!isnavbarActive && currentFlow === "scrolled") {
       const handleKeys = (event: KeyboardEvent) => {
-        if (event.key === "ArrowUp") {
-          goToNextPage();
+        if (event.key === "ArrowUp" && rendition) {
+          const currentLocation = rendition.currentLocation();
+          if (
+            currentLocation &&
+            currentLocation.start &&
+            currentLocation.start.displayed.page !== 1
+          ) {
+            goToPreviousPage();
+          }
         }
         if (event.key === "ArrowDown") {
-          goToPreviousPage();
+          goToNextPage();
         }
       };
 
@@ -466,8 +473,27 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   // Navigate to the previous page
   const goToPreviousPage = async () => {
-    if (!isTOCVisible) {
-      if (rendition) {
+    if (!isTOCVisible && rendition && currentFlow === "scrolled") {
+      const currentLocation = rendition.currentLocation();
+      console.log("Current Location:", currentLocation); // Log the current location to inspect its structure
+      if (
+        currentLocation &&
+        currentLocation.start &&
+        currentLocation.start.displayed.page === 1
+      ) {
+        // If at the start of the chapter, go to the previous chapter's start
+        const toc = await book?.loaded.navigation;
+        if (toc) {
+          const currentChapterIndex = toc.toc.findIndex(
+            (chapter) => chapter.href === currentLocation.start.href
+          );
+          if (currentChapterIndex > 0) {
+            const previousChapterHref = toc.toc[currentChapterIndex - 1].href;
+            await rendition.display(previousChapterHref);
+          }
+        }
+      } else {
+        // Otherwise, go to the previous page
         await rendition.prev();
       }
     }

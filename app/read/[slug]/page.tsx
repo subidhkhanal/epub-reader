@@ -7,10 +7,9 @@
 
 import { useParams, useSearchParams } from "next/navigation";
 import React, { useEffect, useState, useContext } from "react";
-import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 import EpubReader from "@/app/components/epub/EpubReader";
-import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 import Navbar from "@/app/components/epub/Navbar"; // Import the Navbar component
 
 interface TocElement {

@@ -1,5 +1,5 @@
 /** @format */
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ePub, { Book, Rendition, Location } from "epubjs";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/firebaseConfig";
@@ -148,8 +148,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             viewerRef.current.innerHTML = "";
           }
 
-          //@ts-ignore
-          const loadedRendition = loadedBook.renderTo(viewerRef.current, {
+          const loadedRendition = loadedBook.renderTo(viewerRef.current!, {
             width: "100%",
             height: "100%",
             flow: currentFlow,
@@ -159,6 +158,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           setRendition(loadedRendition);
           updateRenditionStyles(loadedRendition, isDarkTheme, fontSize);
 
+          // Load the table of contents first
+          const navigation = await loadedBook.loaded.navigation;
+          const toc = navigation.toc;
+          setChapters(toc);
+          updateChapters(toc);
+
+          // Then display the book at the saved location or start
           if (userData?.location) {
             await loadedRendition.display(userData.location);
           } else {
@@ -167,24 +173,42 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
           setBook(loadedBook);
 
-          const toc = await loadedBook.loaded.navigation;
-          updateChapters(toc.toc);
-
+          // Set initial chapter
           const currentLocation = loadedRendition.currentLocation();
-
-          //@ts-ignore
-          if (currentLocation && currentLocation.start) {
-            //@ts-ignore
-            const currentChapterHref = currentLocation.start.href;
-            onChapterChange(currentChapterHref || "Chapter");
+          if (currentLocation) {
+            const locationStart = currentLocation as any;
+            const currentChapterHref = locationStart.start?.href;
+            if (currentChapterHref) {
+              setCurrentChapterHref(currentChapterHref);
+              onChapterChange(currentChapterHref);
+            }
           }
 
+          // Load highlights
           highlights?.forEach((highlight: any) => {
             loadedRendition.annotations.add(
               "highlight",
               highlight.cfiRange,
               {},
-              () => {},
+              (highlightElements: any) => {
+                if (Array.isArray(highlightElements)) {
+                  highlightElements.forEach((el) => {
+                    if (el && typeof el.setAttribute === "function") {
+                      el.setAttribute("data-cfi", highlight.cfiRange);
+                      el.classList.add("highlight");
+                    }
+                  });
+                } else if (
+                  highlightElements &&
+                  typeof highlightElements.setAttribute === "function"
+                ) {
+                  highlightElements.setAttribute(
+                    "data-cfi",
+                    highlight.cfiRange
+                  );
+                  highlightElements.classList.add("highlight");
+                }
+              },
               "highlight",
               { fill: highlight.color }
             );
@@ -193,7 +217,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           loadedRendition.on("relocated", (location: Location) => {
             const cfi = location.start.cfi;
             saveUserData(user.uid, bookId, { location: cfi });
-
             const currentChapterHref = location.start.href;
             setCurrentChapterHref(currentChapterHref);
             onChapterChange(currentChapterHref || "Chapter");
@@ -394,9 +417,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }
       };
 
-      // Focus once immediately after a short delay
       setTimeout(focusIframe, 100);
-      // Also, focus whenever a new section is rendered
       rendition.on("rendered", focusIframe);
       return () => {
         rendition.off("rendered", focusIframe);
@@ -404,9 +425,11 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     }
   }, [rendition]);
 
-  const toggleNavbarVisibility = () => {
-    //@ts-ignore
-    setIsNavbarVisible((prevState) => !prevState);
+  // Modified toggleNavbarVisibility to ignore clicks on highlights
+  const toggleNavbarVisibility = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest(".highlight")) return;
+    setIsNavbarVisible(!isnavbarActive);
   };
 
   const handleChapterSelect = (chapterHref: string) => {
@@ -548,6 +571,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             setIsTOCVisible={setIsTOCVisible}
             //@ts-ignore
             activeChapterHref={currentChapterHref}
+            userId={user.uid}
+            bookId={Array.isArray(bookId) ? bookId[0] : bookId}
           />
           <Setting
             isSettingVisible={isSettingVisible}

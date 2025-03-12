@@ -348,7 +348,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           const currentLocation = rendition.currentLocation();
           if (
             currentLocation &&
+            //@ts-ignore
             currentLocation.start &&
+            //@ts-ignore
             currentLocation.start.displayed.page !== 1
           ) {
             goToPreviousPage();
@@ -478,13 +480,16 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       console.log("Current Location:", currentLocation); // Log the current location to inspect its structure
       if (
         currentLocation &&
+        //@ts-ignore
         currentLocation.start &&
+        //@ts-ignore
         currentLocation.start.displayed.page === 1
       ) {
         // If at the start of the chapter, go to the previous chapter's start
         const toc = await book?.loaded.navigation;
         if (toc) {
           const currentChapterIndex = toc.toc.findIndex(
+            //@ts-ignore
             (chapter) => chapter.href === currentLocation.start.href
           );
           if (currentChapterIndex > 0) {

@@ -251,13 +251,24 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   useEffect(() => {
     if (rendition) {
-      rendition.on("keyup", (event: KeyboardEvent) => {
+      const handleKeyUp = (event: KeyboardEvent) => {
+        // Don't handle keyboard navigation if TOC or Settings are open
+        if (isTOCVisible || isSettingVisible) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+
         if (event.key === "ArrowRight" || event.key === " ") {
+          event.preventDefault();
           goToNextPage();
         } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
           goToPreviousPage();
         }
-      });
+      };
+
+      rendition.on("keyup", handleKeyUp);
 
       if (currentFlow === "paginated") {
         rendition.on("rendered", () => {
@@ -267,10 +278,12 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             //@ts-ignore
             const iframeDocument = contents[0].document;
             iframeDocument.addEventListener("wheel", (event: WheelEvent) => {
-              if (event.deltaY > 0) {
-                goToNextPage();
-              } else if (event.deltaY < 0) {
-                goToPreviousPage();
+              if (!isTOCVisible && !isSettingVisible) {
+                if (event.deltaY > 0) {
+                  goToNextPage();
+                } else if (event.deltaY < 0) {
+                  goToPreviousPage();
+                }
               }
             });
           }
@@ -305,18 +318,23 @@ const EpubReader: React.FC<EpubReaderProps> = ({
       });
 
       return () => {
-        rendition.off("keyup", KeyboardEvent);
+        rendition.off("keyup", handleKeyUp);
         rendition.off("selected", handleSelection);
         rendition.off("mousedown", MouseEvent);
         rendition.off("mousemove", MouseEvent);
         rendition.off("mouseup", MouseEvent);
       };
     }
-  }, [rendition, isHighlightMenuOpen]);
+  }, [rendition, isHighlightMenuOpen, isTOCVisible, isSettingVisible]);
 
   // Global keydown listener to capture arrow keys
   useEffect(() => {
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      // Don't handle keyboard navigation if TOC or Settings are open
+      if (isTOCVisible || isSettingVisible) {
+        return;
+      }
+
       if (event.key === "ArrowRight" || event.key === " ") {
         event.preventDefault();
         goToNextPage();
@@ -336,7 +354,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
     return () => {
       window.removeEventListener("keydown", handleGlobalKeyDown);
     };
-  }, [currentFlow]);
+  }, [currentFlow, isTOCVisible, isSettingVisible]);
 
   // Handle wheel events for paginated flow
   useEffect(() => {
@@ -417,19 +435,42 @@ const EpubReader: React.FC<EpubReaderProps> = ({
         }
       };
 
-      setTimeout(focusIframe, 100);
+      // Focus when rendition changes
+      focusIframe();
+
+      // Focus after any state changes that might cause loss of focus
+      const refocusOnStateChange = () => {
+        setTimeout(focusIframe, 100);
+      };
+
       rendition.on("rendered", focusIframe);
+
+      // Add event listeners for state changes
+      window.addEventListener("click", refocusOnStateChange);
+
       return () => {
         rendition.off("rendered", focusIframe);
+        window.removeEventListener("click", refocusOnStateChange);
       };
     }
-  }, [rendition]);
+  }, [rendition, isTOCVisible, isSettingVisible]);
 
-  // Modified toggleNavbarVisibility to ignore clicks on highlights
+  // Modified toggleNavbarVisibility to maintain focus
   const toggleNavbarVisibility = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.closest(".highlight")) return;
-    setIsNavbarVisible(!isnavbarActive);
+    if (target.closest(".highlight") || isHighlightMenuOpen) return;
+    if (!isTOCVisible && !isHighlightMenuOpen) {
+      setIsNavbarVisible(!isnavbarActive);
+      // Refocus on the viewer
+      if (rendition) {
+        const contents = rendition.getContents();
+        //@ts-ignore
+        if (contents && contents.length > 0) {
+          //@ts-ignore
+          setTimeout(() => contents[0].window.focus(), 100);
+        }
+      }
+    }
   };
 
   const handleChapterSelect = (chapterHref: string) => {
@@ -445,7 +486,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   };
 
   const goToPreviousPage = async () => {
-    if (!isTOCVisible && rendition) {
+    if (!isTOCVisible && !isSettingVisible && rendition) {
       if (currentFlow === "scrolled") {
         const currentLocation = rendition.currentLocation();
         if (
@@ -462,7 +503,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   };
 
   const goToNextPage = async () => {
-    if (!isTOCVisible && rendition) {
+    if (!isTOCVisible && !isSettingVisible && rendition) {
       await rendition.next();
     }
   };

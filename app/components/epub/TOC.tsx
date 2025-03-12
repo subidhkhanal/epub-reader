@@ -105,6 +105,9 @@ const TOC: React.FC<TOCProps> = ({
             ? "bg-[#1a1a2e] text-gray-300 border-[#444]"
             : "bg-white text-black border-[#ddd]"
         } ${isVisible ? "translate-x-0" : "translate-x-full"}`}
+        onKeyDown={(e) => {
+          e.stopPropagation();
+        }}
       >
         {/* Tab Navigation */}
         <div

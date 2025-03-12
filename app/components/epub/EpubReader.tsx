@@ -550,9 +550,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
           {rendition && user && (
             <HighlightMenu
               rendition={rendition}
-              userId={user.uid}
-              //@ts-ignore
-              bookId={bookId}
+              userId={user?.uid || ""}
+              bookId={Array.isArray(bookId) ? bookId[0] : bookId}
               currentFlow={currentFlow}
               onOpen={() => setIsHighlightMenuOpen(true)}
               onClose={() => {
@@ -569,9 +568,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             handleChapterSelect={handleChapterSelect}
             isDarkTheme={isDarkTheme}
             setIsTOCVisible={setIsTOCVisible}
-            //@ts-ignore
-            activeChapterHref={currentChapterHref}
-            userId={user.uid}
+            activeChapterHref={currentChapterHref || ""}
+            userId={user?.uid || ""}
             bookId={Array.isArray(bookId) ? bookId[0] : bookId}
           />
           <Setting

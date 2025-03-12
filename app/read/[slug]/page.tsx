@@ -13,6 +13,11 @@ import EpubReader from "@/app/components/epub/EpubReader";
 import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
 import Navbar from "@/app/components/epub/Navbar"; // Import the Navbar component
 
+interface TocElement {
+  label: string;
+  href: string;
+}
+
 const ReadBook: React.FC = () => {
   const { slug } = useParams(); // Access the dynamic segment
   const searchParams = useSearchParams();
@@ -25,6 +30,8 @@ const ReadBook: React.FC = () => {
   const [isSettingVisible, setIsSettingVisible] = useState<boolean>(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // gives the sliding view to the navbar when I click on the screen
   const [isnavbarActive, setIsNavbarActive] = useState(false); // make sure that the arrow keywords only works when the navbar active is true
+  const [readingProgress, setReadingProgress] = useState<number>(0);
+  const [chapters, setChapters] = useState<TocElement[]>([]);
 
   // Load initial state from localStorage or determine based on window width
   const [currentFlow, setCurrentFlow] = useState(() => {
@@ -47,6 +54,26 @@ const ReadBook: React.FC = () => {
     }
     return true; // Default to dark theme
   });
+
+  // Function to update the reading progress
+  const updateReadingProgress = (
+    currentChapter: string,
+    totalChapters: number
+  ) => {
+    const chapterIndex = chapters.findIndex(
+      (chapter) => chapter.href === currentChapter
+    );
+    if (chapterIndex !== -1 && totalChapters > 0) {
+      const progress = ((chapterIndex + 1) / totalChapters) * 100;
+      console.log(
+        `Current Chapter Index: ${chapterIndex}, Total Chapters: ${totalChapters}, Progress: ${progress}%`
+      ); // Debug log
+      setReadingProgress(progress);
+    } else {
+      console.log("Chapter not found or total chapters is zero.");
+    }
+  };
+
   useEffect(() => {
     const fetchBook = async () => {
       //@ts-ignore
@@ -72,6 +99,12 @@ const ReadBook: React.FC = () => {
     fetchBook();
   }, [slug, userId]);
 
+  useEffect(() => {
+    if (chapters.length > 0 && currentChapter) {
+      updateReadingProgress(currentChapter, chapters.length);
+    }
+  }, [chapters, currentChapter]);
+
   if (!fileUrl) {
     return <div>Loading...</div>;
   }
@@ -93,7 +126,16 @@ const ReadBook: React.FC = () => {
       />
       <EpubReader
         fileUrl={fileUrl}
-        onChapterChange={setCurrentChapter}
+        onChapterChange={(chapter) => {
+          console.log(`Chapter changed to: ${chapter}`); // Debug log
+          setCurrentChapter(chapter);
+          if (chapters.length > 0) {
+            updateReadingProgress(chapter, chapters.length); // Use chapters.length for totalChapters
+          } else {
+            console.log("Chapters array is not yet populated.");
+          }
+        }}
+        updateChapters={setChapters}
         isDarkTheme={isDarkTheme}
         setIsDarkTheme={setIsDarkTheme}
         isTOCVisible={isTOCVisible}
@@ -105,6 +147,12 @@ const ReadBook: React.FC = () => {
         currentFlow={currentFlow}
         setCurrentFlow={setCurrentFlow}
       />
+      <div className="w-full h-2 bg-gray-300">
+        <div
+          className="h-full bg-blue-500"
+          style={{ width: `${readingProgress}%` }}
+        ></div>
+      </div>
     </div>
   );
 };

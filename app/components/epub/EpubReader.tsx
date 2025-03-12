@@ -28,6 +28,12 @@ interface EpubReaderProps {
   setIsSettingVisible: (isSettingVisible: boolean) => void;
   isDarkTheme: boolean; // Dark theme support
   setIsDarkTheme: (isDarkTheme: boolean) => void;
+  updateChapters: (chapters: TocElement[]) => void; // Renamed prop to updateChapters
+}
+
+interface TocElement {
+  label: string;
+  href: string;
 }
 
 const EpubReader: React.FC<EpubReaderProps> = ({
@@ -43,6 +49,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
   setIsSettingVisible,
   isDarkTheme,
   setIsDarkTheme,
+  updateChapters,
 }) => {
   const viewerRef = useRef<HTMLDivElement>(null);
   const [book, setBook] = useState<Book | null>(null);
@@ -177,7 +184,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
           // Load Table of Contents (TOC)
           const toc = await loadedBook.loaded.navigation;
-          setChapters(toc.toc);
+          updateChapters(toc.toc);
 
           const currentLocation = loadedRendition.currentLocation();
 

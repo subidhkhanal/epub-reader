@@ -322,23 +322,21 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   // Handle key press events which happen between iframe(epub.js) and arrow ui for both flows
   useEffect(() => {
-    if (!isnavbarActive) {
-      const handleKeys = (event: KeyboardEvent) => {
-        if (event.key === "ArrowRight" || event.key === " ") {
-          goToNextPage();
-        }
-        if (event.key === "ArrowLeft") {
-          goToPreviousPage();
-        }
-      };
+    const handleKeys = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight" || event.key === " ") {
+        goToNextPage();
+      }
+      if (event.key === "ArrowLeft") {
+        goToPreviousPage();
+      }
+    };
 
-      document.addEventListener("keydown", handleKeys);
+    document.addEventListener("keydown", handleKeys);
 
-      return () => {
-        document.removeEventListener("keydown", handleKeys);
-      };
-    }
-  });
+    return () => {
+      document.removeEventListener("keydown", handleKeys);
+    };
+  }, [isnavbarActive, currentFlow]);
 
   // Handle key press events which happen between iframe(epub.js) and arrow ui for both flows
   useEffect(() => {
@@ -475,30 +473,17 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   // Navigate to the previous page
   const goToPreviousPage = async () => {
-    if (!isTOCVisible && rendition && currentFlow === "scrolled") {
-      const currentLocation = rendition.currentLocation();
-      console.log("Current Location:", currentLocation); // Log the current location to inspect its structure
-      if (
-        currentLocation &&
-        //@ts-ignore
-        currentLocation.start &&
-        //@ts-ignore
-        currentLocation.start.displayed.page === 1
-      ) {
-        // If at the start of the chapter, go to the previous chapter's start
-        const toc = await book?.loaded.navigation;
-        if (toc) {
-          const currentChapterIndex = toc.toc.findIndex(
-            //@ts-ignore
-            (chapter) => chapter.href === currentLocation.start.href
-          );
-          if (currentChapterIndex > 0) {
-            const previousChapterHref = toc.toc[currentChapterIndex - 1].href;
-            await rendition.display(previousChapterHref);
-          }
+    if (!isTOCVisible && rendition) {
+      if (currentFlow === "scrolled") {
+        const currentLocation = rendition.currentLocation();
+        if (
+          currentLocation &&
+          //@ts-ignore
+          currentLocation.start.cfi !== "epubcfi(/6/2[cover]!/4/1:0)"
+        ) {
+          await rendition.prev();
         }
-      } else {
-        // Otherwise, go to the previous page
+      } else if (currentFlow === "paginated") {
         await rendition.prev();
       }
     }
@@ -506,14 +491,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({
 
   // Navigate to the next page
   const goToNextPage = async () => {
-    if (!isTOCVisible) {
-      if (rendition) {
-        try {
-          await rendition.next();
-        } catch (error) {
-          console.error("Error navigating to the next page:", error);
-        }
-      }
+    if (!isTOCVisible && rendition) {
+      await rendition.next();
     }
   };
 

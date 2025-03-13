@@ -190,14 +190,14 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
           style={{ backgroundColor: "#448AFF" }}
           title="Blue Highlight"
         />
-        <button
+        {/* <button
           onClick={removeHighlight}
           className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
           style={{ backgroundColor: "#FFFFFF" }}
           title="Remove Highlight"
         >
           🗑️
-        </button>
+        </button> */}
       </div>
     )
   );

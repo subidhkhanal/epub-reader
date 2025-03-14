@@ -1,12 +1,7 @@
-/** @format */
-
-// This page have the main layout for the epub reader
-/** @format */
-
 "use client";
 
 import { useParams, useSearchParams } from "next/navigation";
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { db } from "@/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import EpubReader from "@/app/components/epub/EpubReader";
@@ -18,7 +13,14 @@ interface TocElement {
 }
 
 const ReadBook: React.FC = () => {
-  const { slug } = useParams(); // Access the dynamic segment
+  // Client-side hydration flag
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Always call hooks regardless of mounted state
+  const { slug } = useParams();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
 
@@ -27,34 +29,34 @@ const ReadBook: React.FC = () => {
   const [currentChapter, setCurrentChapter] = useState<string>("");
   const [isTOCVisible, setIsTOCVisible] = useState<boolean>(false);
   const [isSettingVisible, setIsSettingVisible] = useState<boolean>(false);
-  const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false); // gives the sliding view to the navbar when I click on the screen
-  const [isnavbarActive, setIsNavbarActive] = useState(false); // make sure that the arrow keywords only works when the navbar active is true
+  const [isNavbarVisible, setIsNavbarVisible] = useState<boolean>(false);
+  const [isnavbarActive, setIsNavbarActive] = useState(false);
   const [readingProgress, setReadingProgress] = useState<number>(0);
   const [chapters, setChapters] = useState<TocElement[]>([]);
 
-  // Load initial state from localStorage or determine based on window width
+  // Initialize currentFlow based on localStorage or window width
   const [currentFlow, setCurrentFlow] = useState(() => {
     if (typeof window !== "undefined") {
       const savedFlow = localStorage.getItem("currentFlow");
-      // Check the screen width
       return savedFlow
         ? savedFlow
         : window.innerWidth < 940
         ? "scrolled"
         : "paginated";
     }
-    return "paginated"; // Fallback for SSR
+    return "paginated";
   });
 
+  // Initialize theme based on localStorage or default to dark theme
   const [isDarkTheme, setIsDarkTheme] = useState(() => {
     if (typeof window !== "undefined") {
       const savedTheme = localStorage.getItem("isDarkTheme");
       return savedTheme === "true";
     }
-    return true; // Default to dark theme
+    return true;
   });
 
-  // Function to update the reading progress
+  // Update reading progress based on the current chapter index
   const updateReadingProgress = (
     currentChapter: string,
     totalChapters: number
@@ -66,7 +68,7 @@ const ReadBook: React.FC = () => {
       const progress = ((chapterIndex + 1) / totalChapters) * 100;
       console.log(
         `Current Chapter Index: ${chapterIndex}, Total Chapters: ${totalChapters}, Progress: ${progress}%`
-      ); // Debug log
+      );
       setReadingProgress(progress);
     } else {
       console.log("Chapter not found or total chapters is zero.");
@@ -77,12 +79,9 @@ const ReadBook: React.FC = () => {
     const fetchBook = async () => {
       //@ts-ignore
       const encodedSlug = encodeURIComponent(slug); // Encode the slug
-
       try {
-        //@ts-ignore
         const bookDoc = doc(db, "users", userId, "books", encodedSlug);
         const bookSnapshot = await getDoc(bookDoc);
-
         if (bookSnapshot.exists()) {
           const bookData = bookSnapshot.data();
           setFileUrl(bookData?.fileUrl || null);
@@ -104,57 +103,65 @@ const ReadBook: React.FC = () => {
     }
   }, [chapters, currentChapter]);
 
-  if (!fileUrl) {
-    return <div>Loading...</div>;
-  }
+  // Render the UI only after hydration, but always call hooks
   return (
-    <div
-      className={`flex flex-col h-screen transition-colors duration-300 ${
-        isDarkTheme ? "bg-[#000000] text-white" : "bg-[#f4f4f9] text-gray-900"
-      }`}
-    >
-      <Navbar
-        title={title}
-        isDarkTheme={isDarkTheme}
-        setIsTOCVisible={setIsTOCVisible}
-        isTOCVisible={isTOCVisible}
-        setIsNavbarActive={setIsNavbarActive}
-        isNavbarVisible={isNavbarVisible}
-        setIsSettingVisible={setIsSettingVisible}
-        isSettingVisible={isSettingVisible}
-      />
-      <EpubReader
-        fileUrl={fileUrl}
-        onChapterChange={(chapter) => {
-          console.log(`Chapter changed to: ${chapter}`); // Debug log
-          setCurrentChapter(chapter);
-          if (chapters.length > 0) {
-            updateReadingProgress(chapter, chapters.length); // Use chapters.length for totalChapters
-          } else {
-            console.log("Chapters array is not yet populated.");
-          }
-        }}
-        updateChapters={setChapters}
-        isDarkTheme={isDarkTheme}
-        setIsDarkTheme={setIsDarkTheme}
-        isTOCVisible={isTOCVisible}
-        setIsNavbarVisible={setIsNavbarVisible}
-        isnavbarActive={isNavbarVisible}
-        setIsTOCVisible={setIsTOCVisible}
-        setIsSettingVisible={setIsSettingVisible}
-        isSettingVisible={isSettingVisible}
-        currentFlow={currentFlow}
-        setCurrentFlow={setCurrentFlow}
-      />
-      <div
-        className={`w-full h-2 ${isDarkTheme ? "bg-gray-700" : "bg-gray-300"}`}
-      >
+    <>
+      {!mounted ? null : (
         <div
-          className={`h-full ${isDarkTheme ? "bg-blue-400" : "bg-blue-500"}`}
-          style={{ width: `${readingProgress}%` }}
-        ></div>
-      </div>
-    </div>
+          className={`flex flex-col h-screen transition-colors duration-300 ${
+            isDarkTheme
+              ? "bg-[#000000] text-white"
+              : "bg-[#f4f4f9] text-gray-900"
+          }`}
+        >
+          <Navbar
+            title={title}
+            isDarkTheme={isDarkTheme}
+            setIsTOCVisible={setIsTOCVisible}
+            isTOCVisible={isTOCVisible}
+            setIsNavbarActive={setIsNavbarActive}
+            isNavbarVisible={isNavbarVisible}
+            setIsSettingVisible={setIsSettingVisible}
+            isSettingVisible={isSettingVisible}
+          />
+          <EpubReader
+            fileUrl={fileUrl!}
+            onChapterChange={(chapter) => {
+              console.log(`Chapter changed to: ${chapter}`);
+              setCurrentChapter(chapter);
+              if (chapters.length > 0) {
+                updateReadingProgress(chapter, chapters.length);
+              } else {
+                console.log("Chapters array is not yet populated.");
+              }
+            }}
+            updateChapters={setChapters}
+            isDarkTheme={isDarkTheme}
+            setIsDarkTheme={setIsDarkTheme}
+            isTOCVisible={isTOCVisible}
+            setIsNavbarVisible={setIsNavbarVisible}
+            isnavbarActive={isNavbarVisible}
+            setIsTOCVisible={setIsTOCVisible}
+            setIsSettingVisible={setIsSettingVisible}
+            isSettingVisible={isSettingVisible}
+            currentFlow={currentFlow}
+            setCurrentFlow={setCurrentFlow}
+          />
+          <div
+            className={`w-full h-2 ${
+              isDarkTheme ? "bg-gray-700" : "bg-gray-300"
+            }`}
+          >
+            <div
+              className={`h-full ${
+                isDarkTheme ? "bg-blue-400" : "bg-blue-500"
+              }`}
+              style={{ width: `${readingProgress}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

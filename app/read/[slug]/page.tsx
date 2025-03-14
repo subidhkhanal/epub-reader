@@ -80,6 +80,7 @@ const ReadBook: React.FC = () => {
       //@ts-ignore
       const encodedSlug = encodeURIComponent(slug); // Encode the slug
       try {
+        //@ts-ignore
         const bookDoc = doc(db, "users", userId, "books", encodedSlug);
         const bookSnapshot = await getDoc(bookDoc);
         if (bookSnapshot.exists()) {

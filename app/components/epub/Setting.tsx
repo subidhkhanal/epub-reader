@@ -47,6 +47,17 @@ const Setting: React.FC<SettingProps> = ({
     return "Georgia";
   });
 
+  // Set dark theme as default if no preference is saved
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("isDarkTheme");
+      if (savedTheme === null) {
+        setIsDarkTheme(true);
+        localStorage.setItem("isDarkTheme", "true");
+      }
+    }
+  }, [setIsDarkTheme]);
+
   const fonts = [
     {
       name: "Georgia",
@@ -148,7 +159,7 @@ const Setting: React.FC<SettingProps> = ({
                 className="flex items-center justify-between cursor-pointer"
                 onClick={handleDarkThemeToggle}
               >
-                <span className="text-base font-medium">Dark Theme</span>
+                <span className="text-base font-medium">Light Theme</span>
                 <label className="relative inline-block w-8 h-5">
                   <input
                     type="checkbox"

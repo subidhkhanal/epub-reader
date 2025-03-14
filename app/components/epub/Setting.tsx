@@ -159,7 +159,7 @@ const Setting: React.FC<SettingProps> = ({
                 className="flex items-center justify-between cursor-pointer"
                 onClick={handleDarkThemeToggle}
               >
-                <span className="text-base font-medium">Light Theme</span>
+                <span className="text-base font-medium">Dark Theme</span>
                 <label className="relative inline-block w-8 h-5">
                   <input
                     type="checkbox"

@@ -250,6 +250,10 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
       e.preventDefault();
       saveNote();
     }
+    // Prevent spacebar from triggering any parent handlers
+    if (e.key === " ") {
+      e.stopPropagation();
+    }
   };
 
   return (
@@ -319,6 +323,12 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             onKeyDown={handleKeyDown}
+            onKeyPress={(e) => {
+              // Prevent the default spacebar behavior
+              if (e.key === " ") {
+                e.stopPropagation();
+              }
+            }}
             placeholder="Add a note (optional)..."
             className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             rows={3}

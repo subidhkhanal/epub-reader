@@ -28,46 +28,95 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
     top: number;
     left: number;
   } | null>(null);
+  const [note, setNote] = useState("");
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
+  const noteInputRef = useRef<HTMLTextAreaElement>(null);
 
   const addHighlight = async (color: string) => {
     if (highlightedText && selectedCFIRange) {
+      // If there's already a highlight, remove it first
+      if (selectedColor) {
+        rendition?.annotations.remove(selectedCFIRange, "highlight");
+      }
+
+      setSelectedColor(color);
+
+      // Add the new highlight with the selected color
+      rendition?.annotations.add(
+        "highlight",
+        selectedCFIRange,
+        {},
+        () => {},
+        "highlight",
+        { fill: color }
+      );
+
+      // Save or update the highlight in the database
       const highlight = {
         cfiRange: selectedCFIRange,
         text: highlightedText,
-        note: "",
+        note: note,
         color: color,
+        timestamp: new Date().toISOString(),
       };
 
-      try {
-        await saveHighlight(userId, bookId, highlight);
-        rendition?.annotations.add(
-          "highlight",
-          selectedCFIRange,
-          {},
-          () => {},
-          "highlight",
-          { fill: color }
-        );
-        setHighlightMenuPosition(null);
-      } catch (error) {
-        console.error("Error saving highlight:", error);
-      }
+      // Update database in the background
+      Promise.resolve().then(async () => {
+        try {
+          if (selectedColor) {
+            await removeHighlightFromDatabase(userId, bookId, selectedCFIRange);
+          }
+          await saveHighlight(userId, bookId, highlight);
+        } catch (error) {
+          console.error("Error saving highlight:", error);
+        }
+      });
+    }
+  };
+
+  const saveNote = async () => {
+    if (highlightedText && selectedCFIRange && selectedColor) {
+      const highlight = {
+        cfiRange: selectedCFIRange,
+        text: highlightedText,
+        note: note,
+        color: selectedColor,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Close menu immediately for better UX
+      setHighlightMenuPosition(null);
+
+      // Update database in the background
+      Promise.resolve().then(async () => {
+        try {
+          await removeHighlightFromDatabase(userId, bookId, selectedCFIRange);
+          await saveHighlight(userId, bookId, highlight);
+        } catch (error) {
+          console.error("Error saving note:", error);
+        }
+      });
     }
   };
 
   const removeHighlight = async () => {
     if (selectedCFIRange) {
-      try {
-        // Remove highlight from the database
-        await removeHighlightFromDatabase(userId, bookId, selectedCFIRange);
-        // Remove highlight from the rendition
-        rendition?.annotations.remove(selectedCFIRange, "highlight");
-        setHighlightMenuPosition(null);
-      } catch (error) {
-        console.error("Error removing highlight:", error);
-      }
+      // Remove highlight from UI immediately
+      rendition?.annotations.remove(selectedCFIRange, "highlight");
+      setHighlightMenuPosition(null);
+      setSelectedColor(null);
+      setNote("");
+
+      // Update database in the background
+      Promise.resolve().then(async () => {
+        try {
+          await removeHighlightFromDatabase(userId, bookId, selectedCFIRange);
+        } catch (error) {
+          console.error("Error removing highlight:", error);
+        }
+      });
     }
   };
 
@@ -77,6 +126,8 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
       if (cfiRange && text && text.trim()) {
         setHighlightedText(text);
         setSelectedCFIRange(cfiRange);
+        setSelectedColor(null); // Reset color when new text is selected
+        setNote(""); // Reset note when new text is selected
 
         const range = contents.window.getSelection()?.getRangeAt(0);
         const containerWidth =
@@ -136,15 +187,25 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setHighlightMenuPosition(null);
+        setNote("");
+        setSelectedColor(null);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    rendition?.on("mousedown", () => setHighlightMenuPosition(null));
+    rendition?.on("mousedown", () => {
+      setHighlightMenuPosition(null);
+      setNote("");
+      setSelectedColor(null);
+    });
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      rendition?.off("mousedown", () => setHighlightMenuPosition(null));
+      rendition?.off("mousedown", () => {
+        setHighlightMenuPosition(null);
+        setNote("");
+        setSelectedColor(null);
+      });
     };
   }, [rendition]);
 
@@ -156,48 +217,93 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
     }
   }, [highlightMenuPosition]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      saveNote();
+    }
+  };
+
   return (
     highlightMenuPosition && (
       <div
         ref={menuRef}
-        className="absolute p-3 border border-gray-200 rounded-lg flex space-x-2 z-[1000] bg-white/90 backdrop-blur-sm shadow-lg"
+        className="absolute p-3 border border-gray-200 rounded-lg flex flex-col space-y-3 z-[1000] bg-white/90 backdrop-blur-sm shadow-lg min-w-[220px]"
         style={{
           top: `${highlightMenuPosition.top}px`,
           left: `${highlightMenuPosition.left}px`,
         }}
       >
-        <button
-          onClick={() => addHighlight("#FFEB3B")}
-          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
-          style={{ backgroundColor: "#FFEB3B" }}
-          title="Yellow Highlight"
-        />
-        <button
-          onClick={() => addHighlight("#FF5252")}
-          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
-          style={{ backgroundColor: "#FF5252" }}
-          title="Red Highlight"
-        />
-        <button
-          onClick={() => addHighlight("#4CAF50")}
-          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
-          style={{ backgroundColor: "#4CAF50" }}
-          title="Green Highlight"
-        />
-        <button
-          onClick={() => addHighlight("#448AFF")}
-          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
-          style={{ backgroundColor: "#448AFF" }}
-          title="Blue Highlight"
-        />
-        {/* <button
-          onClick={removeHighlight}
-          className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
-          style={{ backgroundColor: "#FFFFFF" }}
-          title="Remove Highlight"
-        >
-          🗑️
-        </button> */}
+        <div className="flex space-x-2">
+          <button
+            onClick={() => addHighlight("#FFEB3B")}
+            className={`w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 ${
+              selectedColor === "#FFEB3B"
+                ? "ring-2 ring-yellow-400 ring-offset-2"
+                : ""
+            }`}
+            style={{ backgroundColor: "#FFEB3B" }}
+            title="Yellow Highlight"
+          />
+          <button
+            onClick={() => addHighlight("#FF5252")}
+            className={`w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 ${
+              selectedColor === "#FF5252"
+                ? "ring-2 ring-red-400 ring-offset-2"
+                : ""
+            }`}
+            style={{ backgroundColor: "#FF5252" }}
+            title="Red Highlight"
+          />
+          <button
+            onClick={() => addHighlight("#4CAF50")}
+            className={`w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 ${
+              selectedColor === "#4CAF50"
+                ? "ring-2 ring-green-400 ring-offset-2"
+                : ""
+            }`}
+            style={{ backgroundColor: "#4CAF50" }}
+            title="Green Highlight"
+          />
+          <button
+            onClick={() => addHighlight("#448AFF")}
+            className={`w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 ${
+              selectedColor === "#448AFF"
+                ? "ring-2 ring-blue-400 ring-offset-2"
+                : ""
+            }`}
+            style={{ backgroundColor: "#448AFF" }}
+            title="Blue Highlight"
+          />
+          <button
+            onClick={removeHighlight}
+            className="w-10 h-10 rounded-full cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 flex items-center justify-center"
+            style={{ backgroundColor: "#FFFFFF" }}
+            title="Remove Highlight"
+          >
+            🗑️
+          </button>
+        </div>
+
+        <div className="flex flex-col space-y-2">
+          <textarea
+            ref={noteInputRef}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Add a note (optional)..."
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            rows={3}
+          />
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={saveNote}
+              className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200"
+            >
+              Save Note
+            </button>
+          </div>
+        </div>
       </div>
     )
   );

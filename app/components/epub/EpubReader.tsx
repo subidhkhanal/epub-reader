@@ -571,6 +571,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({
             activeChapterHref={currentChapterHref || ""}
             userId={user?.uid || ""}
             bookId={Array.isArray(bookId) ? bookId[0] : bookId}
+            rendition={rendition}
           />
           <Setting
             isSettingVisible={isSettingVisible}

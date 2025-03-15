@@ -2,7 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { BiBookBookmark } from "react-icons/bi";
 import { BsBookmarkStar } from "react-icons/bs";
-import { loadHighlights } from "@/app/utils/firebaseFunctions";
+import {
+  loadHighlights,
+  removeHighlightFromDatabase,
+} from "@/app/utils/firebaseFunctions";
+import { FiTrash2 } from "react-icons/fi";
 
 // Function to compare CFI strings
 const compareCFIs = (cfiA: string, cfiB: string): number => {
@@ -35,6 +39,7 @@ interface TOCProps {
   setIsTOCVisible: (isTOCVisible: boolean) => void;
   userId: string; // User ID for fetching highlights
   bookId: string; // Current book ID
+  rendition?: any; // Add rendition prop
 }
 
 // Function to capitalize the first letter of each word and lowercase the rest
@@ -52,6 +57,7 @@ const TOC: React.FC<TOCProps> = ({
   setIsTOCVisible,
   userId,
   bookId,
+  rendition,
 }) => {
   const [activeTab, setActiveTab] = useState<"toc" | "highlights">("toc");
   const [highlights, setHighlights] = useState<any[]>([]);
@@ -101,6 +107,25 @@ const TOC: React.FC<TOCProps> = ({
     if (window.innerWidth < 768) {
       // If the window width is less than 768px (mobile view), close the TOC
       setIsTOCVisible(false);
+    }
+  };
+
+  const handleDeleteHighlight = async (highlight: any) => {
+    try {
+      // Remove from database
+      await removeHighlightFromDatabase(userId, bookId, highlight.cfiRange);
+
+      // Remove from rendition
+      if (rendition) {
+        rendition.annotations.remove(highlight.cfiRange, "highlight");
+      }
+
+      // Update local state
+      setHighlights((prevHighlights) =>
+        prevHighlights.filter((h) => h.cfiRange !== highlight.cfiRange)
+      );
+    } catch (error) {
+      console.error("Error deleting highlight:", error);
     }
   };
 
@@ -205,10 +230,9 @@ const TOC: React.FC<TOCProps> = ({
                         isDarkTheme
                           ? "bg-[#2a2a3e] hover:bg-[#37474f]"
                           : "bg-white hover:bg-gray-50"
-                      } transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer border ${
+                      } transition-all duration-200 shadow-sm hover:shadow-md border ${
                         isDarkTheme ? "border-gray-700" : "border-gray-100"
                       }`}
-                      onClick={() => handleChapterClick(highlight.cfiRange)}
                     >
                       {/* Timestamp and Actions Row */}
                       <div className="flex items-center justify-between mb-3">
@@ -228,45 +252,60 @@ const TOC: React.FC<TOCProps> = ({
                               )
                             : ""}
                         </time>
-                        <div className="flex items-center space-x-2">
-                          {highlight.color && (
-                            <div
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: highlight.color }}
-                            />
-                          )}
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteHighlight(highlight);
+                            }}
+                            className={`p-1.5 rounded-full transition-colors duration-200 ${
+                              isDarkTheme
+                                ? "text-gray-400 hover:text-red-400 hover:bg-gray-700"
+                                : "text-gray-500 hover:text-red-500 hover:bg-gray-100"
+                            }`}
+                            title="Delete highlight"
+                          >
+                            <FiTrash2 size={16} />
+                          </button>
                         </div>
                       </div>
 
                       {/* Highlight Text */}
-                      <blockquote
-                        className={`text-base border-l-4 pl-3 mb-2 ${
-                          isDarkTheme ? "text-gray-200" : "text-gray-700"
-                        }`}
-                        style={{
-                          borderLeftColor: highlight.color || "#3B82F6",
-                        }}
+                      <div
+                        onClick={() => handleChapterClick(highlight.cfiRange)}
+                        className="cursor-pointer"
                       >
-                        {highlight.text}
-                      </blockquote>
-
-                      {/* Note Section */}
-                      {highlight.note && (
-                        <div
-                          className={`mt-3 pt-3 border-t ${
-                            isDarkTheme ? "border-gray-700" : "border-gray-200"
+                        <blockquote
+                          className={`text-base border-l-4 pl-3 mb-2 ${
+                            isDarkTheme ? "text-gray-200" : "text-gray-700"
                           }`}
+                          style={{
+                            borderLeftColor: highlight.color || "#3B82F6",
+                          }}
                         >
-                          <p
-                            className={`text-sm ${
-                              isDarkTheme ? "text-gray-400" : "text-gray-600"
+                          {highlight.text}
+                        </blockquote>
+
+                        {/* Note Section */}
+                        {highlight.note && (
+                          <div
+                            className={`mt-3 pt-3 border-t ${
+                              isDarkTheme
+                                ? "border-gray-700"
+                                : "border-gray-200"
                             }`}
                           >
-                            <span className="font-medium">Note:</span>{" "}
-                            {highlight.note}
-                          </p>
-                        </div>
-                      )}
+                            <p
+                              className={`text-sm ${
+                                isDarkTheme ? "text-gray-400" : "text-gray-600"
+                              }`}
+                            >
+                              <span className="font-medium">Note:</span>{" "}
+                              {highlight.note}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>

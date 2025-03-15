@@ -151,9 +151,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
         setHighlightedText(text);
         setSelectedCFIRange(cfiRange);
 
-        // Load existing highlight data if any
-        await loadExistingHighlight(cfiRange);
-
+        // Calculate and set menu position immediately
         const range = contents.window.getSelection()?.getRangeAt(0);
         const containerWidth =
           //@ts-ignore
@@ -193,6 +191,28 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
           }
 
           setHighlightMenuPosition({ top: newTop, left: newLeft });
+
+          // Load existing highlight data after showing the menu
+          Promise.resolve().then(async () => {
+            try {
+              const highlights = await loadHighlights(userId, bookId);
+              const existingHighlight = highlights.find(
+                (h: any) => h.cfiRange === cfiRange
+              );
+
+              if (existingHighlight) {
+                setNote(existingHighlight.note || "");
+                setSelectedColor(existingHighlight.color);
+                setIsExistingHighlight(true);
+              } else {
+                setNote("");
+                setSelectedColor(null);
+                setIsExistingHighlight(false);
+              }
+            } catch (error) {
+              console.error("Error loading existing highlight:", error);
+            }
+          });
         }
       } else {
         setHighlightedText(null);

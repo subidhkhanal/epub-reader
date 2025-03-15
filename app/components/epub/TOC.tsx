@@ -1,5 +1,5 @@
 /** @format */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BiBookBookmark } from "react-icons/bi";
 import { BsBookmarkStar } from "react-icons/bs";
 import { loadHighlights } from "@/app/utils/firebaseFunctions";
@@ -56,6 +56,13 @@ const TOC: React.FC<TOCProps> = ({
   const [activeTab, setActiveTab] = useState<"toc" | "highlights">("toc");
   const [highlights, setHighlights] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Reset to TOC tab when component is closed
+  useEffect(() => {
+    if (!isVisible) {
+      setActiveTab("toc");
+    }
+  }, [isVisible]);
 
   // Function to fetch highlights
   const fetchHighlights = async () => {

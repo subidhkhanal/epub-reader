@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import {
   saveHighlight,
   removeHighlightFromDatabase,
+  loadHighlights,
 } from "../../utils/firebaseFunctions";
 import { Rendition } from "epubjs";
 
@@ -30,9 +31,31 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
   } | null>(null);
   const [note, setNote] = useState("");
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [isExistingHighlight, setIsExistingHighlight] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const noteInputRef = useRef<HTMLTextAreaElement>(null);
+
+  const loadExistingHighlight = async (cfiRange: string) => {
+    try {
+      const highlights = await loadHighlights(userId, bookId);
+      const existingHighlight = highlights.find(
+        (h: any) => h.cfiRange === cfiRange
+      );
+
+      if (existingHighlight) {
+        setNote(existingHighlight.note || "");
+        setSelectedColor(existingHighlight.color);
+        setIsExistingHighlight(true);
+      } else {
+        setNote("");
+        setSelectedColor(null);
+        setIsExistingHighlight(false);
+      }
+    } catch (error) {
+      console.error("Error loading existing highlight:", error);
+    }
+  };
 
   const addHighlight = async (color: string) => {
     if (highlightedText && selectedCFIRange) {
@@ -108,6 +131,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
       setHighlightMenuPosition(null);
       setSelectedColor(null);
       setNote("");
+      setIsExistingHighlight(false);
 
       // Update database in the background
       Promise.resolve().then(async () => {
@@ -121,13 +145,14 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
   };
 
   useEffect(() => {
-    const handleTextSelection = (cfiRange: string, contents: any) => {
+    const handleTextSelection = async (cfiRange: string, contents: any) => {
       const text = contents.window.getSelection()?.toString();
       if (cfiRange && text && text.trim()) {
         setHighlightedText(text);
         setSelectedCFIRange(cfiRange);
-        setSelectedColor(null); // Reset color when new text is selected
-        setNote(""); // Reset note when new text is selected
+
+        // Load existing highlight data if any
+        await loadExistingHighlight(cfiRange);
 
         const range = contents.window.getSelection()?.getRangeAt(0);
         const containerWidth =
@@ -181,7 +206,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
     return () => {
       rendition.off("selected", handleTextSelection);
     };
-  }, [rendition, currentFlow]);
+  }, [rendition, currentFlow, userId, bookId]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -189,6 +214,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
         setHighlightMenuPosition(null);
         setNote("");
         setSelectedColor(null);
+        setIsExistingHighlight(false);
       }
     };
 
@@ -197,6 +223,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
       setHighlightMenuPosition(null);
       setNote("");
       setSelectedColor(null);
+      setIsExistingHighlight(false);
     });
 
     return () => {
@@ -205,6 +232,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
         setHighlightMenuPosition(null);
         setNote("");
         setSelectedColor(null);
+        setIsExistingHighlight(false);
       });
     };
   }, [rendition]);
@@ -300,7 +328,7 @@ const HighlightMenu: React.FC<HighlightMenuProps> = ({
               onClick={saveNote}
               className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200"
             >
-              Save Note
+              {isExistingHighlight ? "Update Note" : "Save Note"}
             </button>
           </div>
         </div>

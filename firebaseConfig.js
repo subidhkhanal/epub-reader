@@ -8,13 +8,7 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBKZSeuFs-ypR2P5mWL73ltgcBjKXODnz4",
-  authDomain: "epub-reader-25822.firebaseapp.com",
-  projectId: "epub-reader-25822",
-  storageBucket: "epub-reader-25822.appspot.com",
-  messagingSenderId: "466613851505",
-  appId: "1:466613851505:web:7f686974ed35d4e88312d0",
-  measurementId: "G-57T2PMMFKG",
+
 };
 
 const app = initializeApp(firebaseConfig);

@@ -7,6 +7,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import ePub from "epubjs";
 import { FaPlus, FaSpinner } from "react-icons/fa";
 import { signInWithPopup } from "firebase/auth";
+import Toast from "./Toast";
 
 interface AddBookProps {
   isDarkTheme: boolean;
@@ -18,8 +19,11 @@ const AddBook: React.FC<AddBookProps> = ({ isDarkTheme }) => {
   const [isHover, setIsHover] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // New state to handle error
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+    duration: number;
+  } | null>(null);
 
   const handleAddBookClick = async () => {
     if (!user) {
@@ -46,9 +50,12 @@ const AddBook: React.FC<AddBookProps> = ({ isDarkTheme }) => {
       const bookDocRef = doc(db, "users", user.uid, "books", bookId);
       const docSnapshot = await getDoc(bookDocRef);
 
-      // Check if the book already exists in Firestore
       if (docSnapshot.exists()) {
-        setErrorMessage("This book has already been uploaded.");
+        setNotification({
+          type: "error",
+          message: "Book already exists in library",
+          duration: 2000,
+        });
         return;
       }
 
@@ -60,14 +67,21 @@ const AddBook: React.FC<AddBookProps> = ({ isDarkTheme }) => {
 
       uploadTask.on(
         "state_changed",
+        //@ts-ignore
         (snapshot) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setUploadProgress(progress);
         },
+        //@ts-ignore
         (error) => {
           console.error("Upload failed:", error);
           setUploading(false);
+          setNotification({
+            type: "error",
+            message: "Upload failed. Try again",
+            duration: 2000,
+          });
         },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
@@ -98,58 +112,86 @@ const AddBook: React.FC<AddBookProps> = ({ isDarkTheme }) => {
           });
 
           setUploading(false);
-          setUploadSuccess(true);
-          setTimeout(() => setUploadSuccess(false), 3000);
-          window.location.reload();
+          setNotification({
+            type: "success",
+            message: "Book uploaded!",
+            duration: 3000,
+          });
+          setTimeout(() => window.location.reload(), 1500);
         }
       );
     }
   };
 
   return (
-    <div>
-      <button
-        className={`${
-          isHover || uploading
-            ? "bg-gray-700 hover:scale-105"
-            : isDarkTheme
-            ? "bg-[#3c444f] hover:bg-gray-500 text-[#e8e6e3]"
-            : "bg-gray-600 hover:bg-gray-500 text-white"
-        } py-3 px-5 rounded-full flex items-center justify-center font-bold text-base transition-all duration-200 ease-in-out`}
-        onClick={handleAddBookClick}
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
-        disabled={uploading}
-      >
-        {uploading ? (
-          <>
-            <FaSpinner className="animate-spin mr-2" />{" "}
-            {uploadProgress && `${Math.round(uploadProgress)}% Uploading...`}
-          </>
-        ) : (
-          <>
-            <FaPlus className="mr-2" /> Add Book
-          </>
-        )}
-      </button>
-      {uploadSuccess && (
-        <div className="mt-5 p-3 bg-green-500 text-white text-center rounded-lg sm:hidden block">
-          Book uploaded successfully!
-        </div>
+    <>
+      {notification && (
+        <Toast
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+          duration={notification.duration}
+        />
       )}
-      {errorMessage && (
-        <div className="mt-5 p-3 bg-red-500 text-white text-center rounded-lg sm:hidden block">
-          {errorMessage}
+
+      <div className="w-full max-w-md mx-auto px-2 sm:px-4">
+        <div className="relative">
+          <button
+            className={`${
+              isHover || uploading
+                ? "bg-gray-700 hover:scale-105"
+                : isDarkTheme
+                ? "bg-[#3c444f] hover:bg-gray-500 text-[#e8e6e3]"
+                : "bg-gray-600 hover:bg-gray-500 text-white"
+            } w-full sm:w-auto py-2.5 sm:py-3 px-4 sm:px-5 rounded-full flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-200 ease-in-out`}
+            onClick={handleAddBookClick}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+            disabled={uploading}
+          >
+            {uploading ? (
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <FaSpinner className="animate-spin w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm sm:text-base">
+                  {uploadProgress
+                    ? `${Math.round(uploadProgress)}%`
+                    : "Preparing..."}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <FaPlus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm sm:text-base">Add Book</span>
+              </div>
+            )}
+          </button>
+
+          {/* Upload Progress Bar */}
+          {uploading && uploadProgress !== null && (
+            <div className="absolute -bottom-2 left-0 right-0 px-1 sm:px-2">
+              <div className="w-full bg-gray-200 rounded-full h-1 dark:bg-gray-700 overflow-hidden">
+                <div
+                  className="bg-blue-500 h-1 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
+
       <input
         type="file"
         accept=".epub"
         ref={fileInputRef}
         className="hidden"
         onChange={handleFileChange}
+        onClick={(e) => {
+          (e.target as HTMLInputElement).value = "";
+          setNotification(null);
+        }}
       />
-    </div>
+    </>
   );
 };
 

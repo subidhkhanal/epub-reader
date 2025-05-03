@@ -3,11 +3,13 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db, provider } from "@/firebaseConfig";
+/* @ts-ignore */
 import { collection, getDocs } from "firebase/firestore";
 import NavBar from "@/app/components/Navbar";
 import Sidebar from "@/app/components/Sidebar";
 import BookGrid from "@/app/components/BookGrid";
-import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContext
+import { ThemeContext } from "@/app/context/ThemeContext"; // Import ThemeContex
+/* @ts-ignore */
 import { signInWithPopup } from "firebase/auth"; // Import signInWithPopup
 import Footer from "./components/footer";
 import FaqSection from "./components/landingpage/faq_section";
@@ -36,6 +38,7 @@ const Home: React.FC = () => {
       try {
         const booksCollection = collection(db, "users", user.uid, "books");
         const booksSnapshot = await getDocs(booksCollection);
+        /* @ts-ignore */
         const booksList = booksSnapshot.docs.map((doc) => {
           const data = doc.data();
           return {

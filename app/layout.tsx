@@ -11,6 +11,47 @@ export const metadata: Metadata = {
   title: "Free ePub Reader Online - Read ePub Files in Browser Instantly",
   description:
     "Quickly open and read ePub files online for free. No downloads required, fully compatible with mobile and desktop browsers.",
+  keywords:
+    "epub reader, online epub reader, free epub reader, read epub online, epub files, ebook reader",
+  authors: [{ name: "ePub Reader Team" }],
+  category: "Technology",
+  openGraph: {
+    title: "Free ePub Reader Online - Read ePub Files in Browser Instantly",
+    description:
+      "Quickly open and read ePub files online for free. No downloads required, fully compatible with mobile and desktop browsers.",
+    url: "https://epub-reader.vercel.app",
+    siteName: "ePub Reader Online",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "ePub Reader Online",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free ePub Reader Online - Read ePub Files in Browser Instantly",
+    description:
+      "Quickly open and read ePub files online for free. No downloads required, fully compatible with mobile and desktop browsers.",
+    images: ["/twitter-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://epub-reader.vercel.app",
+  },
 };
 
 export default function RootLayout({
